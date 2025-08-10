@@ -377,7 +377,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                         children: [
                                           // Cashier Name
                                           Padding(
@@ -535,38 +535,46 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                               ],
                                             ),
                                           ),
-                                          Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                0, 0, 10, 0),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                MyText(
-                                                    text: 'Customer Address',
-                                                        fontSize: 13,
-                                                        color:
-                                                            Color(0xff9E9E9E)),
-                                                MyTextField(
-                                                  width: screenWidth * 0.20,
-                                                  height: 41,
-                                                  isOptional: true,
-                                                  controller: customerProvider
-                                                      .customerAddressController,
-                                                  hintText: "Customer Address",
-                                                  labelText: '',
-                                                  focusedBorderColor:
-                                                      Color(0xff9e9e9e),
-                                                  enabledBorderColor:
-                                                      Color(0xff9e9e9e),
-                                                  fillColor: Color(0xffffffff),
-                                                  borderRadius: 5,
-                                                  //maxLines: null,
-                                                  //minLines: 2,
-                                                ),
-                                              ],
-                                            ),
+                                          Row(
+                                            children: [
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  MyText(
+                                                      text: 'Customer Address',
+                                                          fontSize: 13,
+                                                          color:
+                                                              Color(0xff9E9E9E)),
+                                                  MyTextField(
+                                                    width: screenWidth * 0.20,
+                                                    height: 41,
+                                                    isOptional: true,
+                                                    controller: customerProvider
+                                                        .customerAddressController,
+                                                    hintText: "Customer Address",
+                                                    labelText: '',
+                                                    focusedBorderColor:
+                                                        Color(0xff9e9e9e),
+                                                    enabledBorderColor:
+                                                        Color(0xff9e9e9e),
+                                                    fillColor: Color(0xffffffff),
+                                                    borderRadius: 5,
+                                                    //maxLines: null,
+                                                    //minLines: 2,
+                                                  ),
+                                                ],
+                                              ),10.width,
+                                              Padding(
+                                                padding:  EdgeInsets.only(top: 18),
+                                                child: IconButton(onPressed: (){
+                                                 customerProvider.addDeliveryAddressDialog(context);
+
+                                                }, icon: Icon(Icons.add_circle,color:Color(0xff0078D7),size: 40,)),
+                                              )
+                                            ],
                                           ),
+
                                         ],
                                       ),
                                     ],

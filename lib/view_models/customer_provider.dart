@@ -7,6 +7,7 @@ import 'package:fullcomm_billing/res/colors.dart';
 import 'package:fullcomm_billing/res/components/k_dropdown.dart';
 import 'package:fullcomm_billing/utils/sized_box.dart';
 import 'package:fullcomm_billing/utils/toast_messages.dart';
+import 'package:provider/provider.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 
 import '../models/customers_response.dart';
@@ -464,4 +465,260 @@ class CustomersProvider with ChangeNotifier {
       },
     );
   }
+
+  void addDeliveryAddressDialog(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return StatefulBuilder(
+            builder: (context, setState) {
+              return Consumer<CustomersProvider>(
+                  builder: (context,customersProvider,child){
+                    return AlertDialog(
+                      title: MyText(
+                        text: 'Add Delivery Address',
+                        fontSize: TextFormat.responsiveFontSize(context, 20),
+                        fontWeight: FontWeight.bold,
+                        textAlign: TextAlign.center,
+                      ),
+                      content: SingleChildScrollView(
+                        child: Container(
+                          color: Colors.red,
+                          alignment: Alignment.center,
+                          child:Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Row(
+                                children: [
+                                  MyText(text: "Delivery Person Name"),
+                                  100.width,
+                                  MyText(text: "Delivery Person Mobile No"),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  MyTextField(
+                                    hintText: "Delivery Person Name",
+                                    autofocus: false,
+                                    width: 350,
+                                    // controller: customersProvider.deliveryName,
+                                    textCapitalization: TextCapitalization.words,
+                                    keyboardType: TextInputType.text,
+                                    textInputAction: TextInputAction.next, isOptional: true,
+                                    labelText: '',
+                                    focusedBorderColor: Color(0xff9e9e9e),
+                                    enabledBorderColor: Color(0xff9e9e9e),
+                                    fillColor: Color(0xffffffff),
+                                    borderRadius: 5, controller: TextEditingController(),
+                                  ),
+                                  20.width,
+                                  MyTextField(
+                                    hintText: "Delivery Person Mobile No",
+                                    autofocus: false,
+                                    width: 350,
+                                    controller: TextEditingController(),
+                                    textCapitalization: TextCapitalization.words,
+                                    keyboardType: TextInputType.number,
+                                    inputFormatters: InputFormatters.mobileNumberInput,
+                                    textInputAction: TextInputAction.next,
+                                    labelText: '',
+                                    isOptional: false,
+                                    focusedBorderColor: Color(0xff9e9e9e),
+                                    enabledBorderColor: Color(0xff9e9e9e),
+                                    fillColor: Color(0xffffffff),
+                                    borderRadius: 5,
+                                  ),
+                                ],
+                              ),
+                              6.height,
+                              Row(
+                                children: [
+                                  MyText(text: "Delivery Person Name"),
+                                  100.width,
+                                  MyText(text: "Delivery Person Mobile No"),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  MyTextField(
+                                    hintText: "Vehicle Number",
+                                    autofocus: false,
+                                    width: 350,
+                                    labelText: '',
+                                    isOptional: false,
+                                    focusedBorderColor: Color(0xff9e9e9e),
+                                    enabledBorderColor: Color(0xff9e9e9e),
+                                    fillColor: Color(0xffffffff),
+                                    borderRadius: 5,
+                                    controller: TextEditingController(),
+                                    textCapitalization: TextCapitalization.words,
+                                    keyboardType: TextInputType.text,
+                                    textInputAction: TextInputAction.next,
+                                  ),
+                                  20.width,
+                                  MyTextField(
+                                    hintText: "Door No / Street",
+                                    autofocus: false,
+                                    width: 350,
+                                    labelText: '',
+                                    isOptional: false,
+                                    focusedBorderColor: Color(0xff9e9e9e),
+                                    enabledBorderColor: Color(0xff9e9e9e),
+                                    fillColor: Color(0xffffffff),
+                                    borderRadius: 5,
+                                    controller: TextEditingController(),
+                                    textCapitalization: TextCapitalization.words,
+                                    keyboardType: TextInputType.text,
+                                    textInputAction: TextInputAction.next,
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  MyText(text: "Delivery Person Name"),
+                                  100.width,
+                                  MyText(text: "Delivery Person Mobile No"),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  MyTextField(
+                                    hintText: "Area",
+                                    autofocus: false,
+                                    width: 352,
+                                    labelText: '',
+                                    isOptional: false,
+                                    focusedBorderColor: Color(0xff9e9e9e),
+                                    enabledBorderColor: Color(0xff9e9e9e),
+                                    fillColor: Color(0xffffffff),
+                                    borderRadius: 5,
+                                    controller: TextEditingController(),
+                                    textCapitalization: TextCapitalization.words,
+                                    keyboardType: TextInputType.text,
+                                    textInputAction: TextInputAction.next,
+                                  ),
+                                  20.width,
+                                  MyTextField(
+                                    width: 350,
+                                    hintText: "City",
+                                    autofocus: false,
+                                    labelText: '',
+                                    isOptional: false,
+                                    focusedBorderColor: Color(0xff9e9e9e),
+                                    enabledBorderColor: Color(0xff9e9e9e),
+                                    fillColor: Color(0xffffffff),
+                                    borderRadius: 5,
+                                    controller: TextEditingController(),
+                                    textCapitalization: TextCapitalization.words,
+                                    textInputAction: TextInputAction.next,
+                                    // validator: validationConstant.validatePincode,
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  MyText(text: "Delivery Person Name"),
+                                  100.width,
+                                  MyText(text: "Delivery Person Mobile No"),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  // SizedBox(
+                                  //   width:screenWidth*0.15,
+                                  //   child: MyDropdownMenu<CityObj>(
+                                  //     width: screenWidth*0.13,
+                                  //     enableSearch: true,
+                                  //     enableFilter: true,
+                                  //     menuHeight: 300,
+                                  //     dropdownMenuEntries:listConstant.citiesOfTamilNadu.map((city) {
+                                  //       return MyDropdownMenuEntry<CityObj>(
+                                  //         value: city,
+                                  //         enabled: true,
+                                  //         label: city.name,
+                                  //       );
+                                  //     }).toList(),
+                                  //     menuStyle: MenuStyle(
+                                  //       backgroundColor: WidgetStatePropertyAll(colorsConstant.white),
+                                  //     ),
+                                  //     hintText: "Search city...",
+                                  //     // labelText: "Category",
+                                  //     onSelected: (CityObj? selectedCity) {
+                                  //       setState(() {
+                                  //         customerProvider.customerCity.text=selectedCity!.name;
+                                  //       });
+                                  //     },
+                                  //   ),
+                                  // ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 10),
+                                    child: MyDropDown(
+                                      height: MediaQuery.of(context).size.height * 0.08,
+                                      width: MediaQuery.of(context).size.width * 0.18,
+                                      labelText: "State",
+                                      value: selectedState,
+                                      borderRadius: 8,
+                                      items: states.map((String state) {
+                                        return DropdownMenuItem(
+                                          value: state,
+                                          child: Text(state),
+                                        );
+                                      }).toList(),
+                                      onChanged: (value) {
+                                        if (value != null) {
+                                          customerState.text = value;
+                                          changeState(customerState.text.trim());
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                  20.width,
+                                  MyTextField(
+                                    width: 300,
+                                    hintText: "Pincode",
+                                    autofocus: false,
+                                    controller: TextEditingController(),
+                                    textCapitalization: TextCapitalization.words,
+                                    keyboardType: TextInputType.number,
+                                    textInputAction: TextInputAction.next,
+                                    inputFormatters: InputFormatters.pinCodeInput,
+                                    isOptional: false,
+                                    focusedBorderColor: Color(0xff9e9e9e),
+                                    enabledBorderColor: Color(0xff9e9e9e),
+                                    fillColor: Color(0xffffffff),
+                                    borderRadius: 5,
+                                    // validator: validationConstant.validatePincode,
+                                  ),
+                                ],
+                              ),
+                              Buttons.loginButton(
+                                context: context,
+                                loadingButtonController: loadingButtonController,
+                                onPressed: () {
+                                  // addDelivery(
+                                  //     context: context,
+                                  //     name: deliveryName.text.trim(),
+                                  //     mobile: deliveryMobile.text.trim(),
+                                  //     dAddressLine1: deliveryStreet.text.trim(), dArea: deliveryArea.text.trim(),
+                                  //     dPinCode: deliveryPincode.text.trim(), dCity: deliveryCity.text.trim(),
+                                  //     dState: deliveryState.text.trim(),
+                                  //     userId: selectedCustomerId,
+                                  //     vehicleNo: vehicleNumer.text.trim()
+                                  // );
+                                },
+                                text: 'Submit',
+                              ),
+                            ],
+                          ) ,
+                        ),
+                      ),
+                    );
+                  });
+            });
+      },
+    );
+  }
+
 }
