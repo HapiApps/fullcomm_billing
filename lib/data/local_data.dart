@@ -13,6 +13,7 @@ class LocalData {
   String customerName = '';
   String customerMobile = '';
   String customerAddress = '';
+  String deliveryAddress = '';
 
   // Platform Key :
   static String platformKey = kIsWeb

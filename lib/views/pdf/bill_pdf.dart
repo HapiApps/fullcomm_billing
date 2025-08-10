@@ -31,7 +31,12 @@ class BillPdf {
     color: PdfColors.black,
     fontSize: 10,
   );
-
+  String _formatPayback(double received, double total) {
+    double result = received - total;
+    return result % 1 == 0
+        ? result.toStringAsFixed(0) // no decimal if whole
+        : result.toStringAsFixed(2); // keep 2 decimals
+  }
   /// ------------- Print Bill ----------------
   Future<void> printBill(BuildContext context, {required int invoiceNo}) async {
     var pdfFontTheme = pw.ThemeData.withFont(
@@ -262,10 +267,23 @@ class BillPdf {
                           'Received : ${displayReceived == "null" || displayReceived == "" ? displayOTotal : displayReceived}',
                           style: simpleText,
                         ),
+                        // pw.Text(
+                        //   'Pay Back : ${(displayReceived.isEmpty) ? '0' : displayReceived == displayOTotal ? "0" : ((double.tryParse(displayReceived) ?? 0) - (double.tryParse(displayOTotal) ?? 0)).toString().replaceAll(RegExp(r"\.0$"), "")}',
+                        //   style: simpleText,
+                        // )
                         pw.Text(
-                          'Pay Back : ${(displayReceived.isEmpty) ? '0' : displayReceived == displayOTotal ? "0" : ((double.tryParse(displayReceived) ?? 0) - (double.tryParse(displayOTotal) ?? 0)).toString().replaceAll(RegExp(r"\.0$"), "")}',
+                          'Pay Back : ${(displayReceived.isEmpty)
+                              ? '0'
+                              : displayReceived == displayOTotal
+                              ? '0'
+                              : _formatPayback(
+                              double.tryParse(displayReceived) ?? 0,
+                              double.tryParse(displayOTotal) ?? 0
+                          )
+                          }',
                           style: simpleText,
                         )
+
                       ],
                     ),
                   ),
@@ -502,10 +520,23 @@ class BillPdf {
                           'Received : ${displayReceived == "null" || displayReceived == "" ? data.oTotal : displayReceived}',
                           style: simpleText,
                         ),
+                        // pw.Text(
+                        //   'Pay Back : ${(displayReceived.isEmpty) || (displayReceived == "null") ? '0' : displayReceived == displayOTotal ? "0" : ((double.tryParse(displayReceived) ?? 0) - (double.tryParse(displayOTotal) ?? 0)).toString().replaceAll(RegExp(r"\.0$"), "")}',
+                        //   style: simpleText,
+                        // )
                         pw.Text(
-                          'Pay Back : ${(displayReceived.isEmpty) || (displayReceived == "null") ? '0' : displayReceived == displayOTotal ? "0" : ((double.tryParse(displayReceived) ?? 0) - (double.tryParse(displayOTotal) ?? 0)).toString().replaceAll(RegExp(r"\.0$"), "")}',
+                          'Pay Back : ${(displayReceived.isEmpty)
+                              ? '0'
+                              : displayReceived == displayOTotal
+                              ? '0'
+                              : _formatPayback(
+                              double.tryParse(displayReceived) ?? 0,
+                              double.tryParse(displayOTotal) ?? 0
+                          )
+                          }',
                           style: simpleText,
                         )
+
                       ],
                     ),
                   ),

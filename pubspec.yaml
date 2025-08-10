@@ -44,7 +44,7 @@ dependencies:
   flutter_svg: ^2.0.14                  # Svg Image Support
   intl: ^0.19.0                         # DateTime Parsing
   oktoast: ^3.4.0                       # Toast UI
- # syncfusion_flutter_datepicker:
+  syncfusion_flutter_datepicker:
   flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:

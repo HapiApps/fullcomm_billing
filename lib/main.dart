@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fullcomm_billing/views/billing_view/new_billing_screen.dart';
+import 'package:fullcomm_billing/views/credentials/login_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fullcomm_billing/data/project_data.dart';
 import 'package:fullcomm_billing/res/colors.dart';
@@ -9,9 +11,12 @@ import 'package:fullcomm_billing/views/orders/order_detail_page.dart';
 import 'package:fullcomm_billing/views/splash_screen.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool isLoginScreen = prefs.getBool('seen') ?? false;
   runApp(
     MultiProvider(
       providers: [
@@ -19,13 +24,14 @@ void main() {
         ChangeNotifierProvider(create: (_) => CustomersProvider()),
         ChangeNotifierProvider(create: (_) => BillingProvider()),
       ],
-      child: const MyApp(),
+      child:  MyApp(isLoginScreen: isLoginScreen,),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isLoginScreen;
+  const MyApp({super.key, required this.isLoginScreen});
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +48,7 @@ class MyApp extends StatelessWidget {
         ),
         useInheritedMediaQuery: true,
         debugShowCheckedModeBanner: false,
-        home: const SplashScreen(),
+        home: isLoginScreen?NewBillingScreen():LoginScreen(),
       ),
     );
   }

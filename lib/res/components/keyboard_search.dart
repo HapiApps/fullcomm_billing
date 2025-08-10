@@ -154,7 +154,7 @@ class _KeyboardDropdownFieldState<T extends Object>
             elevation: 4,
             child: Container(
               constraints: const BoxConstraints(maxHeight: 200),
-              width: 400,
+              width: 450,
               child: options.isEmpty
                   ? const ListTile(title: Text("No results found"))
                   : ListView.builder(
@@ -170,7 +170,7 @@ class _KeyboardDropdownFieldState<T extends Object>
                                 ? Theme.of(context).highlightColor
                                 : null,
                             height: 50,
-                            width: 400,
+                            width: 450,
                             alignment: Alignment.centerLeft,
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: widget.itemBuilder(option),

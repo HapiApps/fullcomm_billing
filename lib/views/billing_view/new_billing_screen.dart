@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fullcomm_billing/models/products_response.dart';
 import 'package:fullcomm_billing/res/colors.dart';
@@ -21,6 +22,7 @@ import '../../models/billing_product.dart';
 import '../../models/customers_response.dart';
 import '../../models/place_order.dart';
 import '../../res/components/customer_widgets.dart';
+import '../../res/components/k_dropdown_menu.dart';
 import '../../res/components/k_text_field.dart';
 import '../../res/components/keyboard_search.dart';
 import '../orders/order_detail_page.dart';
@@ -52,6 +54,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
   final FocusNode dropdownFocusNode = FocusNode();
   final FocusNode fieldFocusNode = FocusNode();
   final TextEditingController dropdownController = TextEditingController();
+  final TextEditingController cusController = TextEditingController();
   final TextEditingController quantityVariationController =
       TextEditingController();
 
@@ -392,8 +395,6 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                     style: TextStyle(
                                                       fontSize: 15,
                                                       color: AppColors.ash,
-                                                      fontWeight:
-                                                          FontWeight.bold,
                                                     ),
                                                     children: [
                                                       TextSpan(
@@ -401,6 +402,8 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                         style: TextStyle(
                                                           fontSize: 14,
                                                           color: AppColors.black,
+                                                          fontWeight:
+                                                          FontWeight.bold,
                                                         ),
                                                       ),
                                                     ],
@@ -418,7 +421,6 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                   style: TextStyle(
                                                     fontSize: 15,
                                                     color: AppColors.ash,
-                                                    fontWeight: FontWeight.bold,
                                                   ),
                                                   children: [
                                                     TextSpan(
@@ -426,6 +428,8 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                       style: TextStyle(
                                                         fontSize: 14,
                                                         color: AppColors.black,
+                                                        fontWeight:
+                                                        FontWeight.bold,
                                                       ),
                                                     ),
                                                   ],
@@ -467,7 +471,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                             fontSize: 14,
                                                           ),
                                                         ),
-                                                    textEditingController: dropdownController,
+                                                    textEditingController: cusController,
                                                     onSelected: (value) {
                                                           customerProvider.setCustomerDetails(
                                                             customerId: value.userId.toString(),
@@ -519,14 +523,12 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                 MyText(
                                                     text: 'Customer Address',
                                                         fontSize: 13,
-                                                        color:
-                                                            Color(0xff9E9E9E)),
+                                                        color: Color(0xff9E9E9E)),
                                                 MyTextField(
                                                   width: screenWidth * 0.20,
                                                   height: 41,
                                                   isOptional: true,
-                                                  controller: customerProvider
-                                                      .customerAddressController,
+                                                  controller: customerProvider.customerAddressController,
                                                   hintText: "Customer Address",
                                                   labelText: '',
                                                   focusedBorderColor: Color(0xff9e9e9e),
@@ -538,6 +540,99 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                 ),
                                               ],
                                             ),
+                                          ),
+                                          Row(
+                                            children: [
+                                              // CustomTextField(
+                                              //   width: screenWidth*0.25,
+                                              //   height: 60,
+                                              //   heading: "Delivery Address",
+                                              //   isRequired: false,
+                                              //   autofocus: false,
+                                              //   focusNode:customerProvider.nameFocus,
+                                              //   readOnly: false,
+                                              //   isIcon: false,
+                                              //   isLogin: false,
+                                              //   controller: customerProvider.deliveryAddressController,
+                                              //   textCapitalization: TextCapitalization.words,
+                                              //   keyboardType: TextInputType.text,
+                                              //   textInputAction: TextInputAction.done,
+                                              //   validator: validationConstant.validatePincode,
+                                              //   onChanged: (value) async {
+                                              //     // Your onChanged logic
+                                              //   },
+                                              // ),
+                                              Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  MyText(
+                                                    text: "Delivery Address",
+                                                    color: Color(0xff9E9E9E),
+                                                  ),
+                                                  Consumer<CustomersProvider>(
+                                                    builder: (context, provider, _) {
+                                                      return   SizedBox(
+                                                        width: 350,
+                                                        child: MyDropdownMenu<String>(
+                                                          width:350,
+                                                          enableSearch: true,
+                                                          enableFilter: true,
+                                                          menuHeight: 350,
+                                                          dropdownMenuEntries:provider.deliveryAddressList.map((state) {
+                                                            return MyDropdownMenuEntry<String>(
+                                                              value: state,
+                                                              enabled: true,
+                                                              label: state,
+                                                            );
+                                                          }).toList(),
+                                                          menuStyle: MenuStyle(
+                                                            backgroundColor: WidgetStatePropertyAll(Colors.white),
+                                                          ),
+                                                          hintText: " ",
+                                                          onSelected: (selectedAddress) {
+                                                            provider.setSelectedDeliveryAddress(selectedAddress);
+                                                          },
+                                                        ),
+                                                      );
+                                                      // DropdownButton<String>(
+                                                      //   value: provider.selectedDeliveryAddress,
+                                                      //   items: provider.deliveryAddressList.map((address) {
+                                                      //     return DropdownMenuItem<String>(
+                                                      //       value: address,
+                                                      //       child: Text(
+                                                      //         address,
+                                                      //         overflow: TextOverflow.ellipsis,
+                                                      //         maxLines: 1,
+                                                      //       ),
+                                                      //     );
+                                                      //   }).toList(),
+                                                      //   onChanged: (selectedAddress) {
+                                                      //     provider.setSelectedDeliveryAddress(selectedAddress);
+                                                      //   },
+                                                      // );
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+
+                                              Container(
+                                                height: 70,
+                                                alignment: Alignment.center,
+                                                child: IconButton(
+                                                    tooltip: "Add Delivery Address",
+                                                    onPressed: (){
+                                                      if(customerProvider.selectedCustomerMobile == '' || customerProvider.selectedCustomerName == ''){
+                                                        Toasts.showToastBar(
+                                                            context: context,
+                                                            text: 'Please Select Customer',
+                                                            color: AppColors.errorMessage);
+                                                      }else{
+                                                        customerProvider.addDeliveryAddressDialog(context);
+                                                      }
+                                                    },
+                                                    icon: const Icon(Icons.add)),
+                                              )
+                                            ],
                                           ),
                                         ],
                                       ),
@@ -563,7 +658,6 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                 width: screenWidth * 0.35,
                                                 height: 45,
                                                 isOptional: true,
-
                                                 controller: billingProvider
                                                     .barcodeScanner,
                                                 labelText: 'Scan...',
@@ -622,7 +716,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                       : '${product.pTitle} (${product.pVariation})',
                                                   itemBuilder: (product) =>
                                                       Container(
-                                                    width: screenWidth * 0.55,
+                                                    width: screenWidth * 0.60,
                                                     padding: const EdgeInsets
                                                         .fromLTRB(10, 5, 10, 5),
                                                     child: Row(
@@ -631,16 +725,14 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                               .spaceBetween,
                                                       children: [
                                                         MyText(
-                                                          text: product
-                                                                      .isLoose ==
-                                                                  '0'
+                                                          text: product.isLoose == '0'
                                                               ? '${product.pTitle} ${product.pVariation}${product.unit}'
                                                               : '${product.pTitle} (${product.pVariation})',
                                                           color: Colors.black,
                                                           fontSize: 14,
                                                         ),
                                                         SizedBox(
-                                                          width: 50,
+                                                          width: 70,
                                                           child: MyText(
                                                             text: product.isLoose == '1'
                                                                 ? "₹${(double.parse(product.mrp.toString()) / (double.parse(product.stockQty.toString()) / 1000)).toStringAsFixed(1)}/kg"
@@ -664,14 +756,11 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                               ? 1
                                                               : null,
                                                     );
-                                                    fieldFocusNode
-                                                        .requestFocus();
+                                                    fieldFocusNode.requestFocus();
                                                   },
                                                   onClear: () {
-                                                    billingProvider
-                                                        .selectedProduct = null;
-                                                    billingProvider
-                                                        .updateTemporaryFields(
+                                                    billingProvider.selectedProduct = null;
+                                                    billingProvider.updateTemporaryFields(
                                                       quantity: 0,
                                                       variation: 0.0,
                                                     );
@@ -687,8 +776,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                             onPressed: () {
                                               //controller.barcodeMode.value = !controller.barcodeMode.value;
                                               if (billingProvider.barcodeMode) {
-                                                dropdownFocusNode
-                                                    .requestFocus();
+                                                dropdownFocusNode.requestFocus();
                                               }
                                               billingProvider
                                                   .barcodeModeChange();
@@ -712,11 +800,8 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                             focusNode: fieldFocusNode,
                                             isOptional: true,
                                             height: 50,
-
-                                            focusedBorderColor:
-                                                Color(0xff9e9e9e),
-                                            enabledBorderColor:
-                                                Color(0xff9e9e9e),
+                                            focusedBorderColor: Color(0xff9e9e9e),
+                                            enabledBorderColor: Color(0xff9e9e9e),
                                             controller:
                                                 quantityVariationController,
                                             labelText: billingProvider
@@ -737,18 +822,11 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                             // ],
                                             onChanged: (value) {
 
-                                              if (billingProvider
-                                                      .selectedProduct !=
-                                                  null) {
-                                                if (billingProvider
-                                                        .selectedProduct!
-                                                        .isLoose ==
-                                                    '1') {
-                                                  billingProvider
-                                                      .updateTemporaryFields(
-                                                    variation:
-                                                        (double.parse(value) *
-                                                            1000),
+                                              if (billingProvider.selectedProduct != null) {
+
+                                                if (billingProvider.selectedProduct!.isLoose == '1') {
+                                                  billingProvider.updateTemporaryFields(
+                                                    variation: (double.parse(value) * 1000),
                                                   );
                                                 } else {
                                                   billingProvider
@@ -769,51 +847,45 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                               }
                                             },
                                             onFieldSubmitted: (_) {
-                                              if (billingProvider
-                                                      .selectedProduct !=
-                                                  null) {
-                                                billingProvider.addBillingItem(
-                                                  BillingItem(
-                                                    id: billingProvider
-                                                        .selectedProduct!.id!
-                                                        .toString(),
-                                                    product: billingProvider
-                                                        .selectedProduct!,
-                                                    productTitle: billingProvider
-                                                                .selectedProduct!
-                                                                .isLoose ==
-                                                            '0'
-                                                        ? billingProvider
-                                                            .selectedProduct!
-                                                            .pTitle
-                                                            .toString()
-                                                        : "${billingProvider.selectedProduct!.pTitle} ${billingProvider.temporaryVariation / 1000}kg",
-                                                    variation: billingProvider
-                                                                .selectedProduct!
-                                                                .isLoose ==
-                                                            '1'
-                                                        ? billingProvider
-                                                            .temporaryVariation
-                                                        : 1,
-                                                    variationUnit:
-                                                        "${billingProvider.selectedProduct!.pVariation}${billingProvider.selectedProduct!.unit}",
-                                                    quantity: billingProvider
-                                                                .selectedProduct!
-                                                                .isLoose ==
-                                                            '0'
-                                                        ? billingProvider
-                                                            .temporaryQuantity
-                                                        : 1,
-                                                    proController:
-                                                        TextEditingController(),
-                                                    proFocusNode: FocusNode(),
-                                                  ),
-                                                );
-                                                billingProvider
-                                                    .barcodeScanner.text = "";
-                                                billingProvider
-                                                    .selectedProduct = null;
-                                                scrollDown(); // Scroll to bottom
+                                              if (billingProvider.selectedProduct != null) {
+                                                int stockQty = int.parse(billingProvider.selectedProduct!.stockQty.toString());
+                                                int enteredQty = int.tryParse(quantityVariationController.text) ?? 0;
+                                                if (enteredQty > stockQty) {
+                                                  Toasts.showToastBar(
+                                                    context: context,
+                                                    text: "Entered quantity is more than the available stock ($stockQty).",
+                                                    color: Colors.red,
+                                                  );
+                                                  dropdownFocusNode.requestFocus();
+                                                } else {
+                                                  billingProvider.addBillingItem(
+                                                    BillingItem(
+                                                      id: billingProvider.selectedProduct!.id!.toString(),
+                                                      product: billingProvider.selectedProduct!,
+
+                                                      productTitle: billingProvider.selectedProduct!.isLoose == '0'
+                                                          ? billingProvider.selectedProduct!.pTitle.toString()
+                                                          : "${billingProvider.selectedProduct!.pTitle} ${billingProvider.temporaryVariation / 1000}kg",
+                                                      variation: billingProvider.selectedProduct!.isLoose == '1'
+                                                          ? billingProvider.temporaryVariation
+                                                          : 1,
+                                                      variationUnit:
+                                                      "${billingProvider.selectedProduct!.pVariation}${billingProvider.selectedProduct!.unit}",
+                                                      quantity: billingProvider.selectedProduct!.isLoose == '0'
+                                                          ? billingProvider.temporaryQuantity
+                                                          : 1,
+                                                      proController: TextEditingController(),
+                                                      proFocusNode: FocusNode(),
+                                                    ),
+                                                  );
+                                                  billingProvider.barcodeScanner.text = "";
+                                                  billingProvider.selectedProduct = null;
+                                                  scrollDown();
+                                                  dropdownFocusNode.requestFocus();
+                                                  dropdownController.clear();
+                                                  quantityVariationController.clear();
+                                                }
+                                                // Scroll to bottom
                                               } else {
                                                 log("No product selected!");
                                                 Toasts.showToastBar(
@@ -822,10 +894,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                     color: Colors.red);
                                                 // Reset focus back to dropdown
                                               }
-                                              dropdownFocusNode.requestFocus();
-                                              dropdownController.clear();
-                                              quantityVariationController
-                                                  .clear();
+
                                             },
                                           ),
                                         ),
@@ -838,8 +907,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                         padding: const EdgeInsets.all(8.0),
                                         child: ElevatedButton(
                                           onPressed: () {
-                                            billingProvider
-                                                .getLastOrderDetails(context);
+                                            billingProvider.getLastOrderDetails(context);
                                           },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: AppColors.primary,
@@ -1116,6 +1184,20 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                           ),
                                                           DataColumn(
                                                             headingRowAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                            label: SizedBox(
+                                                              height: 50,
+                                                              child: Center(
+                                                                  child: MyText(
+                                                                      text:
+                                                                      "GST",
+                                                                      color: Colors
+                                                                          .white)),
+                                                            ),
+                                                          ),
+                                                          DataColumn(
+                                                            headingRowAlignment:
                                                                 MainAxisAlignment
                                                                     .center,
                                                             label: SizedBox(
@@ -1210,8 +1292,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                 Center(
                                                                   child:
                                                                       IconButton(
-                                                                    icon: const Icon(
-                                                                        Icons.add),
+                                                                    icon:SvgPicture.asset("assets/images/edit.svg",width: 20,height: 20,),
                                                                     tooltip:
                                                                         'Edit Product Name',
                                                                     onPressed: () {
@@ -1291,7 +1372,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                               )),
                                                               DataCell(
                                                                 billProduct.product
-                                                                            .isLoose ==
+                                                                    .isLoose ==
                                                                         '1'
                                                                     ? SizedBox(
                                                                         height:
@@ -1349,20 +1430,30 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                           inputFormatters: [
                                                                             LengthLimitingTextInputFormatter(5), // Limit to 5 digits
                                                                           ],
-                                                                          onChanged:
-                                                                              (value) {
-                                                                            if (value.isNotEmpty) {
-                                                                              billingProvider.updateBillingItem(
-                                                                                index,
-                                                                                isLoose: '0',
-                                                                                quantity: int.tryParse(value) ?? billProduct.quantity,
-                                                                              );
+                                                                          onChanged: (value) {
+                                                                          if (value.isNotEmpty) {
+                                                                            //   int stockQty = int.parse(billingProvider.selectedProduct!.stockQty.toString());
+                                                                            //   int enteredQty = int.tryParse(value) ?? billProduct.quantity;
+                                                                            //   if (enteredQty > stockQty) {
+                                                                            //     Toasts.showToastBar(
+                                                                            //       context: context,
+                                                                            //       text: "Entered quantity is more than the available stock ($stockQty).",
+                                                                            //       color: Colors.red,
+                                                                            //     );
+                                                                            //   }else{
+                                                                                billingProvider.updateBillingItem(
+                                                                                  index,
+                                                                                  isLoose: '0',
+                                                                                  quantity: int.tryParse(value) ?? billProduct.quantity,
+                                                                                );
+                                                                             // }
                                                                             } else {
-                                                                              billingProvider.updateBillingItem(
-                                                                                index,
-                                                                                isLoose: '0',
-                                                                                quantity: 0,
-                                                                              );
+
+                                                                              // billingProvider.updateBillingItem(
+                                                                              //   index,
+                                                                              //   isLoose: '0',
+                                                                              //   quantity: 1,
+                                                                              // );
                                                                             }
                                                                           },
                                                                         ),
@@ -1370,6 +1461,20 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                     : Text(
                                                                         "${billProduct.quantity}"),
                                                               ),
+                                                              DataCell(
+                                                                Align(
+                                                                  alignment: Alignment.center,
+                                                                  child: Text("${billProduct.sgst}%"),
+                                                                ),
+                                                              ),
+
+                                                              // DataCell(
+                                                              //      Align(
+                                                              //        alignment: Alignment.center,
+                                                              //        child: Text(
+                                                              //            "${billProduct.sgst}%"),
+                                                              //      ),
+                                                              // ),
                                                               DataCell(Align(
                                                                 alignment: Alignment
                                                                     .centerRight,
@@ -1377,9 +1482,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                   TextFormat.formattedAmount(
                                                                       billProduct
                                                                           .mrpPerProduct()),
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .end,
+                                                                  textAlign: TextAlign.end,
                                                                 ),
                                                               )),
                                                               DataCell(Align(
@@ -1415,11 +1518,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                         tooltip: 'Delete ${billProduct.product.isLoose == '1'
                                                                             ? "${billProduct.product.pTitle} ${billProduct.variation/1000}kg"
                                                                             : "${billProduct.product.pTitle} ${billProduct.variationUnit}"}',
-                                                                    icon: const Icon(
-                                                                        Icons
-                                                                            .delete,
-                                                                        color: Colors
-                                                                            .red),
+                                                                    icon: SvgPicture.asset("assets/images/delete.svg",width: 20,height: 20,),
                                                                     onPressed: () =>
                                                                         billingProvider.removeBillingItem(
                                                                             index:
@@ -1521,6 +1620,28 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                         label: Expanded(
                                           child: Center(
                                             child: Text(
+                                              'SGST',
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Expanded(
+                                          child: Center(
+                                            child: Text(
+                                              'CGST',
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Expanded(
+                                          child: Center(
+                                            child: Text(
                                               'GST',
                                               style: TextStyle(
                                                   color: Colors.white),
@@ -1566,7 +1687,10 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                 .calculateTotalDiscount()
                                                 .toString()),
                                           )),
-                                          DataCell(Center(child: Text('0.0%'))),
+                                          DataCell(Center(child: Text(
+                                              '${billingProvider.calculateTotalSGST()}%'))),
+                                          DataCell(Center(child: Text('${billingProvider.calculateTotalCGST()}%'))),
+                                          DataCell(Center(child: Text('${billingProvider.calculateTotalGST()}%'))),
                                           DataCell(Center(
                                             child: Text(TextFormat
                                                 .formattedAmount(billingProvider
@@ -1653,12 +1777,16 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                     DataRow(
                                       cells: [
                                         DataCell(
-                                            Center(child: TextField(
+                                            Center(
+                                              child: TextField(
                                               controller: billingProvider.loadingCharge,
                                               focusNode: billingProvider.loadingChargeFocusNode,
                                               onSubmitted: (_){
                                                 billingProvider.updateFooterButtons();
                                                 billingProvider.cuttingChargeFocusNode.requestFocus();
+                                              },
+                                              onChanged: (value){
+                                                billingProvider.updateFooterButtons();
                                               },
                                               textAlign: TextAlign.center,
                                               style: GoogleFonts.lato(fontSize: 15),
@@ -1666,9 +1794,13 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                   contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 5)
                                               ),
                                             ),)),
-                                        DataCell(Center(child: TextField(
+                                        DataCell(
+                                            Center(child: TextField(
                                           controller: billingProvider.cuttingCharge,
                                           focusNode: billingProvider.cuttingChargeFocusNode,
+                                          onChanged: (value){
+                                            billingProvider.updateFooterButtons();
+                                          },
                                           onSubmitted: (_){
                                             billingProvider.updateFooterButtons();
                                             billingProvider.freightChargeFocusNode.requestFocus();
@@ -1682,6 +1814,9 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                         DataCell(Center(child: TextField(
                                           controller: billingProvider.freightCharge,
                                           focusNode: billingProvider.freightChargeFocusNode,
+                                          onChanged: (value){
+                                            billingProvider.updateFooterButtons();
+                                          },
                                           onSubmitted: (_){
                                             billingProvider.updateFooterButtons();
                                           },
@@ -1724,12 +1859,42 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
             return Consumer<BillingProvider>(
                 builder: (context, billingProvider, _) {
               return AlertDialog(
-                title: MyText(
-                  text: 'Print Bill',
-                  fontSize: TextFormat.responsiveFontSize(context, 23),
-                  fontWeight: FontWeight.bold,
-                  textAlign: TextAlign.center,
+                title: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
+                      child: MyText(
+                        text: 'Print Bill',
+                        fontSize: TextFormat.responsiveFontSize(context, 23),
+                        fontWeight: FontWeight.bold,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: IconButton(
+                        focusColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        hoverColor: Colors.transparent,
+                        icon: SvgPicture.asset("assets/images/clear.svg"),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                  ],
                 ),
+                // icon: IconButton(
+                //     onPressed: () {
+                //       Navigator.of(context).pop();
+                //     },
+                //     icon: const Icon(
+                //       Icons.clear,
+                //       color: Colors.red,
+                //     )
+                // ),
+                // iconPadding: EdgeInsets.fromLTRB(300, 0, 1, 1),
                 // icon: InkWell(onTap: (){
                 //   Navigator.of(context).pop();
                 // }, child: const Icon(Icons.clear,color: Colors.red,)),

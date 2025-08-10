@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:fullcomm_billing/data/local_data.dart';
@@ -10,10 +11,12 @@ import 'package:fullcomm_billing/repo/place_order_repo.dart';
 import 'package:fullcomm_billing/repo/products_repo.dart';
 import 'package:fullcomm_billing/utils/toast_messages.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import '../models/bill_obj.dart';
 import '../models/billing_product.dart';
 import '../models/place_order.dart';
 import '../models/products_response.dart';
+import '../res/colors.dart';
 import '../res/components/buttons.dart';
 import '../res/components/k_text.dart';
 import '../res/components/k_text_field.dart';
@@ -40,27 +43,27 @@ class BillingProvider with ChangeNotifier {
 
   String stDate = '';
   String enDate = '';
-  // PickerDateRange? selectedRange;
-  //
-  // void setDateRange(PickerDateRange? range) {
-  //   selectedRange = range;
-  //
-  //   if (range != null) {
-  //     final start = range.startDate!;
-  //     final end = range.endDate ?? DateTime.now();
-  //
-  //     stDate = _formatDate(start);
-  //     enDate = _formatDate(end);
-  //
-  //     final endForApi = end.add(const Duration(days: 1));
-  //     getAllOrderDetails(start.toString(), endForApi.toString());
-  //   } else {
-  //     stDate = '';
-  //     enDate = '';
-  //   }
-  //
-  //   notifyListeners();
-  // }
+  PickerDateRange? selectedRange;
+
+  void setDateRange(PickerDateRange? range) {
+    selectedRange = range;
+
+    if (range != null) {
+      final start = range.startDate!;
+      final end = range.endDate ?? DateTime.now();
+
+      stDate = _formatDate(start);
+      enDate = _formatDate(end);
+
+      final endForApi = end.add(const Duration(days: 1));
+      getAllOrderDetails(start.toString(), endForApi.toString());
+    } else {
+      stDate = '';
+      enDate = '';
+    }
+
+    notifyListeners();
+  }
 
   String _formatDate(DateTime date) {
     return "${date.year}-${date.month.toString().padLeft(2, "0")}-${date.day.toString().padLeft(2, "0")}";
@@ -111,6 +114,7 @@ class BillingProvider with ChangeNotifier {
 
   List<TextEditingController?> variationControllers = [];
   List<TextEditingController?> quantityControllers = [];
+  List<TextEditingController?> gstControllers = [];
 
   void initializeControllers(List<BillingItem> items) {
     variationControllers = List.generate(
@@ -225,9 +229,30 @@ class BillingProvider with ChangeNotifier {
         log("Quantity controller for index $index is null");
       }
     }
-
     notifyListeners();
   }
+
+  // void updateGSTItem(int index, {required String isLoose, double? variation, int? gst}) {
+  //   if (index < 0 || index >= billingItems.length) {
+  //     log("Invalid index: $index");
+  //     return; // Exit if index is invalid
+  //   }
+  //   if (gst != null && isLoose == '0') {
+  //     billingItems[index].sgst = gst.toString();
+  //
+  //     if (gstControllers[index] != null) {
+  //       gstControllers[index]!.value = TextEditingValue(
+  //         text: gst.toString()=="0"?"":gst.toString(),
+  //         selection:
+  //         TextSelection.collapsed(offset: quantity.toString().length),
+  //       );
+  //     } else {
+  //       log("Quantity controller for index $index is null");
+  //     }
+  //   }
+  //
+  //   notifyListeners();
+  // }
 
   /// Remove a billing item
   void removeBillingItem({required int index}) {
@@ -296,6 +321,22 @@ class BillingProvider with ChangeNotifier {
 
   int calculatedTotalQuantity() =>
       billingItems.fold(0, (total, item) => total + item.quantity);
+
+  double calculateTotalGST() {
+    return billingItems.fold(
+      0.0,
+          (sum, item) => sum + (double.tryParse(item.sgst) ?? 0.0),
+    );
+  }
+
+  double calculateTotalCGST() {
+    return calculateTotalGST() / 2;
+  }
+  double calculateRoundOff() => (calculatedGrandTotal().roundToDouble() - calculatedGrandTotal());
+
+  double calculateTotalSGST() {
+    return calculateTotalGST() / 2;
+  }
 
   /// --------- Print Bill / Place Order ---------------
   RoundedLoadingButtonController printButtonController =
@@ -393,7 +434,7 @@ class BillingProvider with ChangeNotifier {
     }
   }
 
-  List<String> billMethods = ["Cash", "Money Transfer", "Cheque", "Cancel"];
+  List<String> billMethods = ["Cash", "Money Transfer", "Cheque"];
   List<FocusNode> billMethodFocusNodes = List.generate(4, (_) => FocusNode());
   String? selectBillMethod = "Cash";
   void changeBillMethod(String method) {
@@ -470,21 +511,40 @@ class BillingProvider with ChangeNotifier {
       barrierDismissible: true,
       builder: (context) {
         return AlertDialog(
-          title: MyText(
-            text: 'Print Bill',
-            fontSize: TextFormat.responsiveFontSize(context, 23),
-            fontWeight: FontWeight.bold,
-            textAlign: TextAlign.center,
+          titlePadding: EdgeInsets.zero,
+          title: Stack(
+            children: [
+              Align(
+                alignment: Alignment.center,
+                child: MyText(
+                  text: 'Print Bill',
+                  fontSize: TextFormat.responsiveFontSize(context, 23),
+                  fontWeight: FontWeight.bold,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Positioned(
+                right: 10,
+                top: 10,
+                child: IconButton(
+                  icon: SvgPicture.asset("assets/images/clear.svg",width: 30,height: 30,),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
+            ],
           ),
-          icon: IconButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              icon: const Icon(
-                Icons.clear,
-                color: Colors.red,
-              )),
-          iconPadding: EdgeInsets.fromLTRB(300, 0, 1, 1),
+          // icon: IconButton(
+          //     onPressed: () {
+          //       Navigator.of(context).pop();
+          //     },
+          //     icon: const Icon(
+          //       Icons.clear,
+          //       color: Colors.red,
+          //     )
+          // ),
+          // iconPadding: EdgeInsets.fromLTRB(300, 0, 1, 1),
           content: Container(
             alignment: Alignment.center,
             height: MediaQuery.of(context).size.height * 0.30,
@@ -586,6 +646,7 @@ class BillingProvider with ChangeNotifier {
                             value: method,
                             focusNode: billMethodFocusNode,
                             groupValue: selectBillMethod,
+                            activeColor: AppColors.primary,
                             onChanged: (value) {
                               changeBillMethod(value!);
                               billMethodFocusNodes[index].requestFocus();
@@ -600,7 +661,30 @@ class BillingProvider with ChangeNotifier {
               ],
             ),
           ),
+
           actions: [
+            // ElevatedButton(
+            //   onPressed: () {
+            //     Navigator.pop(context);
+            //   },
+            //   style: ElevatedButton.styleFrom(
+            //     backgroundColor: AppColors.white,
+            //     side: BorderSide(
+            //         color: AppColors.primary),
+            //     shape: RoundedRectangleBorder(
+            //       borderRadius:
+            //       BorderRadius.circular(5),
+            //     ),
+            //   ),
+            //   child: const Text(
+            //     "Cancel",
+            //     style: TextStyle(
+            //       color: AppColors.primary,
+            //       fontSize: 14,
+            //       fontWeight: FontWeight.bold,
+            //     ),
+            //   ),
+            // ),
             Buttons.loginButton(
               context: context,
               loadingButtonController: printAfterChangeButtonController,

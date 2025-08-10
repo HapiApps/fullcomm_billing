@@ -10,6 +10,7 @@ class BillingItem {
   double variation;
   String variationUnit;
   int quantity;
+  String sgst = '0';
   String? outPrice;
   TextEditingController? proController;
   FocusNode? proFocusNode;
@@ -21,6 +22,7 @@ class BillingItem {
       required this.variation,
       required this.variationUnit,
       required this.quantity,
+        this.sgst = '0',
       this.outPrice,
         this.proController,
         this.proFocusNode

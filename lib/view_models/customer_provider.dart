@@ -1,16 +1,19 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:fullcomm_billing/data/local_data.dart';
 import 'package:fullcomm_billing/repo/customer_repo.dart';
 import 'package:fullcomm_billing/res/colors.dart';
 import 'package:fullcomm_billing/res/components/k_dropdown.dart';
 import 'package:fullcomm_billing/utils/sized_box.dart';
 import 'package:fullcomm_billing/utils/toast_messages.dart';
+import 'package:provider/provider.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 
 import '../models/customers_response.dart';
 import '../res/components/buttons.dart';
+import '../res/components/k_dropdown_menu.dart';
 import '../res/components/k_text.dart';
 import '../res/components/k_text_field.dart';
 import '../utils/input_formatters.dart';
@@ -77,13 +80,263 @@ class CustomersProvider with ChangeNotifier {
   TextEditingController customerCity = TextEditingController();
   TextEditingController customerPincode = TextEditingController();
   TextEditingController customerCountry = TextEditingController();
-  TextEditingController customerState =
-      TextEditingController(text: 'TamilNadu');
+  TextEditingController deliveryStreet      = TextEditingController();
+  TextEditingController deliveryArea        = TextEditingController();
+  TextEditingController deliveryCity        = TextEditingController();
+  TextEditingController deliveryPincode     = TextEditingController();
+  TextEditingController deliveryState       = TextEditingController(text: 'TamilNadu');
+  TextEditingController deliveryName        = TextEditingController();
+  TextEditingController deliveryMobile      = TextEditingController();
+  TextEditingController vehicleNumer        = TextEditingController();
+  TextEditingController customerState = TextEditingController(text: 'TamilNadu');
 
   // Loading Button Controller:
-  RoundedLoadingButtonController loadingButtonController =
-      RoundedLoadingButtonController();
+  RoundedLoadingButtonController loadingButtonController = RoundedLoadingButtonController();
+  TextEditingController deliveryAddressController = TextEditingController();
 
+  String? _selectedDeliveryAddress;
+
+  String? get selectedDeliveryAddress => _selectedDeliveryAddress;
+
+  void setSelectedDeliveryAddress(String? address) {
+    _selectedDeliveryAddress = address;
+    notifyListeners();
+  }
+
+  List<String> _deliveryAddressList = [];
+
+  List<String> get deliveryAddressList => _deliveryAddressList;
+
+  void setDeliveryAddressList(List<String> addresses) {
+    _deliveryAddressList = addresses;
+    notifyListeners();
+  }
+
+  void addDeliveryAddressDialog(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return StatefulBuilder(
+            builder: (context, setState) {
+              return Consumer<CustomersProvider>(
+                  builder: (context,customersProvider,child){
+                    return AlertDialog(
+                      title: MyText(
+                        text: 'Add Delivery Address',
+                        fontSize: TextFormat.responsiveFontSize(context, 20),
+                        fontWeight: FontWeight.bold,
+                        textAlign: TextAlign.center,
+                      ),
+                      content: SingleChildScrollView(
+                        child: Container(
+                          alignment: Alignment.center,
+                          child:Column(
+                            children: [
+                              Row(
+                                children: [
+                                  MyTextField(
+                                    hintText: "Delivery Person Name",
+                                    autofocus: false,
+                                    width: 350,
+                                    controller: customersProvider.deliveryName,
+                                    textCapitalization: TextCapitalization.words,
+                                    keyboardType: TextInputType.text,
+                                    textInputAction: TextInputAction.next, isOptional: false,
+                                    labelText: '',
+                                    focusedBorderColor: Color(0xff9e9e9e),
+                                    enabledBorderColor: Color(0xff9e9e9e),
+                                    fillColor: Color(0xffffffff),
+                                    borderRadius: 5,
+                                  ),
+                                  20.width,
+                                  MyTextField(
+                                    hintText: "Delivery Person Mobile No",
+                                    autofocus: false,
+                                    width: 350,
+                                    controller: customersProvider.deliveryMobile,
+                                    textCapitalization: TextCapitalization.words,
+                                    keyboardType: TextInputType.number,
+                                    inputFormatters: InputFormatters.mobileNumberInput,
+                                    textInputAction: TextInputAction.next,
+                                    labelText: '',
+                                    isOptional: false,
+                                    focusedBorderColor: Color(0xff9e9e9e),
+                                    enabledBorderColor: Color(0xff9e9e9e),
+                                    fillColor: Color(0xffffffff),
+                                    borderRadius: 5,
+                                  ),
+                                ],
+                              ),
+                              6.height,
+                              Row(
+                                children: [
+                                  MyTextField(
+                                    hintText: "Vehicle Number",
+                                    autofocus: false,
+                                    width: 350,
+                                    labelText: '',
+                                    isOptional: false,
+                                    focusedBorderColor: Color(0xff9e9e9e),
+                                    enabledBorderColor: Color(0xff9e9e9e),
+                                    fillColor: Color(0xffffffff),
+                                    borderRadius: 5,
+                                    controller: customersProvider.vehicleNumer,
+                                    textCapitalization: TextCapitalization.words,
+                                    keyboardType: TextInputType.text,
+                                    textInputAction: TextInputAction.next,
+                                  ),
+                                  20.width,
+                                  MyTextField(
+                                    hintText: "Door No / Street",
+                                    autofocus: false,
+                                    width: 350,
+                                    labelText: '',
+                                    isOptional: false,
+                                    focusedBorderColor: Color(0xff9e9e9e),
+                                    enabledBorderColor: Color(0xff9e9e9e),
+                                    fillColor: Color(0xffffffff),
+                                    borderRadius: 5,
+                                    controller: customersProvider.deliveryStreet,
+                                    textCapitalization: TextCapitalization.words,
+                                    keyboardType: TextInputType.text,
+                                    textInputAction: TextInputAction.next,
+                                  ),
+                                ],
+                              ),
+
+                              Row(
+                                children: [
+                                  MyTextField(
+                                    hintText: "Area",
+                                    autofocus: false,
+                                    width: 350,
+                                    labelText: '',
+                                    isOptional: false,
+                                    focusedBorderColor: Color(0xff9e9e9e),
+                                    enabledBorderColor: Color(0xff9e9e9e),
+                                    fillColor: Color(0xffffffff),
+                                    borderRadius: 5,
+                                    controller: customersProvider.deliveryArea,
+                                    textCapitalization: TextCapitalization.words,
+                                    keyboardType: TextInputType.text,
+                                    textInputAction: TextInputAction.next,
+                                  ),
+                                  20.width,
+                                  MyTextField(
+                                    width: 350,
+                                    hintText: "City",
+                                    autofocus: false,
+                                    labelText: '',
+                                    isOptional: false,
+                                    focusedBorderColor: Color(0xff9e9e9e),
+                                    enabledBorderColor: Color(0xff9e9e9e),
+                                    fillColor: Color(0xffffffff),
+                                    borderRadius: 5,
+                                    controller: customersProvider.deliveryCity,
+                                    textCapitalization: TextCapitalization.words,
+                                    textInputAction: TextInputAction.next,
+                                    // validator: validationConstant.validatePincode,
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  // SizedBox(
+                                  //   width:screenWidth*0.15,
+                                  //   child: MyDropdownMenu<CityObj>(
+                                  //     width: screenWidth*0.13,
+                                  //     enableSearch: true,
+                                  //     enableFilter: true,
+                                  //     menuHeight: 300,
+                                  //     dropdownMenuEntries:listConstant.citiesOfTamilNadu.map((city) {
+                                  //       return MyDropdownMenuEntry<CityObj>(
+                                  //         value: city,
+                                  //         enabled: true,
+                                  //         label: city.name,
+                                  //       );
+                                  //     }).toList(),
+                                  //     menuStyle: MenuStyle(
+                                  //       backgroundColor: WidgetStatePropertyAll(colorsConstant.white),
+                                  //     ),
+                                  //     hintText: "Search city...",
+                                  //     // labelText: "Category",
+                                  //     onSelected: (CityObj? selectedCity) {
+                                  //       setState(() {
+                                  //         customerProvider.customerCity.text=selectedCity!.name;
+                                  //       });
+                                  //     },
+                                  //   ),
+                                  // ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 10),
+                                    child: MyDropDown(
+                                      height: MediaQuery.of(context).size.height * 0.08,
+                                      width: MediaQuery.of(context).size.width * 0.25,
+                                      labelText: "State",
+                                      value: selectedState,
+                                      borderRadius: 8,
+                                      items: states.map((String state) {
+                                        return DropdownMenuItem(
+                                          value: state,
+                                          child: Text(state),
+                                        );
+                                      }).toList(),
+                                      onChanged: (value) {
+                                        if (value != null) {
+                                          customerState.text = value;
+                                          changeState(customerState.text.trim());
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                  20.width,
+                                  MyTextField(
+                                    width: 350,
+                                    hintText: "Pincode",
+                                    autofocus: false,
+                                    controller: customersProvider.deliveryPincode,
+                                    textCapitalization: TextCapitalization.words,
+                                    keyboardType: TextInputType.number,
+                                    textInputAction: TextInputAction.next,
+                                    inputFormatters: InputFormatters.pinCodeInput,
+                                    isOptional: false,
+                                    focusedBorderColor: Color(0xff9e9e9e),
+                                    enabledBorderColor: Color(0xff9e9e9e),
+                                    fillColor: Color(0xffffffff),
+                                    borderRadius: 5,
+                                    // validator: validationConstant.validatePincode,
+                                  ),
+                                ],
+                              ),
+                              Buttons.loginButton(
+                                context: context,
+                                loadingButtonController: loadingButtonController,
+                                onPressed: () {
+                                  addDelivery(
+                                      context: context,
+                                      name: deliveryName.text.trim(),
+                                      mobile: deliveryMobile.text.trim(),
+                                      dAddressLine1: deliveryStreet.text.trim(), dArea: deliveryArea.text.trim(),
+                                      dPinCode: deliveryPincode.text.trim(), dCity: deliveryCity.text.trim(),
+                                      dState: deliveryState.text.trim(),
+                                      userId: selectedCustomerId,
+                                      vehicleNo: vehicleNumer.text.trim()
+                                  );
+                                },
+                                text: 'Submit',
+                              ),
+                            ],
+                          ) ,
+                        ),
+                      ),
+                    );
+                  });
+            });
+      },
+    );
+  }
   /// ----------- Add Customer ----------------------
   Future<void> addCustomer({
     required BuildContext context,
@@ -163,6 +416,18 @@ class CustomersProvider with ChangeNotifier {
       builder: (context) {
         return StatefulBuilder(builder: (context, setState) {
           return AlertDialog(
+            title: Align(
+              alignment: Alignment.centerRight,
+              child: IconButton(
+                focusColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                icon: SvgPicture.asset("assets/images/clear.svg"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
             content: SingleChildScrollView(
               // Ensures content fits dynamically
               child: Container(
@@ -247,29 +512,32 @@ class CustomersProvider with ChangeNotifier {
 
                     Row(
                       children: [
-                        MyDropDown(
-                          height: MediaQuery.of(context).size.height * 0.08,
-                          width: MediaQuery.of(context).size.width * 0.25,
-                            labelText: "State",
-                          value: selectedState,
-                          borderRadius: 8,
-                          items: states.map((String state) {
-                            return DropdownMenuItem(
-                              value: state,
-                              child: Text(state),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            if (value != null) {
-                              customerState.text = value;
-                              changeState(customerState.text.trim());
-                            }
-                          },
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: MyDropDown(
+                            height: MediaQuery.of(context).size.height * 0.08,
+                            width: MediaQuery.of(context).size.width * 0.25,
+                              labelText: "State",
+                            value: selectedState,
+                            borderRadius: 8,
+                            items: states.map((String state) {
+                              return DropdownMenuItem(
+                                value: state,
+                                child: Text(state),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              if (value != null) {
+                                customerState.text = value;
+                                changeState(customerState.text.trim());
+                              }
+                            },
+                          ),
                         ),
                         10.width,
                         MyTextField(
                           labelText: "Country",
-                          isOptional: false,
+                          isOptional: true,
                           controller: customerCountry,
                           borderRadius: 8,
                           height: 60,
@@ -380,6 +648,73 @@ class CustomersProvider with ChangeNotifier {
         });
       },
     );
+  }
+
+  Future<void> addDelivery({
+    required BuildContext context,
+    required String name,
+    required String mobile,
+    required String dAddressLine1,
+    required String dArea,
+    required String dPinCode,
+    required String dCity,
+    required String dState,
+    required String userId,
+    required String vehicleNo,
+  }) async {
+    try {
+      final response = await _customerRepo.addDelivery(
+          name: name,
+          mobile: mobile,
+          dAddressLine1: dAddressLine1, dArea: dArea, dPinCode: dPinCode, dCity: dCity,
+          dState: dState,userId: userId,vehicleNo: vehicleNo
+      );
+
+      if (response.responseCode == 200) {
+        // Store Customer Details:
+        localData.customerName = name;
+        localData.customerMobile = mobile;
+        localData.deliveryAddress = "$dAddressLine1,$dArea,$dCity,$dPinCode".replaceAll(',,', ',');
+        deliveryAddressController.text = "$dAddressLine1,$dArea,$dCity,$dPinCode".replaceAll(',,', ',');
+
+        deliveryStreet.clear();
+        deliveryCity.clear();
+        deliveryArea.clear();
+        deliveryPincode.clear();
+
+        if (!context.mounted) return;
+        await getAllCustomers(context);
+
+        if (!context.mounted) return;
+        Navigator.pop(context);
+
+        Toasts.showToastBar(context: context, text: 'Customer is added.');
+
+      } else if (response.responseCode == 409) {
+        // Existing Customer :
+        if (!context.mounted) return;
+        Toasts.showToastBar(
+            context: context,
+            text: 'Customer already exists.',
+            color: AppColors.errorMessage);
+      } else {
+        // Invalid Details :
+        if (!context.mounted) return;
+        Toasts.showToastBar(
+            context: context,
+            text: 'Enter Valid Details',
+            color: AppColors.errorMessage);
+      }
+    } catch (e) {
+      Toasts.showToastBar(
+          context: context,
+          text: 'Something went wrong.',
+          color: AppColors.errorMessage);
+      throw Exception("addCustomer Error : $e");
+    } finally {
+      loadingButtonController.reset();
+      notifyListeners();
+    }
   }
 
   /// -------- Customer Selection -------------------
