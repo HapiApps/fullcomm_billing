@@ -753,4 +753,61 @@ class BillingProvider with ChangeNotifier {
     String formatted = DateFormat('dd-MM-yyyy').format(date);
     return formatted;
   }
+
+  //.........group button
+  final List<String> options = ["Cash", "Money Transfer", "Cheque"];
+
+  String _selectedMethod = "Cash"; // default selection
+
+  String get selectedMethod => _selectedMethod;
+
+  void selectMethod(String method) {
+    if (_selectedMethod != method) {
+      _selectedMethod = method;
+      notifyListeners();
+    }
+  }
+//..........toggle button
+
+  final List<String> billTypes = ["Invoice", "Tax Invoice"];
+  String _selectedType = "Invoice";
+
+  String get selectedType => _selectedType;
+
+  void selectType(String type) {
+    _selectedType = type;
+    notifyListeners();
+  }
+
+
+  //.........toggle bill
+
+
+  final List<String> gst = [
+    "Non GST Cash Invoice",
+    "GST Cash Invoice"
+  ];
+
+  String _selectedgst = "Non GST Cash Invoice";
+
+  String get selectedgst => _selectedgst;
+
+  void selectgst(String type) {
+    if (_selectedgst != type) {
+      _selectedgst = type;
+      notifyListeners();
+    }
+  }
+
+  //......paper size button
+
+
+  List<String> sizes = ["A3", "A4", "A5"];
+  String selectedSize = "A4";
+
+  void selectSize(String size) {
+    selectedSize = size;
+    notifyListeners();
+  }
+
 }

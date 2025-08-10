@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fullcomm_billing/res/components/k_text_field.dart';
+import 'package:fullcomm_billing/utils/sized_box.dart';
 import 'package:fullcomm_billing/utils/text_formats.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 
@@ -33,12 +35,18 @@ class Buttons {
             color: color ?? AppColors.primary,
             elevation: 3,
             borderRadius: borderRadius ?? 10,
-            child: MyText(
-                text: text,
-                color: textColor ?? AppColors.secondary,
-                fontSize: fontSize ?? 18,
-                letterSpacing: 1,
-                fontWeight: FontWeight.bold)),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                text=="Print"?IconButton(onPressed:(){}, icon: Icon(Icons.print,color: Colors.white,)):0.height,
+                MyText(
+                    text: text,
+                    color: textColor ?? AppColors.secondary,
+                    fontSize: fontSize ?? 18,
+                    letterSpacing: 1,
+                    fontWeight: FontWeight.bold),
+              ],
+            )),
       ),
     );
   }
