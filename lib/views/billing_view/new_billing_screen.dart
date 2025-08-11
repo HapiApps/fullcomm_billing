@@ -23,6 +23,7 @@ import '../../models/place_order.dart';
 import '../../res/components/customer_widgets.dart';
 import '../../res/components/k_text_field.dart';
 import '../../res/components/keyboard_search.dart';
+import '../create_customer_screen.dart';
 import '../orders/order_detail_page.dart';
 
 class NextPageIntent extends Intent {
@@ -260,7 +261,12 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                         toolTip: 'Add Customer',
                         icon: 'assets/images/customer.svg',
                         onPressed: () {
-                          customerProvider.addCustomerDialog(context);
+                          // customerProvider.addCustomerDialog(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>AddCustomerDialog()),
+                          );
                         },
                       ),
                       20.width,
