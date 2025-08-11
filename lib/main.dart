@@ -17,6 +17,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool isLoginScreen = prefs.getBool('seen') ?? false;
+
   runApp(
     MultiProvider(
       providers: [

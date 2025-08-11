@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fullcomm_billing/data/local_data.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fullcomm_billing/models/products_response.dart';
 import 'package:fullcomm_billing/res/colors.dart';
@@ -82,16 +83,13 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
     super.initState();
     _focusNode.requestFocus();
     _focusNodeSearch.requestFocus();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      Provider.of<BillingProvider>(context, listen: false)
-          .getProducts(); // Fetch all Products & Stocks
-      Provider.of<CustomersProvider>(context, listen: false)
-          .getAllCustomers(context); // Fetch all Products & Stocks
-      Provider.of<CustomersProvider>(context, listen: false)
-          .resetCustomerDetails(); // Reset Customer details
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async{
+      await Provider.of<UserDataProvider>(context, listen: false).initializeUserData(); // Fetch all Products & Stocks
+      Provider.of<BillingProvider>(context, listen: false).getProducts(); // Fetch all Products & Stocks
+      Provider.of<CustomersProvider>(context, listen: false).getAllCustomers(context); // Fetch all Products & Stocks
+      Provider.of<CustomersProvider>(context, listen: false).resetCustomerDetails(); // Reset Customer details
       Provider.of<BillingProvider>(context, listen: false).fetchBill(context);
-      Provider.of<BillingProvider>(context, listen: false)
-          .setBillingItems([]); // Set Billing Items with Empty Table
+      Provider.of<BillingProvider>(context, listen: false).setBillingItems([]); // Set Billing Items with Empty Table
     });
   }
 
@@ -138,7 +136,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                             customerId: ProjectData.cashId,
                             customerName: "Cash",
                             customerMobile: "1212121212",
-                            customerAddress: "Chennai");
+                            customerAddress: "Chennai",deliveryAddress: "");
                       }
                       billingProvider.placeOrderAndPrintBill(
                         context,
@@ -424,7 +422,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                   ),
                                                   children: [
                                                     TextSpan(
-                                                      text: billingProvider.cashierNameController.text,
+                                                      text: localData.userName,
                                                       style: TextStyle(
                                                         fontSize: 14,
                                                         color: AppColors.black,
@@ -454,7 +452,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                 SizedBox(
                                                   width: screenWidth * 0.20,
                                                   height: 40,
-                                                  child: KeyboardDropdownField<CustomerData>(
+                                                  child: KeyboardDropdownField<Customer>(
                                                     items: customerProvider.allCustomersList,
                                                     borderRadius: 5,
                                                     hintText: "Cust. Contact",
@@ -473,12 +471,40 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                         ),
                                                     textEditingController: cusController,
                                                     onSelected: (value) {
+                                                      String formatAddress(AddressDetail? value) {
+                                                        if (value == null) return '';
+                                                        return "${value.addressLine1} ${value.area} ${value.city}-${value.pincode}".replaceAll(',,', ',');
+                                                      }
+
+                                                      AddressDetail? homeAddress;
+                                                      List<AddressDetail> deliveryAddresses = [];
+
+                                                      // Get Home address (only one)
+                                                      try {
+                                                        homeAddress = value.addressDetails!.firstWhere(
+                                                              (e) => e.type!.toLowerCase() == 'home',
+                                                        );
+                                                      } catch (_) {}
+
+                                                      // Get all Delivery addresses as a list
+                                                      deliveryAddresses = value.addressDetails!
+                                                          .where((e) => e.type!.toLowerCase() == 'delivery')
+                                                          .toList();
+
+                                                      // Format all delivery addresses as list of strings
+                                                      List<String> deliveryFormattedList =
+                                                      deliveryAddresses.map((addr) => formatAddress(addr)).toList();
+
+                                                      // Example: If you want to use only the first delivery address:
+                                                      String deliveryFormatted = deliveryFormattedList.isNotEmpty ? deliveryFormattedList.first : '';
+                                                      customerProvider.setDeliveryAddressList(deliveryFormattedList);
+                                                      customerProvider.setSelectedDeliveryAddress(deliveryFormattedList.isEmpty?"":deliveryFormattedList.first);
                                                           customerProvider.setCustomerDetails(
                                                             customerId: value.userId.toString(),
                                                             customerName: value.name.toString(),
                                                             customerMobile: value.mobile.toString(),
-                                                            customerAddress:
-                                                            "${value.addressLine1 ?? ''} ${value.area ?? ''} ${value.city ?? ''}-${value.pincode ?? ''}",
+                                                            customerAddress: formatAddress(homeAddress),
+                                                            deliveryAddress: deliveryFormatted
                                                           );
                                                           _focusNode.requestFocus();
                                                     },
@@ -488,6 +514,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                         customerName: "",
                                                         customerMobile: "",
                                                         customerAddress: "",
+                                                        deliveryAddress: ""
                                                       );
                                                       //quantityVariationController.clear();
                                                     },
@@ -513,33 +540,29 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                               ],
                                             ),
                                           ),
-                                          Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                0, 0, 10, 0),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                MyText(
-                                                    text: 'Customer Address',
-                                                        fontSize: 13,
-                                                        color: Color(0xff9E9E9E)),
-                                                MyTextField(
-                                                  width: screenWidth * 0.20,
-                                                  height: 41,
-                                                  isOptional: true,
-                                                  controller: customerProvider.customerAddressController,
-                                                  hintText: "Customer Address",
-                                                  labelText: '',
-                                                  focusedBorderColor: Color(0xff9e9e9e),
-                                                  enabledBorderColor: Color(0xff9e9e9e),
-                                                  fillColor: Color(0xffffffff),
-                                                  borderRadius: 5,
-                                                  //maxLines: null,
-                                                  //minLines: 2,
-                                                ),
-                                              ],
-                                            ),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              MyText(
+                                                  text: 'Customer Address',
+                                                      fontSize: 13,
+                                                      color: Color(0xff9E9E9E)),
+                                              MyTextField(
+                                                width: screenWidth * 0.20,
+                                                height: 41,
+                                                isOptional: true,
+                                                controller: customerProvider.customerAddressController,
+                                                hintText: "Customer Address",
+                                                labelText: '',
+                                                focusedBorderColor: Color(0xff9e9e9e),
+                                                enabledBorderColor: Color(0xff9e9e9e),
+                                                fillColor: Color(0xffffffff),
+                                                borderRadius: 5,
+                                                //maxLines: null,
+                                                //minLines: 2,
+                                              ),
+                                            ],
                                           ),
                                           Row(
                                             children: [
@@ -573,11 +596,14 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                     builder: (context, provider, _) {
                                                       return   SizedBox(
                                                         width: 350,
+                                                        height: 60,
                                                         child: MyDropdownMenu<String>(
                                                           width:350,
+
                                                           enableSearch: true,
                                                           enableFilter: true,
                                                           menuHeight: 350,
+                                                          controller: customerProvider.deliveryAddressController,
                                                           dropdownMenuEntries:provider.deliveryAddressList.map((state) {
                                                             return MyDropdownMenuEntry<String>(
                                                               value: state,
@@ -630,8 +656,9 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                         customerProvider.addDeliveryAddressDialog(context);
                                                       }
                                                     },
-                                                    icon: const Icon(Icons.add)),
-                                              )
+                                                    icon:  Icon(Icons.add_circle,color:AppColors.primary)),
+                                              ),
+                                              10.width
                                             ],
                                           ),
                                         ],
@@ -957,7 +984,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                           customerMobile:
                                                               "1212121212",
                                                           customerAddress:
-                                                              "Chennai");
+                                                              "Chennai",deliveryAddress: "");
                                                 }
                                                 billingProvider.placeOrderAndPrintBill(
                                                   context,
@@ -1000,9 +1027,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                 );
                                               });
                                             } else {
-                                              billingProvider
-                                                  .printButtonController
-                                                  .reset();
+                                              billingProvider.printButtonController.reset();
                                               Toasts.showToastBar(
                                                   context: context,
                                                   text: 'Bill List is empty',
@@ -1046,8 +1071,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                       child: Column(
                                         children: [
                                           ScreenWidgets.emptyAlert(context,
-                                              image:
-                                                  'assets/images/noproduct.svg',
+                                              image: 'assets/images/noproduct.svg',
                                               text: 'No Product Found'),
                                         ],
                                       ),
@@ -1066,14 +1090,10 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                             // ),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.grey.withOpacity(
-                                                    0.8), // darker shadow
-                                                spreadRadius:
-                                                    0, // no side spread
-                                                blurRadius:
-                                                    12, // softer & bigger shadow
-                                                offset: const Offset(0,
-                                                    8), // more downward distance
+                                                color: Colors.grey.withOpacity(0.8), // darker shadow
+                                                spreadRadius: 0, // no side spread
+                                                blurRadius: 12, // softer & bigger shadow
+                                                offset: const Offset(0, 8), // more downward distance
                                               ),
                                             ],
                                           ),
@@ -1083,8 +1103,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                   color: Color(0xffF0F9FF),
                                                   child: SizedBox(
                                                     width: screenWidth * 0.98,
-                                                    child:
-                                                        SingleChildScrollView(
+                                                    child: SingleChildScrollView(
                                                       child: DataTable(
                                                         dividerThickness: 0,
                                                         showBottomBorder: false,
@@ -1114,22 +1133,15 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                         ),
                                                         columns: [
                                                           DataColumn(
-                                                            headingRowAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
+                                                            headingRowAlignment: MainAxisAlignment.center,
                                                             label: Text(
                                                                 "Change\nName",
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
+                                                                textAlign: TextAlign.center,
                                                                 style: TextStyle(
-                                                                    color: Colors
-                                                                        .white)),
+                                                                    color: Colors.white)),
                                                           ),
                                                           DataColumn(
-                                                            headingRowAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
+                                                            headingRowAlignment: MainAxisAlignment.center,
                                                             label: SizedBox(
                                                               height: 50,
                                                               child: Center(
@@ -1842,11 +1854,11 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
   }
 
   Future<void> showPaymentBalanceDialog(
-    BuildContext context, {
-    required void Function() onPressPrint,
-  }) async {
+      BuildContext context, {
+        required void Function() onPressPrint,
+      }) async {
     final billingProvider =
-        Provider.of<BillingProvider>(context, listen: false);
+    Provider.of<BillingProvider>(context, listen: false);
     billingProvider.paymentReceived.addListener(() {
       billingProvider.calculatePaymentBalance();
     });
@@ -1858,202 +1870,293 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
           builder: (context, setState) {
             return Consumer<BillingProvider>(
                 builder: (context, billingProvider, _) {
-              return AlertDialog(
-                title: Stack(
-                  children: [
-                    Align(
-                      alignment: Alignment.center,
-                      child: MyText(
-                        text: 'Print Bill',
-                        fontSize: TextFormat.responsiveFontSize(context, 23),
-                        fontWeight: FontWeight.bold,
-                        textAlign: TextAlign.center,
+                  return AlertDialog(
+                    backgroundColor: Colors.white,
+                    titlePadding: EdgeInsets.zero,
+                    title: Container(
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(12),
+                          topRight: Radius.circular(12),
+                          // bottomLeft and bottomRight will be zero by default, so no radius
+                        ),
+
                       ),
-                    ),
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: IconButton(
-                        focusColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                        icon: SvgPicture.asset("assets/images/clear.svg"),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                // icon: IconButton(
-                //     onPressed: () {
-                //       Navigator.of(context).pop();
-                //     },
-                //     icon: const Icon(
-                //       Icons.clear,
-                //       color: Colors.red,
-                //     )
-                // ),
-                // iconPadding: EdgeInsets.fromLTRB(300, 0, 1, 1),
-                // icon: InkWell(onTap: (){
-                //   Navigator.of(context).pop();
-                // }, child: const Icon(Icons.clear,color: Colors.red,)),
-                // iconPadding: const EdgeInsets.fromLTRB(400, 0, 1, 1),
-                content: Container(
-                  alignment: Alignment.center,
-                  height: MediaQuery.of(context).size.height * 0.30,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      // Display Total Amount
-                      RichText(
-                        text: TextSpan(
-                          text: 'Total Amount : ',
-                          style: GoogleFonts.lato(
-                            fontSize:
-                                TextFormat.responsiveFontSize(context, 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          MyText(
+                            text: 'Print Bill',
+                            fontSize: TextFormat.responsiveFontSize(context, 20),
                             fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
+                            textAlign: TextAlign.center,
+                            color: Colors.white,
+                          ),400.width,
+                          IconButton(onPressed: (){
+                            Navigator.of(context).pop();
+                          }, icon: Icon(Icons.clear,color: Colors.white,))
+                        ],
+                      ),
+                    ),
+                    // icon: InkWell(onTap: (){
+                    //   Navigator.of(context).pop();
+                    // }, child: const Icon(Icons.clear,color: Colors.red,)),
+                    // iconPadding: const EdgeInsets.fromLTRB(400, 0, 1, 1),
+                    content: Container(
+                      color: Colors.white,
+                      alignment: Alignment.centerLeft,
+                      height: MediaQuery.of(context).size.height * 0.47,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            TextSpan(
-                              text: TextFormat.formattedAmount(
-                                  billingProvider.calculatedGrandTotal()),
-                              style: GoogleFonts.lato(
-                                fontSize:
+                            // Display Total Amount
+                            Align(
+                              alignment: Alignment.center,
+                              child: RichText(
+                                text: TextSpan(
+                                  text: 'Total Amount : ',
+                                  style: GoogleFonts.lato(
+                                    fontSize:
                                     TextFormat.responsiveFontSize(context, 20),
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green.shade800,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                  children: [
+                                    TextSpan(
+                                      text: TextFormat.formattedAmount(
+                                          billingProvider.calculatedGrandTotal()),
+                                      style: GoogleFonts.lato(
+                                        fontSize:
+                                        TextFormat.responsiveFontSize(context, 20),
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green.shade800,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
+                            20.height,
+                            // Payment Received Input
+                            Text("Payment Received",style: TextStyle(
+                                fontWeight: FontWeight.bold
+                            ),),10.height,
+                            MyTextField(
+                              height: null,
+                              width: 500,
+                              borderRadius:2,
+                              labelText: "Enter amount",
+                              enabledBorderColor: Color(0xff9E9E9E),
+                              autofocus: true,
+                              isOptional: true,
+                              controller: billingProvider.paymentReceived,
+                              inputFormatters: InputFormatters.mobileNumberInput,
+                              onEditingComplete: () {
+                                billingProvider.keyboardListenerFocusNode
+                                    .requestFocus();
+                              },
+                            ),
+                            30.height,
+                            // Display Balance
+                            ValueListenableBuilder<TextEditingValue>(
+                              valueListenable: billingProvider.paymentBalance,
+                              builder: (context, value, child) {
+                                return RichText(
+                                  text: TextSpan(
+                                    text: 'Balance:     ',
+                                    style: GoogleFonts.lato(
+                                      fontSize: 19,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                    children: <TextSpan>[
+                                      TextSpan(
+                                        text: value.text.contains('-')
+                                            ? value.text
+                                            : "₹ ${value.text.isEmpty ? "0" : value.text}",
+                                        style: GoogleFonts.lato(
+                                          color: value.text.contains('-')
+                                              ? Colors.red
+                                              : Colors.green,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),26.height,
+                            const MyText(
+                              text: 'Select Payment Method',
+                              fontSize: 13,
+                            ),8.height,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: billingProvider.billMethods.map((method) {
+                                final bool isSelected = billingProvider.selectBillMethod == method;
+                                return Row(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () => billingProvider.changeBillMethod(method),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                        decoration: BoxDecoration(
+                                          color: isSelected ? Colors.blue : Colors.white,
+                                          borderRadius: BorderRadius.circular(6),
+                                          border: Border.all(
+                                            color: isSelected ? Colors.blue : Colors.grey,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          method,
+                                          style: TextStyle(
+                                            color: isSelected ? Colors.white : Colors.blue,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    15.width,
+                                  ],
+                                );
+
+                              }).toList(),
+                            ),10.height,
+                            const MyText(
+                              text: 'Select Bill Type',
+                              fontSize: 13,
+                            ),8.height,
+                            Row(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min, // prevents row from taking full width
+                                  children: List.generate(billingProvider.billTypes.length, (index) {
+                                    final type = billingProvider.billTypes[index];
+                                    final bool isSelected = billingProvider.selectedType == type;
+                                    return GestureDetector(
+                                      onTap: () => billingProvider.selectType(type),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 18, // smaller left/right padding
+                                          vertical: 8,    // smaller top/bottom padding
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: isSelected ? Colors.blue : Colors.white,
+                                          border: Border.all(color: Colors.grey, width: 1),
+                                          borderRadius: BorderRadius.horizontal(
+                                            left: index == 0 ? const Radius.circular(6) : Radius.zero,
+                                            right: index == billingProvider.billTypes.length - 1
+                                                ? const Radius.circular(6)
+                                                : Radius.zero,
+                                          ),
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          type,
+                                          style: TextStyle(
+                                            fontSize: 13, // smaller text
+                                            color: isSelected ? Colors.white : Colors.blue,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                                ),10.width,
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: List.generate(billingProvider.gst.length, (index) {
+                                    final type = billingProvider.gst[index];
+                                    final bool isSelected = billingProvider.selectedGst == type;
+                                    return GestureDetector(
+                                      onTap: () => billingProvider.selectGst(type),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                        decoration: BoxDecoration(
+                                          color: isSelected ? Colors.blue : Colors.white,
+                                          border: Border.all(color: Colors.grey, width: 1),
+                                          borderRadius: BorderRadius.horizontal(
+                                            left: index == 0 ? const Radius.circular(6) : Radius.zero,
+                                            right: index == billingProvider.gst.length - 1
+                                                ? const Radius.circular(6)
+                                                : Radius.zero,
+                                          ),
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          type,
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: isSelected ? Colors.white : Colors.blue,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                                ),
+                              ],
+                            ),8.height,
+                            const MyText(
+                              text: 'Select Paper Size',
+                              fontSize: 13,
+                            ),8.height,
+
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: billingProvider.sizes.map((size) {
+                                final bool isSelected = billingProvider.selectedSize == size;
+                                return Row(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () => billingProvider.selectSize(size),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8), // smaller buttons
+                                        decoration: BoxDecoration(
+                                          color: isSelected ? Colors.blue : Colors.white,
+                                          borderRadius: BorderRadius.circular(6),
+                                          border: Border.all(
+                                            color: isSelected ? Colors.blue : Colors.grey,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          size,
+                                          style: TextStyle(
+                                            color: isSelected ? Colors.white : Colors.blue,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10), // spacing between buttons
+                                  ],
+                                );
+                              }).toList(),
+                            )
+
                           ],
                         ),
                       ),
-
-                      // Payment Received Input
-                      MyTextField(
-                        height: null,
-                        labelText: "Payment Received",
-                        autofocus: true,
-                        isOptional: true,
-                        controller: billingProvider.paymentReceived,
-                        inputFormatters: InputFormatters.mobileNumberInput,
-                        onEditingComplete: () {
-                          billingProvider.keyboardListenerFocusNode
-                              .requestFocus();
-                        },
-                      ),
-
-                      // Display Balance
-                      ValueListenableBuilder<TextEditingValue>(
-                        valueListenable: billingProvider.paymentBalance,
-                        builder: (context, value, child) {
-                          return RichText(
-                            text: TextSpan(
-                              text: 'Balance:     ',
-                              style: GoogleFonts.lato(
-                                fontSize: 19,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                              children: <TextSpan>[
-                                TextSpan(
-                                  text: value.text.contains('-')
-                                      ? value.text
-                                      : "₹ ${value.text.isEmpty ? "0" : value.text}",
-                                  style: GoogleFonts.lato(
-                                    color: value.text.contains('-')
-                                        ? Colors.red
-                                        : Colors.green,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                      const MyText(
-                        text: 'Select Payment Method',
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-
-                      KeyboardListener(
-                        focusNode: billingProvider.keyboardListenerFocusNode,
-                        onKeyEvent: (KeyEvent event) {
-                          final currentIndex = billingProvider.billMethods
-                              .indexOf(billingProvider.selectBillMethod ?? "");
-                          if (event is KeyDownEvent) {
-                            if (event.logicalKey ==
-                                LogicalKeyboardKey.arrowRight) {
-                              int next = (currentIndex + 1) %
-                                  billingProvider.billMethods.length;
-                              billingProvider.changeBillMethod(
-                                  billingProvider.billMethods[next]);
-                              billingProvider.billMethodFocusNodes[next]
-                                  .requestFocus();
-                            } else if (event.logicalKey ==
-                                LogicalKeyboardKey.arrowLeft) {
-                              int prev = (currentIndex -
-                                      1 +
-                                      billingProvider.billMethods.length) %
-                                  billingProvider.billMethods.length;
-                              billingProvider.changeBillMethod(
-                                  billingProvider.billMethods[prev]);
-                              billingProvider.billMethodFocusNodes[prev]
-                                  .requestFocus();
-                            } else if (event.logicalKey ==
-                                LogicalKeyboardKey.enter) {
-                              billingProvider.printAfterChangeButtonController
-                                  .start();
-                              onPressPrint;
-                            }
-                          }
-                        },
-                        child: Row(
-                          children: List.generate(
-                              billingProvider.billMethods.length, (index) {
-                            final method = billingProvider.billMethods[index];
-                            return Row(
-                              children: [
-                                Radio<String>(
-                                  value: method,
-                                  focusNode:
-                                      billingProvider.billMethodFocusNode,
-                                  groupValue: billingProvider.selectBillMethod,
-                                  onChanged: (value) {
-                                    billingProvider.changeBillMethod(value!);
-                                    billingProvider.billMethodFocusNodes[index].requestFocus();
-                                  },
-                                  focusColor: Colors
-                                      .transparent, // Removes blue focus color
-                                  overlayColor: MaterialStateProperty.all(
-                                      Colors.transparent), // Removes ripple
-                                  visualDensity: VisualDensity
-                                      .compact, // Optional: compact spacing
-                                ),
-                                MyText(text: method, fontSize: 14),
-                              ],
-                            );
-                          }),
-                        ),
+                    ),
+                    actions: [
+                      Buttons.loginButton(
+                        context: context,
+                        loadingButtonController: billingProvider.printAfterChangeButtonController,
+                        toolTip: 'Print Bill',
+                        height: 45,
+                        onPressed: onPressPrint,
+                        text: 'Print',
                       ),
                     ],
-                  ),
-                ),
-                actions: [
-                  Buttons.loginButton(
-                    context: context,
-                    loadingButtonController:
-                        billingProvider.printAfterChangeButtonController,
-                    toolTip: 'Print Bill',
-                    height: 45,
-                    onPressed: onPressPrint,
-                    text: 'Print',
-                  ),
-                ],
-              );
-            });
+                  );
+                });
           },
         );
       },

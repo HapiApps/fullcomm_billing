@@ -280,7 +280,6 @@ class BillingProvider with ChangeNotifier {
 
   // Total Discount of Billing Items :
   String calculateTotalDiscount() {
-    log("formattedAmount ${TextFormat.formattedAmount(billingItems.fold(0.0, (total, item) => total + item.calculateDiscount()))}");
     return TextFormat.formattedAmount(billingItems.fold(
         0.0, (total, item) => total + item.calculateDiscount()));
   }
@@ -296,7 +295,7 @@ class BillingProvider with ChangeNotifier {
       0.0,
           (total, item) => total + item.calculateSubtotal(),
     );
-
+    double totalGst = calculateTotalGST();
     // Step 2: Get bill-level charges
     double cuttingPercent = double.tryParse(cuttingCharge.text) ?? 0.0;
     double loadingPercent = double.tryParse(loadingCharge.text) ?? 0.0;
@@ -308,7 +307,7 @@ class BillingProvider with ChangeNotifier {
     double freightAmount = (productsTotal * freightPercent) / 100;
 
     // Step 4: Return final total
-    return productsTotal + cuttingAmount + loadingAmount + freightAmount;
+    return productsTotal + cuttingAmount + loadingAmount + freightAmount + totalGst;
   }
 
 
@@ -440,7 +439,41 @@ class BillingProvider with ChangeNotifier {
   void changeBillMethod(String method) {
     selectBillMethod = method;
     notifyListeners();
+  }
 
+  final List<String> billTypes = ["Invoice", "Tax Invoice"];
+  String _selectedType = "Invoice";
+
+  String get selectedType => _selectedType;
+
+  void selectType(String type) {
+    _selectedType = type;
+    notifyListeners();
+  }
+
+  final List<String> gst = [
+    "Non GST Cash Invoice",
+    "GST Cash Invoice"
+  ];
+
+  String _selectedGst = "Non GST Cash Invoice";
+
+  String get selectedGst => _selectedGst;
+
+  void selectGst(String type) {
+    if (_selectedGst != type) {
+      _selectedGst = type;
+      notifyListeners();
+    }
+  }
+
+
+  List<String> sizes = ["A3", "A4", "A5", "Roll80"];
+  String selectedSize = "Roll80";
+
+  void selectSize(String size) {
+    selectedSize = size;
+    notifyListeners();
   }
 
   String billNo = "";

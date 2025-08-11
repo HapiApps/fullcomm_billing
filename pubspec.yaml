@@ -46,6 +46,7 @@ dependencies:
   oktoast: ^3.4.0                       # Toast UI
   syncfusion_flutter_datepicker:
   flutter_launcher_icons: ^0.14.4
+  number_to_words_english: ^2.1.1
 
 dev_dependencies:
   flutter_test:

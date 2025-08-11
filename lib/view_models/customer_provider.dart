@@ -123,125 +123,196 @@ class CustomersProvider with ChangeNotifier {
               return Consumer<CustomersProvider>(
                   builder: (context,customersProvider,child){
                     return AlertDialog(
-                      title: MyText(
-                        text: 'Add Delivery Address',
-                        fontSize: TextFormat.responsiveFontSize(context, 20),
-                        fontWeight: FontWeight.bold,
-                        textAlign: TextAlign.center,
+                      backgroundColor:Color(0xffEEEFF2),
+                      titlePadding: EdgeInsets.zero,
+                      title:  Container(
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(12),
+                            topRight: Radius.circular(12),
+                            // bottomLeft and bottomRight will be zero by default, so no radius
+                          ),
+
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            MyText(
+                              text: 'Add Delivery Address',
+                              fontSize: TextFormat.responsiveFontSize(context, 20),
+                              fontWeight: FontWeight.bold,
+                              textAlign: TextAlign.center,
+                              color: Colors.white,
+                            ),400.width,
+                            IconButton(onPressed: (){
+                              Navigator.pop(context);
+                            }, icon: Icon(Icons.clear,color: Colors.white,))
+                          ],
+                        ),
                       ),
                       content: SingleChildScrollView(
                         child: Container(
+                          color: Color(0xffEEEFF2),
                           alignment: Alignment.center,
                           child:Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  MyTextField(
-                                    hintText: "Delivery Person Name",
-                                    autofocus: false,
-                                    width: 350,
-                                    controller: customersProvider.deliveryName,
-                                    textCapitalization: TextCapitalization.words,
-                                    keyboardType: TextInputType.text,
-                                    textInputAction: TextInputAction.next, isOptional: false,
-                                    labelText: '',
-                                    focusedBorderColor: Color(0xff9e9e9e),
-                                    enabledBorderColor: Color(0xff9e9e9e),
-                                    fillColor: Color(0xffffffff),
-                                    borderRadius: 5,
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      MyText(text: "Delivery Person Name"),
+                                      MyTextField(
+                                        hintText: "Delivery Person Name",
+                                        autofocus: false,
+                                        width: 350,
+                                        // controller: customersProvider.deliveryName,
+                                        textCapitalization: TextCapitalization.words,
+                                        keyboardType: TextInputType.text,
+                                        textInputAction: TextInputAction.next, isOptional: true,
+                                        labelText: '',
+                                        focusedBorderColor: Color(0xff9e9e9e),
+                                        enabledBorderColor: Color(0xff9e9e9e),
+                                        fillColor: Color(0xffffffff),
+                                        borderRadius: 5, controller: deliveryName,
+                                      ),
+                                    ],
                                   ),
-                                  20.width,
-                                  MyTextField(
-                                    hintText: "Delivery Person Mobile No",
-                                    autofocus: false,
-                                    width: 350,
-                                    controller: customersProvider.deliveryMobile,
-                                    textCapitalization: TextCapitalization.words,
-                                    keyboardType: TextInputType.number,
-                                    inputFormatters: InputFormatters.mobileNumberInput,
-                                    textInputAction: TextInputAction.next,
-                                    labelText: '',
-                                    isOptional: false,
-                                    focusedBorderColor: Color(0xff9e9e9e),
-                                    enabledBorderColor: Color(0xff9e9e9e),
-                                    fillColor: Color(0xffffffff),
-                                    borderRadius: 5,
+
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      MyText(text: "Delivery Person Mobile No"),
+                                      MyTextField(
+                                        hintText: "Delivery Person Mobile No",
+                                        autofocus: false,
+                                        width: 350,
+                                        controller: deliveryMobile,
+                                        textCapitalization: TextCapitalization.words,
+                                        keyboardType: TextInputType.number,
+                                        inputFormatters: InputFormatters.mobileNumberInput,
+                                        textInputAction: TextInputAction.next,
+                                        labelText: '',
+                                        isOptional: true,
+                                        focusedBorderColor: Color(0xff9e9e9e),
+                                        enabledBorderColor: Color(0xff9e9e9e),
+                                        fillColor: Color(0xffffffff),
+                                        borderRadius: 5,
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
                               6.height,
                               Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  MyTextField(
-                                    hintText: "Vehicle Number",
-                                    autofocus: false,
-                                    width: 350,
-                                    labelText: '',
-                                    isOptional: false,
-                                    focusedBorderColor: Color(0xff9e9e9e),
-                                    enabledBorderColor: Color(0xff9e9e9e),
-                                    fillColor: Color(0xffffffff),
-                                    borderRadius: 5,
-                                    controller: customersProvider.vehicleNumer,
-                                    textCapitalization: TextCapitalization.words,
-                                    keyboardType: TextInputType.text,
-                                    textInputAction: TextInputAction.next,
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      MyText(text: "Vehicle Number"),
+                                      MyTextField(
+                                        hintText: "Vehicle Number",
+                                        autofocus: false,
+                                        width: 350,
+                                        labelText: '',
+                                        isOptional: true,
+                                        focusedBorderColor: Color(0xff9e9e9e),
+                                        enabledBorderColor: Color(0xff9e9e9e),
+                                        fillColor: Color(0xffffffff),
+                                        borderRadius: 5,
+                                        controller: vehicleNumer,
+                                        textCapitalization: TextCapitalization.words,
+                                        keyboardType: TextInputType.text,
+                                        textInputAction: TextInputAction.next,
+                                      ),
+                                    ],
                                   ),
-                                  20.width,
-                                  MyTextField(
-                                    hintText: "Door No / Street",
-                                    autofocus: false,
-                                    width: 350,
-                                    labelText: '',
-                                    isOptional: false,
-                                    focusedBorderColor: Color(0xff9e9e9e),
-                                    enabledBorderColor: Color(0xff9e9e9e),
-                                    fillColor: Color(0xffffffff),
-                                    borderRadius: 5,
-                                    controller: customersProvider.deliveryStreet,
-                                    textCapitalization: TextCapitalization.words,
-                                    keyboardType: TextInputType.text,
-                                    textInputAction: TextInputAction.next,
+
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      MyText(text: "Door No / Street"),
+                                      MyTextField(
+                                        hintText: "Door No / Street",
+                                        autofocus: false,
+                                        width: 350,
+                                        labelText: '',
+                                        isOptional: true,
+                                        focusedBorderColor: Color(0xff9e9e9e),
+                                        enabledBorderColor: Color(0xff9e9e9e),
+                                        fillColor: Color(0xffffffff),
+                                        borderRadius: 5,
+                                        controller: deliveryStreet,
+                                        textCapitalization: TextCapitalization.words,
+                                        keyboardType: TextInputType.text,
+                                        textInputAction: TextInputAction.next,
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
 
                               Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  MyTextField(
-                                    hintText: "Area",
-                                    autofocus: false,
-                                    width: 350,
-                                    labelText: '',
-                                    isOptional: false,
-                                    focusedBorderColor: Color(0xff9e9e9e),
-                                    enabledBorderColor: Color(0xff9e9e9e),
-                                    fillColor: Color(0xffffffff),
-                                    borderRadius: 5,
-                                    controller: customersProvider.deliveryArea,
-                                    textCapitalization: TextCapitalization.words,
-                                    keyboardType: TextInputType.text,
-                                    textInputAction: TextInputAction.next,
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      MyText(text: "Area"),
+                                      MyTextField(
+                                        hintText: "Area",
+                                        autofocus: false,
+                                        width: 352,
+                                        labelText: '',
+                                        isOptional: true,
+                                        focusedBorderColor: Color(0xff9e9e9e),
+                                        enabledBorderColor: Color(0xff9e9e9e),
+                                        fillColor: Color(0xffffffff),
+                                        borderRadius: 5,
+                                        controller: deliveryArea,
+                                        textCapitalization: TextCapitalization.words,
+                                        keyboardType: TextInputType.text,
+                                        textInputAction: TextInputAction.next,
+                                      ),
+                                    ],
                                   ),
                                   20.width,
-                                  MyTextField(
-                                    width: 350,
-                                    hintText: "City",
-                                    autofocus: false,
-                                    labelText: '',
-                                    isOptional: false,
-                                    focusedBorderColor: Color(0xff9e9e9e),
-                                    enabledBorderColor: Color(0xff9e9e9e),
-                                    fillColor: Color(0xffffffff),
-                                    borderRadius: 5,
-                                    controller: customersProvider.deliveryCity,
-                                    textCapitalization: TextCapitalization.words,
-                                    textInputAction: TextInputAction.next,
-                                    // validator: validationConstant.validatePincode,
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      MyText(text: "City"),
+                                      MyTextField(
+                                        width: 350,
+                                        hintText: "City",
+                                        autofocus: false,
+                                        labelText: '',
+                                        isOptional: true,
+                                        focusedBorderColor: Color(0xff9e9e9e),
+                                        enabledBorderColor: Color(0xff9e9e9e),
+                                        fillColor: Color(0xffffffff),
+                                        borderRadius: 5,
+                                        controller: deliveryCity,
+                                        textCapitalization: TextCapitalization.words,
+                                        textInputAction: TextInputAction.next,
+                                        // validator: validationConstant.validatePincode,
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
                               Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   // SizedBox(
                                   //   width:screenWidth*0.15,
@@ -269,63 +340,108 @@ class CustomersProvider with ChangeNotifier {
                                   //     },
                                   //   ),
                                   // ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 10),
-                                    child: MyDropDown(
-                                      height: MediaQuery.of(context).size.height * 0.08,
-                                      width: MediaQuery.of(context).size.width * 0.25,
-                                      labelText: "State",
-                                      value: selectedState,
-                                      borderRadius: 8,
-                                      items: states.map((String state) {
-                                        return DropdownMenuItem(
-                                          value: state,
-                                          child: Text(state),
-                                        );
-                                      }).toList(),
-                                      onChanged: (value) {
-                                        if (value != null) {
-                                          customerState.text = value;
-                                          changeState(customerState.text.trim());
-                                        }
-                                      },
-                                    ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      MyText(text: "State"),
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 4),
+                                        child: MyDropDown(
+                                          height: MediaQuery.of(context).size.height * 0.05,
+                                          width: 350,
+                                          labelText: "State",
+                                          value: selectedState,
+                                          borderRadius: 5,
+                                          enabledBorderColor: Colors.grey,
+                                          focusedBorderColor:Colors.grey ,
+                                          items: states.map((String state) {
+                                            return DropdownMenuItem(
+                                              value: state,
+                                              child: Text(state),
+                                            );
+                                          }).toList(),
+                                          onChanged: (value) {
+                                            if (value != null) {
+                                              deliveryState.text = value;
+                                              changeState(deliveryState.text.trim());
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  20.width,
-                                  MyTextField(
-                                    width: 350,
-                                    hintText: "Pincode",
-                                    autofocus: false,
-                                    controller: customersProvider.deliveryPincode,
-                                    textCapitalization: TextCapitalization.words,
-                                    keyboardType: TextInputType.number,
-                                    textInputAction: TextInputAction.next,
-                                    inputFormatters: InputFormatters.pinCodeInput,
-                                    isOptional: false,
-                                    focusedBorderColor: Color(0xff9e9e9e),
-                                    enabledBorderColor: Color(0xff9e9e9e),
-                                    fillColor: Color(0xffffffff),
-                                    borderRadius: 5,
-                                    // validator: validationConstant.validatePincode,
+                                  0.width,
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      MyText(text: "Pin Code"),
+                                      MyTextField(
+                                        width: 350,
+                                        hintText: "Pincode",
+                                        labelText: '',
+                                        autofocus: false,
+                                        controller: deliveryPincode,
+                                        textCapitalization: TextCapitalization.words,
+                                        keyboardType: TextInputType.number,
+                                        textInputAction: TextInputAction.next,
+                                        inputFormatters: InputFormatters.pinCodeInput,
+                                        isOptional: true,
+                                        focusedBorderColor: Color(0xff9e9e9e),
+                                        enabledBorderColor: Color(0xff9e9e9e),
+                                        fillColor: Color(0xffffffff),
+                                        borderRadius: 5,
+                                        // validator: validationConstant.validatePincode,
+                                      ),
+                                    ],
                                   ),
                                 ],
-                              ),
-                              Buttons.loginButton(
-                                context: context,
-                                loadingButtonController: loadingButtonController,
-                                onPressed: () {
-                                  addDelivery(
-                                      context: context,
-                                      name: deliveryName.text.trim(),
-                                      mobile: deliveryMobile.text.trim(),
-                                      dAddressLine1: deliveryStreet.text.trim(), dArea: deliveryArea.text.trim(),
-                                      dPinCode: deliveryPincode.text.trim(), dCity: deliveryCity.text.trim(),
-                                      dState: deliveryState.text.trim(),
-                                      userId: selectedCustomerId,
-                                      vehicleNo: vehicleNumer.text.trim()
-                                  );
-                                },
-                                text: 'Submit',
+                              ),10.height,
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  // ElevatedButton(
+                                  //   onPressed: () {
+                                  //     NavigationBar.
+                                  //   },
+                                  //   style: ElevatedButton.styleFrom(
+                                  //     backgroundColor: Color(0xffEEEFF2), // button background color
+                                  //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                  //     shape: RoundedRectangleBorder(
+                                  //       borderRadius: BorderRadius.circular(8), // rounded corners
+                                  //     ),
+                                  //     elevation: 0, // shadow
+                                  //   ),
+                                  //   child: const Text(
+                                  //     "Cancel",
+                                  //     style: TextStyle(
+                                  //       fontSize: 16,
+                                  //       fontWeight: FontWeight.bold,
+                                  //       color: Colors.black,
+                                  //     ),
+                                  //   ),
+                                  // ),
+                                  Buttons.loginButton(
+                                    context: context,
+                                    width: 84,
+                                    height: 30,
+                                    loadingButtonController: loadingButtonController,
+                                    onPressed: () {
+                                      addDelivery(
+                                          context: context,
+                                          name: deliveryName.text.trim(),
+                                          mobile: deliveryMobile.text.trim(),
+                                          dAddressLine1: deliveryStreet.text.trim(), dArea: deliveryArea.text.trim(),
+                                          dPinCode: deliveryPincode.text.trim(), dCity: deliveryCity.text.trim(),
+                                          dState: deliveryState.text.trim(),
+                                          userId: selectedCustomerId,
+                                          vehicleNo: vehicleNumer.text.trim()
+                                      );
+                                    },
+                                    text: 'Submit',
+                                  ),
+                                ],
                               ),
                             ],
                           ) ,
@@ -676,7 +792,7 @@ class CustomersProvider with ChangeNotifier {
         localData.customerMobile = mobile;
         localData.deliveryAddress = "$dAddressLine1,$dArea,$dCity,$dPinCode".replaceAll(',,', ',');
         deliveryAddressController.text = "$dAddressLine1,$dArea,$dCity,$dPinCode".replaceAll(',,', ',');
-
+        setSelectedDeliveryAddress(deliveryAddressController.text);
         deliveryStreet.clear();
         deliveryCity.clear();
         deliveryArea.clear();
@@ -688,7 +804,7 @@ class CustomersProvider with ChangeNotifier {
         if (!context.mounted) return;
         Navigator.pop(context);
 
-        Toasts.showToastBar(context: context, text: 'Customer is added.');
+        Toasts.showToastBar(context: context, text: 'Delivery Address is added.');
 
       } else if (response.responseCode == 409) {
         // Existing Customer :
@@ -728,8 +844,8 @@ class CustomersProvider with ChangeNotifier {
 
   /// -------- Fetch all Customers -----------------
 
-  List<CustomerData> _allCustomers = [];
-  List<CustomerData> get allCustomersList => _allCustomers;
+  List<Customer> _allCustomers = [];
+  List<Customer> get allCustomersList => _allCustomers;
 
   // Fetch all Customers Api :
   Future<void> getAllCustomers(context) async {
@@ -737,7 +853,7 @@ class CustomersProvider with ChangeNotifier {
       final response = await _customerRepo.getCustomers();
 
       if (response.responseCode == '200') {
-        _allCustomers = response.customersList ?? [];
+        _allCustomers = response.data ?? [];
       } else {
         _allCustomers = [];
       }
@@ -754,15 +870,14 @@ class CustomersProvider with ChangeNotifier {
   TextEditingController customerAddressController = TextEditingController();
 
   /// Set Customer Details :
-  void setCustomerDetails(
-      {required String customerId,
-      required String customerName,
-      required String customerMobile,
-      required String customerAddress}) {
+  void setCustomerDetails({required String customerId,
+    required String customerName,required String customerMobile,required String customerAddress,
+    required String deliveryAddress}){
     _selectedCustomerId = customerId;
     _selectedCustomerName = customerName;
     _selectedCustomerMobile = customerMobile;
     customerAddressController.text = customerAddress;
+    deliveryAddressController.text = deliveryAddress;
     notifyListeners();
   }
 

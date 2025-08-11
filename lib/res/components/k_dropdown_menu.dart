@@ -613,17 +613,17 @@ class _MyDropdownMenuState<T> extends State<MyDropdownMenu<T>> {
               filled: true,
               fillColor: AppColors.textFieldBackground,
               border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(5),
                   borderSide: const BorderSide(
-                      width: 0, color: AppColors.textFieldBackground)),
+                      width: 0, color: AppColors.grey)),
               enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(5),
                   borderSide: const BorderSide(
-                      width: 0, color: AppColors.textFieldBackground)),
+                      width: 0, color: AppColors.grey)),
               focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(5),
                   borderSide:
-                      const BorderSide(width: 0, color: AppColors.primary)),
+                      const BorderSide(width: 0, color: AppColors.grey)),
               hintText: widget.hintText,
               helperText: widget.helperText,
               errorText: widget.errorText,

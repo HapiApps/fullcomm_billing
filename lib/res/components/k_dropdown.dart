@@ -5,14 +5,14 @@ import 'package:fullcomm_billing/res/colors.dart';
 class MyDropDown<T> extends StatelessWidget {
   const MyDropDown(
       {super.key,
-      required this.labelText,
-      this.value,
-      this.validator,
-      this.items,
-      this.onChanged,
-      this.height,
-      this.width,
-      this.focusNode, this.borderRadius});
+        required this.labelText,
+        this.value,
+        this.validator,
+        this.items,
+        this.onChanged,
+        this.height,
+        this.width,
+        this.focusNode, this.borderRadius, this.focusedBorderColor, this.enabledBorderColor});
 
   final String labelText;
   final double? height;
@@ -23,6 +23,8 @@ class MyDropDown<T> extends StatelessWidget {
   final List<DropdownMenuItem<T>>? items;
   final void Function(T?)? onChanged;
   final double? borderRadius;
+  final Color? focusedBorderColor;
+  final Color? enabledBorderColor;
 
   @override
   Widget build(BuildContext context) {
@@ -45,20 +47,20 @@ class MyDropDown<T> extends StatelessWidget {
           filled: true,
           fillColor: AppColors.textFieldBackground,
           floatingLabelStyle:
-              GoogleFonts.lato(fontSize: 14, color: AppColors.black),
+          GoogleFonts.lato(fontSize: 14, color: AppColors.black),
           border: const OutlineInputBorder(
             borderSide: BorderSide(),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(borderRadius ?? 20),
-            borderSide: const BorderSide(
-              color: AppColors.textFieldBackground,
+            borderSide:  BorderSide(
+              color: enabledBorderColor ??AppColors.textFieldBackground,
             ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(borderRadius ?? 20),
-            borderSide: const BorderSide(
-              color: AppColors.primary,
+            borderSide:  BorderSide(
+              color: focusedBorderColor??AppColors.primary,
             ),
           ),
           hintStyle: GoogleFonts.lato(),
