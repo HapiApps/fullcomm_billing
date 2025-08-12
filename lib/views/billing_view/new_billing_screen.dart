@@ -672,8 +672,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                               /// Fixed Header:
                               // Row containing Search Dropdown and Variation/Quantity field
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   /// Searchable DropdownMenu (Header)
                                   Padding(
@@ -685,8 +684,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                 width: screenWidth * 0.35,
                                                 height: 45,
                                                 isOptional: true,
-                                                controller: billingProvider
-                                                    .barcodeScanner,
+                                                controller: billingProvider.barcodeScanner,
                                                 labelText: 'Scan...',
                                                 maxLines: null,
                                                 minLines: 2,
@@ -708,8 +706,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                 .text);
 
                                                     billingProvider.selectedProduct =product;
-                                                    billingProvider.barcodeScanner
-                                                            .text =
+                                                    billingProvider.barcodeScanner.text =
                                                         "${billingProvider.selectedProduct!.pTitle.toString()} ${billingProvider.selectedProduct!.pVariation.toString()}${billingProvider.selectedProduct!.unit.toString()}";
                                                     // billingProvider.updateTemporaryFields(
                                                     //   variation: product.isLoose == '1'
@@ -744,8 +741,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                   itemBuilder: (product) =>
                                                       Container(
                                                     width: screenWidth * 0.60,
-                                                    padding: const EdgeInsets
-                                                        .fromLTRB(10, 5, 10, 5),
+                                                    padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
                                                     child: Row(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
@@ -805,8 +801,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                               if (billingProvider.barcodeMode) {
                                                 dropdownFocusNode.requestFocus();
                                               }
-                                              billingProvider
-                                                  .barcodeModeChange();
+                                              billingProvider.barcodeModeChange();
 
                                               print(
                                                   "scan ${billingProvider.barcodeMode}");
@@ -840,8 +835,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                             keyboardType: TextInputType.number,
                                             inputFormatters: billingProvider
                                                         .selectedProduct
-                                                        ?.isLoose ==
-                                                    '1'
+                                                        ?.isLoose == '1'
                                                 ? InputFormatters.variationInput
                                                 : InputFormatters.quantityInput,
                                             //     : [
@@ -883,7 +877,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                     text: "Entered quantity is more than the available stock ($stockQty).",
                                                     color: Colors.red,
                                                   );
-                                                  dropdownFocusNode.requestFocus();
+                                                  fieldFocusNode.requestFocus();
                                                 } else {
                                                   billingProvider.addBillingItem(
                                                     BillingItem(
@@ -1285,9 +1279,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                 .length,
                                                             (index) {
                                                           final billProduct =
-                                                              billingProvider
-                                                                      .billingItems[
-                                                                  index];
+                                                              billingProvider.billingItems[index];
                                                           return DataRow(
                                                             color:
                                                                 MaterialStateProperty
@@ -1296,8 +1288,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                           2 ==
                                                                       0
                                                                   ? Colors.white
-                                                                  : const Color(
-                                                                      0xffD9EEFF),
+                                                                  : const Color(0xffD9EEFF),
                                                             ),
                                                             cells: [
                                                               DataCell(

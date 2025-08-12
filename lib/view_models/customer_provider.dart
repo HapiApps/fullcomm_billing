@@ -62,7 +62,7 @@ class CustomersProvider with ChangeNotifier {
     ""
   ];
 
-  String? _selectedState;
+  String _selectedState = "Tamil Nadu";
 
   List<String> get states => _states;
 
@@ -126,7 +126,7 @@ class CustomersProvider with ChangeNotifier {
                       backgroundColor:Color(0xffEEEFF2),
                       titlePadding: EdgeInsets.zero,
                       title:  Container(
-                        height: 100,
+                        height: 60,
                         decoration: BoxDecoration(
                           color: AppColors.primary,
                           borderRadius: BorderRadius.only(
@@ -166,11 +166,17 @@ class CustomersProvider with ChangeNotifier {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      MyText(text: "Delivery Person Name"),
+                                      Row(
+                                        children: [
+                                          MyText(text: "Delivery Person Name"),
+                                          MyText(text: "*", color: Colors.red, fontSize: 20)
+                                        ],
+                                      ),
                                       MyTextField(
                                         hintText: "Delivery Person Name",
                                         autofocus: false,
                                         width: 350,
+                                        height: 40,
                                         // controller: customersProvider.deliveryName,
                                         textCapitalization: TextCapitalization.words,
                                         keyboardType: TextInputType.text,
@@ -188,11 +194,17 @@ class CustomersProvider with ChangeNotifier {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      MyText(text: "Delivery Person Mobile No"),
+                                      Row(
+                                        children: [
+                                          MyText(text: "Delivery Person Mobile No"),
+                                          MyText(text: "*", color: Colors.red, fontSize: 20)
+                                        ],
+                                      ),
                                       MyTextField(
                                         hintText: "Delivery Person Mobile No",
                                         autofocus: false,
                                         width: 350,
+                                        height: 40,
                                         controller: deliveryMobile,
                                         textCapitalization: TextCapitalization.words,
                                         keyboardType: TextInputType.number,
@@ -222,6 +234,7 @@ class CustomersProvider with ChangeNotifier {
                                         hintText: "Vehicle Number",
                                         autofocus: false,
                                         width: 350,
+                                        height: 40,
                                         labelText: '',
                                         isOptional: true,
                                         focusedBorderColor: Color(0xff9e9e9e),
@@ -245,6 +258,7 @@ class CustomersProvider with ChangeNotifier {
                                         hintText: "Door No / Street",
                                         autofocus: false,
                                         width: 350,
+                                        height: 40,
                                         labelText: '',
                                         isOptional: true,
                                         focusedBorderColor: Color(0xff9e9e9e),
@@ -273,6 +287,7 @@ class CustomersProvider with ChangeNotifier {
                                         hintText: "Area",
                                         autofocus: false,
                                         width: 352,
+                                        height: 40,
                                         labelText: '',
                                         isOptional: true,
                                         focusedBorderColor: Color(0xff9e9e9e),
@@ -291,11 +306,17 @@ class CustomersProvider with ChangeNotifier {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      MyText(text: "City"),
+                                      Row(
+                                        children: [
+                                          MyText(text: "City"),
+                                          MyText(text: "*", color: Colors.red, fontSize: 20)
+                                        ],
+                                      ),
                                       MyTextField(
                                         width: 350,
                                         hintText: "City",
                                         autofocus: false,
+                                        height: 40,
                                         labelText: '',
                                         isOptional: true,
                                         focusedBorderColor: Color(0xff9e9e9e),
@@ -344,13 +365,18 @@ class CustomersProvider with ChangeNotifier {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      MyText(text: "State"),
+                                      Row(
+                                        children: [
+                                          MyText(text: "State"),
+                                          MyText(text: "*", color: Colors.red, fontSize: 20)
+                                        ],
+                                      ),
                                       Padding(
                                         padding: const EdgeInsets.only(top: 4),
                                         child: MyDropDown(
-                                          height: MediaQuery.of(context).size.height * 0.05,
+                                          height: 40,
                                           width: 350,
-                                          labelText: "State",
+                                          labelText: "",
                                           value: selectedState,
                                           borderRadius: 5,
                                           enabledBorderColor: Colors.grey,
@@ -380,6 +406,7 @@ class CustomersProvider with ChangeNotifier {
                                       MyTextField(
                                         width: 350,
                                         hintText: "Pincode",
+                                        height: 40,
                                         labelText: '',
                                         autofocus: false,
                                         controller: deliveryPincode,
@@ -424,8 +451,8 @@ class CustomersProvider with ChangeNotifier {
                                   // ),
                                   Buttons.loginButton(
                                     context: context,
-                                    width: 84,
-                                    height: 30,
+                                    width: 120,
+                                    height: 40,
                                     loadingButtonController: loadingButtonController,
                                     onPressed: () {
                                       addDelivery(
