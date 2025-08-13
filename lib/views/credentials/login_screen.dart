@@ -35,6 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
         backgroundColor: Colors.white,
         body: BackContainer(
           image: 'assets/vectors/splash_vec.jpg',
+
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

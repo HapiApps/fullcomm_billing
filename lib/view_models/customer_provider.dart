@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fullcomm_billing/data/local_data.dart';
@@ -10,17 +9,101 @@ import 'package:fullcomm_billing/utils/sized_box.dart';
 import 'package:fullcomm_billing/utils/toast_messages.dart';
 import 'package:provider/provider.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
-
 import '../models/customers_response.dart';
+import '../models/state_obj.dart';
 import '../res/components/buttons.dart';
 import '../res/components/k_dropdown_menu.dart';
 import '../res/components/k_text.dart';
 import '../res/components/k_text_field.dart';
+import '../res/dropdown_list.dart';
 import '../utils/input_formatters.dart';
 import '../utils/text_formats.dart';
 
+class AddressEntry {
+  final TextEditingController doorController = TextEditingController();
+  final TextEditingController areaController = TextEditingController();
+  final TextEditingController cityController = TextEditingController();
+  final TextEditingController stateController = TextEditingController();
+  final TextEditingController pinController = TextEditingController();
+
+  void dispose() {
+    doorController.dispose();
+    areaController.dispose();
+    cityController.dispose();
+    stateController.dispose();
+    pinController.dispose();
+  }
+}
+
+
+class DeliveryAddressEntry {
+  final TextEditingController doorController = TextEditingController();
+  final TextEditingController areaController = TextEditingController();
+  final TextEditingController cityController = TextEditingController();
+  final TextEditingController stateController = TextEditingController();
+  final TextEditingController pinController = TextEditingController();
+
+  void dispose() {
+    doorController.dispose();
+    areaController.dispose();
+    cityController.dispose();
+    stateController.dispose();
+    pinController.dispose();
+  }
+}
+
+class MenuItem {
+  final int id;
+  final String label;
+
+  MenuItem(this.id, this.label);
+
+  @override
+  String toString() => label; // important for dropdown_search
+}
+
 class CustomersProvider with ChangeNotifier {
   final CustomersRepository _customerRepo = CustomersRepository();
+
+  final List<MenuItem> stateItems = [
+    MenuItem(1, "Andhra Pradesh"),
+    MenuItem(2, "Arunachal Pradesh"),
+    MenuItem(3, "Assam"),
+    MenuItem(4, "Bihar"),
+    MenuItem(5, "Chhattisgarh"),
+    MenuItem(6, "Goa"),
+    MenuItem(7, "Gujarat"),
+    MenuItem(8, "Haryana"),
+    MenuItem(9, "Himachal Pradesh"),
+    MenuItem(10, "Jharkhand"),
+    MenuItem(11, "Karnataka"),
+    MenuItem(12, "Kerala"),
+    MenuItem(13, "Madhya Pradesh"),
+    MenuItem(14, "Maharashtra"),
+    MenuItem(15, "Manipur"),
+    MenuItem(16, "Meghalaya"),
+    MenuItem(17, "Mizoram"),
+    MenuItem(18, "Nagaland"),
+    MenuItem(19, "Odisha"),
+    MenuItem(20, "Punjab"),
+    MenuItem(21, "Rajasthan"),
+    MenuItem(22, "Sikkim"),
+    MenuItem(23, "Tamil Nadu"),
+    MenuItem(24, "Telangana"),
+    MenuItem(25, "Tripura"),
+    MenuItem(26, "Uttar Pradesh"),
+    MenuItem(27, "Uttarakhand"),
+    MenuItem(28, "West Bengal"),
+    MenuItem(29, "Andaman and Nicobar Islands"),
+    MenuItem(30, "Chandigarh"),
+    MenuItem(31, "Dadra and Nagar Haveli and Daman and Diu"),
+    MenuItem(32, "Delhi"),
+    MenuItem(33, "Jammu and Kashmir"),
+    MenuItem(34, "Ladakh"),
+    MenuItem(35, "Lakshadweep"),
+    MenuItem(36, "Puducherry"),
+    MenuItem(37, ""),
+  ];
 
   final List<String> _states = [
     "Andhra Pradesh",
@@ -72,7 +155,55 @@ class CustomersProvider with ChangeNotifier {
     _selectedState = state;
     notifyListeners();
   }
+
+  final List<AddressEntry> _addresses = [];
+  List<AddressEntry> get addresses => _addresses;
+
+  final List<DeliveryAddressEntry> _deliveryAddresses = [];
+  List<DeliveryAddressEntry> get deliveryAddresses => _deliveryAddresses;
+
+  void addAddress() {
+    _addresses.add(AddressEntry());
+    notifyListeners();
+  }
+
+  void removeAddress(int index) {
+    _addresses[index].dispose();
+    _addresses.removeAt(index);
+    notifyListeners();
+  }
+
+  void clearAll() {
+    for (var entry in _addresses) {
+      entry.dispose();
+    }
+    _addresses.clear();
+    notifyListeners();
+  }
+
+  void addDeliveryAddress() {
+    _deliveryAddresses.add(DeliveryAddressEntry());
+    notifyListeners();
+  }
+
+  void removeDeliveryAddress(int index) {
+    _deliveryAddresses[index].dispose();
+    _deliveryAddresses.removeAt(index);
+    notifyListeners();
+  }
+
+  void clearAllDelivery() {
+    for (var entry in _deliveryAddresses) {
+      entry.dispose();
+    }
+    _deliveryAddresses.clear();
+    notifyListeners();
+  }
+
+
   // Add Customer Fields :
+  TextEditingController customerGST         = TextEditingController();
+  TextEditingController customerGSTLocation = TextEditingController();
   TextEditingController customerName = TextEditingController();
   TextEditingController customerMobile = TextEditingController();
   TextEditingController customerStreet = TextEditingController();
@@ -182,8 +313,8 @@ class CustomersProvider with ChangeNotifier {
                                         keyboardType: TextInputType.text,
                                         textInputAction: TextInputAction.next, isOptional: true,
                                         labelText: '',
-                                        focusedBorderColor: Color(0xff9e9e9e),
-                                        enabledBorderColor: Color(0xff9e9e9e),
+                                        focusedBorderColor: Colors.grey.shade300,
+                                        enabledBorderColor: Colors.grey.shade300,
                                         fillColor: Color(0xffffffff),
                                         borderRadius: 5, controller: deliveryName,
                                       ),
@@ -212,8 +343,8 @@ class CustomersProvider with ChangeNotifier {
                                         textInputAction: TextInputAction.next,
                                         labelText: '',
                                         isOptional: true,
-                                        focusedBorderColor: Color(0xff9e9e9e),
-                                        enabledBorderColor: Color(0xff9e9e9e),
+                                        focusedBorderColor: Colors.grey.shade300,
+                                        enabledBorderColor: Colors.grey.shade300,
                                         fillColor: Color(0xffffffff),
                                         borderRadius: 5,
                                       ),
@@ -229,7 +360,12 @@ class CustomersProvider with ChangeNotifier {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      MyText(text: "Vehicle Number"),
+                                      Row(
+                                        children: [
+                                          MyText(text: "Vehicle Number"),
+                                          MyText(text: "", color: Colors.red, fontSize: 20)
+                                        ],
+                                      ),
                                       MyTextField(
                                         hintText: "Vehicle Number",
                                         autofocus: false,
@@ -237,8 +373,8 @@ class CustomersProvider with ChangeNotifier {
                                         height: 40,
                                         labelText: '',
                                         isOptional: true,
-                                        focusedBorderColor: Color(0xff9e9e9e),
-                                        enabledBorderColor: Color(0xff9e9e9e),
+                                        focusedBorderColor: Colors.grey.shade300,
+                                        enabledBorderColor: Colors.grey.shade300,
                                         fillColor: Color(0xffffffff),
                                         borderRadius: 5,
                                         controller: vehicleNumer,
@@ -253,7 +389,12 @@ class CustomersProvider with ChangeNotifier {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      MyText(text: "Door No / Street"),
+                                      Row(
+                                        children: [
+                                          MyText(text: "Door No / Street"),
+                                          MyText(text: "", color: Colors.red, fontSize: 20)
+                                        ],
+                                      ),
                                       MyTextField(
                                         hintText: "Door No / Street",
                                         autofocus: false,
@@ -261,8 +402,8 @@ class CustomersProvider with ChangeNotifier {
                                         height: 40,
                                         labelText: '',
                                         isOptional: true,
-                                        focusedBorderColor: Color(0xff9e9e9e),
-                                        enabledBorderColor: Color(0xff9e9e9e),
+                                        focusedBorderColor: Colors.grey.shade300,
+                                        enabledBorderColor: Colors.grey.shade300,
                                         fillColor: Color(0xffffffff),
                                         borderRadius: 5,
                                         controller: deliveryStreet,
@@ -282,7 +423,12 @@ class CustomersProvider with ChangeNotifier {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      MyText(text: "Area"),
+                                      Row(
+                                        children: [
+                                          MyText(text: "Area"),
+                                          MyText(text: "", color: Colors.red, fontSize: 20)
+                                        ],
+                                      ),
                                       MyTextField(
                                         hintText: "Area",
                                         autofocus: false,
@@ -290,8 +436,8 @@ class CustomersProvider with ChangeNotifier {
                                         height: 40,
                                         labelText: '',
                                         isOptional: true,
-                                        focusedBorderColor: Color(0xff9e9e9e),
-                                        enabledBorderColor: Color(0xff9e9e9e),
+                                        focusedBorderColor: Colors.grey.shade300,
+                                        enabledBorderColor: Colors.grey.shade300,
                                         fillColor: Color(0xffffffff),
                                         borderRadius: 5,
                                         controller: deliveryArea,
@@ -319,8 +465,8 @@ class CustomersProvider with ChangeNotifier {
                                         height: 40,
                                         labelText: '',
                                         isOptional: true,
-                                        focusedBorderColor: Color(0xff9e9e9e),
-                                        enabledBorderColor: Color(0xff9e9e9e),
+                                        focusedBorderColor: Colors.grey.shade300,
+                                        enabledBorderColor: Colors.grey.shade300,
                                         fillColor: Color(0xffffffff),
                                         borderRadius: 5,
                                         controller: deliveryCity,
@@ -372,41 +518,47 @@ class CustomersProvider with ChangeNotifier {
                                         ],
                                       ),
                                       Padding(
-                                        padding: const EdgeInsets.only(top: 4),
-                                        child: MyDropDown(
-                                          height: 40,
+                                        padding: const EdgeInsets.only(top: 1),
+                                        child: MyDropdownMenu<StateObj>(
                                           width: 350,
-                                          labelText: "",
-                                          value: selectedState,
-                                          borderRadius: 5,
-                                          enabledBorderColor: Colors.grey,
-                                          focusedBorderColor:Colors.grey ,
-                                          items: states.map((String state) {
-                                            return DropdownMenuItem(
+                                          enableSearch: true,
+                                          enableFilter: true,
+                                          menuHeight: 350,
+                                          dropdownMenuEntries: listConstant.statesOfIndia.map((state) {
+                                            return MyDropdownMenuEntry<StateObj>(
                                               value: state,
-                                              child: Text(state),
+                                              enabled: true,
+                                              label: state.name,
                                             );
                                           }).toList(),
-                                          onChanged: (value) {
-                                            if (value != null) {
-                                              deliveryState.text = value;
-                                              changeState(deliveryState.text.trim());
-                                            }
+                                          menuStyle: MenuStyle(
+                                            backgroundColor: WidgetStatePropertyAll(AppColors.white),
+                                          ),
+                                          hintText: " ",
+                                          onSelected: (StateObj? selectedState) {
+                                                if (selectedState?.name != null) {
+                                                  deliveryState.text = selectedState?.name ?? "";
+                                                  changeState(deliveryState.text.trim());
+                                                }
                                           },
                                         ),
                                       ),
                                     ],
                                   ),
-                                  0.width,
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      MyText(text: "Pin Code"),
+                                      Row(
+                                        children: [
+                                          MyText(text: "Pin Code"),
+                                          MyText(text: "", color: Colors.red, fontSize: 20)
+                                        ],
+                                      ),
                                       MyTextField(
                                         width: 350,
                                         hintText: "Pincode",
-                                        height: 40,
+                                        height: 50,
                                         labelText: '',
                                         autofocus: false,
                                         controller: deliveryPincode,
@@ -415,8 +567,8 @@ class CustomersProvider with ChangeNotifier {
                                         textInputAction: TextInputAction.next,
                                         inputFormatters: InputFormatters.pinCodeInput,
                                         isOptional: true,
-                                        focusedBorderColor: Color(0xff9e9e9e),
-                                        enabledBorderColor: Color(0xff9e9e9e),
+                                        focusedBorderColor: Colors.grey.shade300,
+                                        enabledBorderColor: Colors.grey.shade300,
                                         fillColor: Color(0xffffffff),
                                         borderRadius: 5,
                                         // validator: validationConstant.validatePincode,
@@ -485,29 +637,35 @@ class CustomersProvider with ChangeNotifier {
     required BuildContext context,
     required String name,
     required String mobile,
-    required String addressLine1,
-    required String area,
-    required String pincode,
-    required String city,
-    required String state,
+    required String gst,
+    required String gstLocation,
   }) async {
     try {
       final response = await _customerRepo.addCustomer(
           name: name,
           mobile: mobile,
-          addressLine1: addressLine1,
-          area: area,
-          pincode: pincode,
-          city: city,
-          state: state);
+        gst: gst,
+        gstLocation: gstLocation,
+        addresses: _addresses,
+        deliveryAddresses: _deliveryAddresses,
+          );
 
       if (response.responseCode == 200) {
         // Store Customer Details:
         localData.customerName = name;
         localData.customerMobile = mobile;
-        localData.customerAddress =
-            "$addressLine1,$area,$city,$pincode".replaceAll(',,', ','); // Fix
 
+        localData.customerAddress = "${_addresses.first.doorController.text},${_addresses.first.areaController.text},${_addresses.first.cityController.text},${_addresses.first.pinController.text}".replaceAll(',,', ','); // Fix
+        localData.deliveryAddress = "${_deliveryAddresses.first.doorController.text},${_addresses.first.areaController.text},${_addresses.first.cityController.text},${_addresses.first.pinController.text}".replaceAll(',,', ','); // Fix
+        customerAddressController.text = localData.customerAddress.toString();
+        deliveryAddressController.text = localData.deliveryAddress.toString();
+       setCustomerDetails(
+            customerId: "",
+            customerName: localData.customerName,
+            customerMobile: localData.customerMobile,
+            customerAddress: customerAddressController.text,
+            deliveryAddress: deliveryAddressController.text
+        );
         // Clear Fields:
         customerName.clear();
         customerMobile.clear();
@@ -515,6 +673,11 @@ class CustomersProvider with ChangeNotifier {
         customerArea.clear();
         customerCity.clear();
         customerPincode.clear();
+        customerGST.clear();
+        customerGSTLocation.clear();
+        _addresses.clear();
+        _deliveryAddresses.clear();
+        notifyListeners();
 
         if (!context.mounted) return;
         await getAllCustomers(context);
@@ -771,11 +934,13 @@ class CustomersProvider with ChangeNotifier {
                                 context: context,
                                 name: customerName.text,
                                 mobile: customerMobile.text,
-                                addressLine1: customerStreet.text,
-                                area: customerArea.text,
-                                pincode: customerPincode.text,
-                                city: customerCity.text,
-                                state: customerState.text,
+                                gst: customerGST.text,
+                                gstLocation: customerGSTLocation.text
+                                // addressLine1: customerStreet.text,
+                                // area: customerArea.text,
+                                // pincode: customerPincode.text,
+                                // city: customerCity.text,
+                                // state: customerState.text,
                               );
                             }
                           },

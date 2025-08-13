@@ -614,16 +614,15 @@ class _MyDropdownMenuState<T> extends State<MyDropdownMenu<T>> {
               fillColor: AppColors.textFieldBackground,
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5),
-                  borderSide: const BorderSide(
-                      width: 0, color: AppColors.grey)),
+                  borderSide:  BorderSide(
+                      width: 0, color: Colors.grey.shade300)),
               enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5),
-                  borderSide: const BorderSide(
-                      width: 0, color: AppColors.grey)),
+                  borderSide:  BorderSide(
+                      width: 0, color: Colors.grey.shade300)),
               focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5),
-                  borderSide:
-                      const BorderSide(width: 0, color: AppColors.grey)),
+                  borderSide: BorderSide(width: 0, color: Colors.grey.shade300)),
               hintText: widget.hintText,
               helperText: widget.helperText,
               errorText: widget.errorText,

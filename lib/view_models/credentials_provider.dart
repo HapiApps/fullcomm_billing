@@ -57,7 +57,7 @@ class UserDataProvider with ChangeNotifier {
         mobileController.clear();
         passwordController.clear();
 
-        prefs.setBool('seen', true); // Set User Logged In
+        prefs.setBool('seen${ProjectData.version}', true); // Set User Logged In
 
         await initializeUserData();
         if (!context.mounted) return;

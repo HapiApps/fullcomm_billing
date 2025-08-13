@@ -16,8 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  bool isLoginScreen = prefs.getBool('seen') ?? false;
-
+  bool isLoginScreen = prefs.getBool('seen${ProjectData.version}') ?? false;
   runApp(
     MultiProvider(
       providers: [
@@ -25,7 +24,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => CustomersProvider()),
         ChangeNotifierProvider(create: (_) => BillingProvider()),
       ],
-      child:  MyApp(isLoginScreen: isLoginScreen,),
+      child:  MyApp(isLoginScreen: isLoginScreen ,),
     ),
   );
 }

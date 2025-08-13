@@ -22,4 +22,9 @@ class InputFormatters {
     LengthLimitingTextInputFormatter(6),
     FilteringTextInputFormatter.allow(RegExp("[0-9]"))
   ];
+
+  static List<TextInputFormatter> gstInputFormat = [
+    LengthLimitingTextInputFormatter(15),
+    FilteringTextInputFormatter.allow(RegExp(r"[0-9A-Z]")), // Only uppercase letters & digits
+  ];
 }

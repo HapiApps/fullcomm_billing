@@ -264,10 +264,7 @@ class BillPdf {
                         thickness: 1,
                         color: PdfColors.grey,
                       ),
-                      pw.SizedBox(
-                        width: PdfPageFormat
-                            .roll80.availableWidth, // constrain width
-                        child: pw.Row(
+                  pw.Row(
                           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                           children: [
                             pw.Text(
@@ -284,11 +281,7 @@ class BillPdf {
                             ),
                           ],
                         ),
-                      ),
-                      pw.SizedBox(
-                        width: PdfPageFormat
-                            .roll80.availableWidth, // constrain width
-                        child: pw.Row(
+                      pw.Row(
                           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                           children: [
                             pw.Text(
@@ -305,7 +298,6 @@ class BillPdf {
                             )
                           ],
                         ),
-                      ),
                       pw.SizedBox(height: 8),
                       billingProvider.selectedType == "Invoice"?pw.Align(
                         alignment: pw.Alignment.center,
@@ -818,10 +810,7 @@ class BillPdf {
                     thickness: 1,
                     color: PdfColors.grey,
                   ),
-                  pw.SizedBox(
-                    width:
-                        PdfPageFormat.roll80.availableWidth, // constrain width
-                    child: pw.Row(
+                 pw.Row(
                       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                       children: [
                         pw.Text(
@@ -839,11 +828,7 @@ class BillPdf {
                         )
                       ],
                     ),
-                  ),
-                  pw.SizedBox(
-                    width:
-                        PdfPageFormat.roll80.availableWidth, // constrain width
-                    child: pw.Row(
+                   pw.Row(
                       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                       children: [
                         pw.Text(
@@ -860,7 +845,6 @@ class BillPdf {
                         )
                       ],
                     ),
-                  ),
                   pw.SizedBox(height: 8),
                   pw.Align(
                     alignment: pw.Alignment.center,

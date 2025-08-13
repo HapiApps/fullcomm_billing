@@ -24,6 +24,7 @@ class BackContainer extends StatelessWidget {
       height: screenHeight,
       width: screenWidth,
       padding: padding ?? const EdgeInsets.symmetric(horizontal: 17),
+      alignment: Alignment.center,
       decoration: BoxDecoration(
           image: DecorationImage(
               image: AssetImage(image),
