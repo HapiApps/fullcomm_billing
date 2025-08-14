@@ -104,10 +104,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       : screenWidth * 0.35,
                   controller: userProvider.passwordController,
                   textInputAction: TextInputAction.next,
-
                   onFieldSubmitted: (value) {
                     userProvider.loginButtonController.start(); // Start Loading
-
                     if (userProvider.mobileController.text.trim().isEmpty) {
                       userProvider.loginButtonController.reset();
                       Toasts.showToastBar(

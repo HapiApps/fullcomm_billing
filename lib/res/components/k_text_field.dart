@@ -90,7 +90,6 @@ class MyTextField extends StatelessWidget {
               MyText(
                 text: labelText.toString(),
               ),
-
                   isOptional==false?const MyText(
                     text: "*",
                     color:Colors.red,

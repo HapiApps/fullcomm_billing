@@ -513,15 +513,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                                   fontWeight:
                                                       FontWeight.bold))),
                                     ],
-                                    rows: billingProvider.allOrders
-                                        .where((data) => data.invoiceNo != "0")
-                                        .map((data) {
-                                      var products = data.productTitles
-                                          .toString()
-                                          .split('||');
-                                      var productsUnit = data.productUnit
-                                          .toString()
-                                          .split('||');
+                                    rows: billingProvider.allOrders.where((data) => data.invoiceNo != "0").map((data) {
+                                      var products = data.productTitles.toString().split('||');
+                                      var productsUnit = data.productUnit.toString().split('||');
                                       return DataRow(
                                         onSelectChanged: (selected) {
                                           if (products.isNotEmpty &&

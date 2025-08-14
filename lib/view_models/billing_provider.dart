@@ -754,6 +754,7 @@ class BillingProvider with ChangeNotifier {
           await _placeOrderRepo.getOrderDetails(stDate: stDate, enDate: enDate);
 
       if (response.responseCode == '200') {
+        print("getAllOrderDetails Response: ${response.ordersList}");
         _allOrders = response.ordersList ?? [];
         _searchAllOrders = response.ordersList ?? [];
         _isRefresh = true;

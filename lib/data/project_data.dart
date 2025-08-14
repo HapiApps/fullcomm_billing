@@ -5,7 +5,7 @@ class ProjectData {
 //   static const String cashId = '314';
 
   //DEV
-  static const String version = '0.0.6';
+  static const String version = '0.0.7';
   static const String cashId = "577";
 
   static const String billTitle = 'Santhosh Rice Mandy';

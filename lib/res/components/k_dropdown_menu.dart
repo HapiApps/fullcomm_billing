@@ -564,7 +564,8 @@ class _MyDropdownMenuState<T> extends State<MyDropdownMenu<T>> {
             enabled: widget.enabled,
             mouseCursor: effectiveMouseCursor,
             focusNode: widget.focusNode,
-            autofocus: true,
+            autofocus: false,
+
             canRequestFocus: canRequestFocus(),
             enableInteractiveSelection: canRequestFocus(),
             readOnly: !canRequestFocus(),
@@ -622,7 +623,7 @@ class _MyDropdownMenuState<T> extends State<MyDropdownMenu<T>> {
                       width: 0, color: Colors.grey.shade300)),
               focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(5),
-                  borderSide: BorderSide(width: 0, color: Colors.grey.shade300)),
+                  borderSide: BorderSide(width: 0, color: AppColors.primary)),
               hintText: widget.hintText,
               helperText: widget.helperText,
               errorText: widget.errorText,

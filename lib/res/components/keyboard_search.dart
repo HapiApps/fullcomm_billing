@@ -13,6 +13,7 @@ class KeyboardDropdownField<T extends Object> extends StatefulWidget {
   final String? hintText;
   final String? labelText;
   final double borderRadius;
+  final Color borderColor;
   final TextEditingController? textEditingController;
   final bool Function(String input, T item)? filterFn;
   final VoidCallback? onClear;
@@ -30,7 +31,7 @@ class KeyboardDropdownField<T extends Object> extends StatefulWidget {
     this.hintText,
     this.labelText,
     this.textEditingController,
-    this.onClear, required this.borderRadius,
+    this.onClear, required this.borderRadius, required this.borderColor,
   });
 
   @override
@@ -98,11 +99,12 @@ class _KeyboardDropdownFieldState<T extends Object>
             hintText: widget.hintText,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(widget.borderRadius),
-              borderSide: const BorderSide(
+              borderSide: BorderSide(
                 width: 0,
-                color: AppColors.textFieldBackground,
+                color: widget.borderColor,
               ),
             ),
+
             suffixIcon: IconButton(
                 onPressed: () {
                   setState(() {
@@ -120,16 +122,16 @@ class _KeyboardDropdownFieldState<T extends Object>
                 )),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(widget.borderRadius),
-              borderSide: const BorderSide(
+              borderSide: BorderSide(
                 width: 0,
-                color: Color(0xff9E9E9E),
+                color: widget.borderColor,
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(widget.borderRadius),
-              borderSide: const BorderSide(
+              borderSide: BorderSide(
                 width: 0,
-                color:Color(0xff9E9E9E),
+                color:widget.borderColor,
               ),
             ),
           ),

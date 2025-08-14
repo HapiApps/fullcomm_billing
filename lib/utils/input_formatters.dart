@@ -27,4 +27,8 @@ class InputFormatters {
     LengthLimitingTextInputFormatter(15),
     FilteringTextInputFormatter.allow(RegExp(r"[0-9A-Z]")), // Only uppercase letters & digits
   ];
+
+  static List<TextInputFormatter> textOnlyInput = [
+    FilteringTextInputFormatter.allow(RegExp("[a-zA-Z ]")), // allows letters and space
+  ];
 }
