@@ -213,6 +213,7 @@ class BillPdf {
                       //   },
                       // ),
                       ...billingProvider.billingItems.map((billingItem) {
+
                         return pw.Table(
                           columnWidths: {
                             0: const pw.FixedColumnWidth(48),
@@ -230,7 +231,9 @@ class BillPdf {
                                   textAlign: pw.TextAlign.left,
                                 ),
                                 pw.Text(
-                                  billingItem.quantity.toString(),
+                                  billingItem.product.isLoose == '1'
+                                      ? (billingItem.variation / 1000).toStringAsFixed(2) // loose product → Kg format
+                                      : billingItem.quantity.toString(),                 // regular product → count
                                   style: simpleText,
                                   textAlign: pw.TextAlign.right,
                                 ),
@@ -272,7 +275,7 @@ class BillPdf {
                               style: simpleText,
                             ),
                             pw.Text(
-                              'Qty : ${billingProvider.calculatedTotalQuantity()}',
+                              'Qty : ${billingProvider.calculatedTotalQuantity().toStringAsFixed(2)}',
                               style: simpleText,
                             ),
                             pw.Text(
@@ -778,7 +781,9 @@ class BillPdf {
                               textAlign: pw.TextAlign.left,
                             ),
                             pw.Text(
-                              billingItem.quantity.toString(),
+                              billingItem.variationUnit.contains("Loose")
+                                  ? (billingItem.quantity / 1000).toStringAsFixed(2) // loose product → Kg format
+                                  : billingItem.quantity.toString(),                 // regular product → count
                               style: simpleText,
                               textAlign: pw.TextAlign.right,
                             ),
@@ -788,16 +793,17 @@ class BillPdf {
                               textAlign: pw.TextAlign.right,
                             ),
                             pw.Text(
-                              double.parse(billingItem.outPrice.toString())
-                                  .toStringAsFixed(1),
+                              double.parse(billingItem.outPrice.toString()).toStringAsFixed(2),
                               style: simpleText,
                               textAlign: pw.TextAlign.right,
                             ),
                             pw.Text(
                               (billingItem.quantity *
-                                      int.parse(
-                                          billingItem.outPrice.toString()))
-                                  .toStringAsFixed(1),
+                                  double.parse(
+                                    billingItem.product.isLoose.toString() == "1"
+                                        ? billingItem.product.pricePerG.toString()
+                                        : billingItem.outPrice.toString(),
+                                  )).toStringAsFixed(2),
                               style: simpleText,
                               textAlign: pw.TextAlign.right,
                             ),
@@ -817,10 +823,23 @@ class BillPdf {
                           'Items : ${billingItems.length}',
                           style: simpleText,
                         ),
+                        // pw.Text(
+                        //   'Qty : ${billingItems.fold(0, (total, item) => total + item.quantity)}',
+                        //   style: simpleText,
+                        // ),
                         pw.Text(
-                          'Qty : ${billingItems.fold(0, (total, item) => total + item.quantity)}',
+                          'Qty : ${billingItems.fold<double>(0.0, (total, item) {
+                            if (item.variationUnit.contains("Loose")) {
+                              // variation is in grams
+                              final double variationInKg = item.quantity / 1000;
+                              return total + variationInKg;
+                            } else {
+                              return total + item.quantity;
+                            }
+                          }).toStringAsFixed(2)}',
                           style: simpleText,
                         ),
+
                         pw.Text(
                           'Grand Total : ₹${double.parse(data.oTotal.toString()).toStringAsFixed(1)}',
                           style: simpleText,

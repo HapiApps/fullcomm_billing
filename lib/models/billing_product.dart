@@ -12,21 +12,23 @@ class BillingItem {
   int quantity;
   String sgst = '0';
   String? outPrice;
-  TextEditingController? proController;
-  FocusNode? proFocusNode;
+  TextEditingController proController;
+  FocusNode proFocusNode;
 
-  BillingItem(
-      {required this.id,
-      required this.product,
-      required this.productTitle,
-      required this.variation,
-      required this.variationUnit,
-      required this.quantity,
-        this.sgst = '0',
-      this.outPrice,
-        this.proController,
-        this.proFocusNode
-      });
+  BillingItem({
+    required this.id,
+    required this.product,
+    required this.productTitle,
+    required this.variation,
+    required this.variationUnit,
+    required this.quantity,
+    this.sgst = '0',
+    this.outPrice,
+    TextEditingController? proController,
+    FocusNode? proFocusNode,
+  })  : proController = proController ?? TextEditingController(),
+        proFocusNode = proFocusNode ?? FocusNode();
+
 
   /// Calculate Mrp per product (for one product) :
   double mrpPerProduct() {

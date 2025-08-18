@@ -56,7 +56,6 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
   final FocusNode dropdownFocusNode = FocusNode();
   final FocusNode fieldFocusNode = FocusNode();
   final TextEditingController dropdownController = TextEditingController();
-  final TextEditingController cusController = TextEditingController();
   final TextEditingController quantityVariationController =
       TextEditingController();
 
@@ -142,18 +141,13 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                       billingProvider.placeOrderAndPrintBill(
                         context,
                         order: Order(
-                            customerMobile:
-                                customerProvider.selectedCustomerMobile,
+                            customerMobile: customerProvider.selectedCustomerMobile,
                             customerId: customerProvider.selectedCustomerId,
                             customerName: customerProvider.selectedCustomerName,
-                            customerAddress:
-                                customerProvider.customerAddressController.text,
-                            cashier: billingProvider.cashierNameController.text
-                                .trim(),
-                            paymentMethod:
-                                billingProvider.selectBillMethod.toString(),
-                            paymentId:
-                                billingProvider.selectBillMethod.toString() == "Cash"
+                            customerAddress: customerProvider.customerAddressController.text,
+                            cashier: billingProvider.cashierNameController.text.trim(),
+                            paymentMethod: billingProvider.selectBillMethod.toString(),
+                            paymentId: billingProvider.selectBillMethod.toString() == "Cash"
                                     ? '2'
                                     : '1',
                             products: billingProvider.billingItems,
@@ -455,15 +449,14 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                         itemBuilder: (customer) =>
                                                             Container(
                                                               width: screenWidth * 0.20,
-                                                              padding: const EdgeInsets
-                                                                  .fromLTRB(10, 5, 10, 5),
+                                                              padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
                                                               child: MyText(
                                                                 text: '${customer.name} - ${customer.mobile}',
                                                                 color: Colors.black,
                                                                 fontSize: 14,
                                                               ),
                                                             ),
-                                                        textEditingController: cusController,
+                                                        textEditingController: customerProvider.cusController,
                                                         onSelected: (value) {
                                                           String formatAddress(AddressDetail? value) {
                                                             if (value == null) return '';
@@ -493,6 +486,8 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                           String deliveryFormatted = deliveryFormattedList.isNotEmpty ? deliveryFormattedList.first : '';
                                                           customerProvider.setDeliveryAddressList(deliveryFormattedList);
                                                           customerProvider.setSelectedDeliveryAddress(deliveryFormattedList.isEmpty?"":deliveryFormattedList.first);
+                                                          customerProvider.deliveryAddressController.text = deliveryFormattedList.first;
+                                                          print("Delivery Addresses: ${customerProvider.deliveryAddressController.text} $deliveryFormatted");
                                                           customerProvider.setCustomerDetails(
                                                               customerId: value.userId.toString(),
                                                               customerName: value.name.toString(),
@@ -551,36 +546,69 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                         fontSize: 13,
                                                         color: Color(0xff9E9E9E),
                                                       ),
-                                                      Consumer<CustomersProvider>(
-                                                        builder: (context, provider, _) {
-                                                          return   SizedBox(
+                                                 SizedBox(
                                                             width: screenWidth * 0.20,
                                                             height: 40,
-                                                            child: MyDropdownMenu<String>(
-                                                              width:screenWidth * 0.20,
-                                                              enableSearch: true,
-                                                              enableFilter: true,
-                                                              menuHeight: 350,
-                                                              inputFormatters: InputFormatters.textOnlyInput,
-                                                              controller: customerProvider.deliveryAddressController,
-                                                              dropdownMenuEntries:provider.deliveryAddressList.map((state) {
-                                                                return MyDropdownMenuEntry<String>(
-                                                                  value: state,
-                                                                  enabled: true,
-                                                                  label: state,
+                                                            child: Consumer<CustomersProvider>(
+                                                              builder: (context, provider, _) {
+                                                                return SizedBox(
+                                                                  width: screenWidth * 0.20,
+                                                                  height: 40,
+                                                                  child: MyDropdownMenu<DeliveryAddressEntry>(
+                                                                    width: screenWidth * 0.20,
+                                                                    enableSearch: true,
+                                                                    enableFilter: true,
+                                                                    menuHeight: 350,
+                                                                    controller: customerProvider.deliveryAddressController,
+                                                                    dropdownMenuEntries: provider.deliveryAddresses.map((entry) {
+                                                                      return MyDropdownMenuEntry<DeliveryAddressEntry>(
+                                                                        value: entry,
+                                                                        enabled: true,
+                                                                        label: "${entry.doorController.text}, ${entry.areaController.text}, ${entry.cityController.text}, ${entry.stateController.text} - ${entry.pinController.text}",
+                                                                      );
+                                                                    }).toList(),
+                                                                    menuStyle: const MenuStyle(
+                                                                      backgroundColor: WidgetStatePropertyAll(Colors.white),
+                                                                    ),
+                                                                    hintText: " ",
+                                                                    onSelected: (selectedAddress) {
+                                                                      provider.setSelectedDeliveryAddress(selectedAddress.toString());
+                                                                      customerProvider.deliveryAddressController.text = selectedAddress.toString(); // save in controller
+                                                                    },
+                                                                  ),
                                                                 );
-                                                              }).toList(),
-                                                              menuStyle: MenuStyle(
-                                                                backgroundColor: WidgetStatePropertyAll(Colors.white),
-                                                              ),
-                                                              hintText: " ",
-                                                              onSelected: (selectedAddress) {
-                                                                provider.setSelectedDeliveryAddress(selectedAddress);
                                                               },
-                                                            ),
-                                                          );
-                                                        },
-                                                      ),
+                                                            ),)
+                                                      //       child: MyDropdownMenu<String>(
+                                                      //         width:screenWidth * 0.20,
+                                                      //         enableSearch: true,
+                                                      //         enableFilter: true,
+                                                      //         menuHeight: 350,
+                                                      //         initialSelection: provider.selectedDeliveryAddress,
+                                                      //
+                                                      //         inputFormatters: InputFormatters.textOnlyInput,
+                                                      //         controller: customerProvider.deliveryAddressController,
+                                                      //         dropdownMenuEntries:provider.deliveryAddressList.map((state) {
+                                                      //           return MyDropdownMenuEntry<String>(
+                                                      //             value: state,
+                                                      //             enabled: true,
+                                                      //             label: state,
+                                                      //           );
+                                                      //         }).toList(),
+                                                      //         menuStyle: MenuStyle(
+                                                      //           backgroundColor: WidgetStatePropertyAll(Colors.white),
+                                                      //         ),
+                                                      //         hintText: provider.selectedDeliveryAddress.toString().isEmpty?
+                                                      //         "Select Delivery Address" :
+                                                      //         provider.selectedDeliveryAddress,
+                                                      //         onSelected: (selectedAddress) {
+                                                      //           provider.setSelectedDeliveryAddress(selectedAddress);
+                                                      //         },
+                                                      //       ),
+                                                      //     );
+                                                      //   },
+                                                      // ),
+
                                                     ],
                                                   ),
                                           10.width,
@@ -876,8 +904,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                 borderRadius:
                                                     BorderRadius.circular(6),
                                                 side: BorderSide(
-                                                  color: Color(
-                                                      0xff0055989),
+                                                  color: Color(0xff0055989),
                                                   width:
                                                       1.5,
                                                 ),
@@ -1227,20 +1254,18 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                               onPressed: () {
                                                                     if(billProduct.product.pTitle.toString().isNotEmpty){
                                                                       WidgetsBinding.instance.addPostFrameCallback((_) {
-                                                                        if (billProduct.proController != null &&
-                                                                            billProduct.proFocusNode != null) {
                                                                           setState(() {
-                                                                            billProduct.proController!.clear();
-                                                                            billProduct.proFocusNode!.requestFocus();
+                                                                            billProduct.proController.clear();
+                                                                            billProduct.proFocusNode.requestFocus();
                                                                             customerProvider.showInputDialog(
                                                                               context: context,
                                                                               width: screenWidth * 0.20,
                                                                               height: screenHeight * 0.07,
-                                                                              controller: billProduct.proController!,
+                                                                              controller: billProduct.proController,
                                                                               focus: billProduct.proFocusNode,
                                                                               onChanged: () {
                                                                                 setState(() {
-                                                                                  final text = billProduct.proController!.text;
+                                                                                  final text = billProduct.proController.text;
                                                                                   if (text.isNotEmpty) {
                                                                                     billProduct.product.pTitle = "${billProduct.productTitle}/$text";
                                                                                     Navigator.of(context).pop();
@@ -1253,7 +1278,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                                 });
                                                                               },
                                                                               onSubmitted: (_) {
-                                                                                final text = billProduct.proController!.text;
+                                                                                final text = billProduct.proController.text;
                                                                                 if (text.isNotEmpty) {
                                                                                   billProduct.product.pTitle = "${billProduct.productTitle}/$text";
                                                                                 }
@@ -1261,13 +1286,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                               },
                                                                             );
                                                                           });
-                                                                        } else {
-                                                                          Toasts.showToastBar(
-                                                                              context: context,
-                                                                              text: 'One or more of the following is null:');
-                                                                          debugPrint("One or more of the following is null: "
-                                                                              "proController, proFocusNode, product, productTitle");
-                                                                        }
+
                                                                       });
 
                                                                     }else{
@@ -1300,40 +1319,62 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                           ),
                                                         )),
                                                         DataCell(
-                                                          billProduct.product
-                                                              .isLoose ==
-                                                                  '1'
-                                                              ? SizedBox(
-                                                                  height:
-                                                                      40,
-                                                                  child:
-                                                                      TextFormField(
-                                                                    controller:
-                                                                        TextEditingController(
-                                                                      text:
-                                                                          "${billProduct.variation / 1000}",
-                                                                    ),
-                                                                    onChanged:
-                                                                        (value) {
-                                                                      billingProvider.updateBillingItem(
-                                                                        index,
-                                                                        isLoose: '1',
-                                                                        variation: double.tryParse(value) ?? billProduct.variation * 1000,
-                                                                      );
-                                                                    },
-                                                                  ),
-                                                                )
-                                                              : Center(
-                                                                  child:
-                                                                      Text(
-                                                                  billProduct.variationUnit ??
-                                                                      "",
+                                                          // billProduct.product.isLoose == '1'
+                                                          //     ? SizedBox(
+                                                          //         height: 40,
+                                                          //         child: TextFormField(
+                                                          //           controller: TextEditingController(
+                                                          //             text: "${billProduct.variation / 1000}",
+                                                          //           ),
+                                                          //           keyboardType: TextInputType.numberWithOptions(decimal: true),
+                                                          //           onChanged: (value) {
+                                                          //             // optional: validation / preview only
+                                                          //           },
+                                                          //           textAlign: TextAlign.center,
+                                                          //           decoration: const InputDecoration(
+                                                          //             border: InputBorder.none, // Removes underline
+                                                          //             isDense: true, // Reduces padding
+                                                          //             contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                                          //           ),
+                                                          //           onFieldSubmitted: (value) {
+                                                          //             final parsed = double.tryParse(value);
+                                                          //             if (parsed != null && parsed > 0) {
+                                                          //               billingProvider.updateBillingItem(
+                                                          //                 index,
+                                                          //                 isLoose: '1',
+                                                          //                 variation: parsed * 1000, // store in grams
+                                                          //               );
+                                                          //             } else {
+                                                          //               Toasts.showToastBar(
+                                                          //                 context: context,
+                                                          //                 text: 'Please enter valid weight',
+                                                          //               );
+                                                          //             }
+                                                          //           },
+                                                          //         ),
+                                                          //         // child: TextFormField(
+                                                          //         //   controller: TextEditingController(
+                                                          //         //     text: "${billProduct.variation / 1000}",
+                                                          //         //   ),
+                                                          //         //   onChanged: (value) {
+                                                          //         //     billingProvider.updateBillingItem(
+                                                          //         //       index,
+                                                          //         //       isLoose: '1',
+                                                          //         //       variation: double.tryParse(value) ?? billProduct.variation * 1000,
+                                                          //         //     );
+                                                          //         //   },
+                                                          //         // ),
+                                                          //       ):
+                                                        billProduct.product.isLoose == '1'?Center(
+                                                        child: Text(
+                                                        billProduct.variationUnit,
+                                                        )):Center(
+                                                                  child: Text(
+                                                                  billProduct.variationUnit ?? "",
                                                                 )),
                                                         ),
                                                         DataCell(
-                                                          billProduct.product
-                                                                      .isLoose ==
-                                                                  '0'
+                                                          billProduct.product.isLoose == '0'
                                                               ? SizedBox(
                                                                   height:
                                                                       40,
@@ -1343,19 +1384,13 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                         TextEditingController(
                                                                           text: "${billProduct.quantity}",
                                                                         ),
-                                                                    decoration:
-                                                                        const InputDecoration(
-                                                                      border:
-                                                                          InputBorder.none, // Removes underline
-                                                                      isDense:
-                                                                          true, // Reduces padding
-                                                                      contentPadding:
-                                                                          EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                                                    decoration: const InputDecoration(
+                                                                      border: InputBorder.none,
+                                                                      isDense: true,
+                                                                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                                                                     ),
-                                                                    textAlign:
-                                                                        TextAlign.end,
-                                                                    keyboardType:
-                                                                        TextInputType.number,
+                                                                    textAlign: TextAlign.center,
+                                                                    keyboardType: TextInputType.number,
                                                                     inputFormatters: [
                                                                       LengthLimitingTextInputFormatter(5), // Limit to 5 digits
                                                                     ],
@@ -1386,9 +1421,56 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                       }
                                                                     },
                                                                   ),
-                                                                )
-                                                              : Text(
-                                                                  "${billProduct.quantity}"),
+                                                                ):SizedBox(
+                                                            height: 40,
+                                                            child: TextFormField(
+                                                              controller: TextEditingController(
+                                                                text: "${billProduct.variation / 1000}",
+                                                              ),
+                                                              keyboardType: TextInputType.numberWithOptions(decimal: true),
+                                                              onChanged: (value) {
+                                                                // optional: validation / preview only
+                                                              },
+                                                              textAlign: TextAlign.center,
+                                                              decoration: const InputDecoration(
+                                                                border: InputBorder.none, // Removes underline
+                                                                isDense: true, // Reduces padding
+                                                                contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                                              ),
+                                                              onFieldSubmitted: (value) {
+                                                                final parsed = double.tryParse(value);
+                                                                if (parsed != null && parsed > 0) {
+                                                                  billingProvider.updateBillingItem(
+                                                                    index,
+                                                                    isLoose: '1',
+                                                                    variation: parsed * 1000, // store in grams
+                                                                  );
+                                                                } else {
+                                                                  Toasts.showToastBar(
+                                                                    context: context,
+                                                                    text: 'Please enter valid weight',
+                                                                  );
+                                                                }
+                                                              },
+                                                            ),
+                                                            // child: TextFormField(
+                                                            //   controller: TextEditingController(
+                                                            //     text: "${billProduct.variation / 1000}",
+                                                            //   ),
+                                                            //   onChanged: (value) {
+                                                            //     billingProvider.updateBillingItem(
+                                                            //       index,
+                                                            //       isLoose: '1',
+                                                            //       variation: double.tryParse(value) ?? billProduct.variation * 1000,
+                                                            //     );
+                                                            //   },
+                                                            // ),
+                                                          )
+                                                            //   : Align(
+                                                            // alignment: Alignment.center,
+                                                            //     child: Text(
+                                                            //         "${billProduct.quantity}"),
+                                                            //   ),
                                                         ),
                                                         DataCell(
                                                           Align(
@@ -1415,8 +1497,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                           ),
                                                         )),
                                                         DataCell(Align(
-                                                          alignment: Alignment
-                                                              .centerRight,
+                                                          alignment: Alignment.centerRight,
                                                           child: Text(TextFormat
                                                               .formattedAmount(
                                                                   billProduct

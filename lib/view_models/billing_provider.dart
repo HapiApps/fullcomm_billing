@@ -193,8 +193,7 @@ class BillingProvider with ChangeNotifier {
   }
 
   // Update Billing Items : (For Edit Option)
-  void updateBillingItem(int index,
-      {required String isLoose, double? variation, int? quantity}) {
+  void updateBillingItem(int index, {required String isLoose, double? variation, int? quantity}) {
     if (index < 0 || index >= billingItems.length) {
       log("Invalid index: $index");
       return; // Exit if index is invalid
@@ -207,8 +206,7 @@ class BillingProvider with ChangeNotifier {
       if (variationControllers[index] != null) {
         variationControllers[index]!.value = TextEditingValue(
           text: variation.toString(),
-          selection:
-              TextSelection.collapsed(offset: variation.toString().length),
+          selection: TextSelection.collapsed(offset: variation.toString().length),
         );
       } else {
         log("Variation controller for index $index is null");
@@ -318,8 +316,30 @@ class BillingProvider with ChangeNotifier {
 
   int calculatedTotalProducts() => billingItems.length;
 
-  int calculatedTotalQuantity() =>
-      billingItems.fold(0, (total, item) => total + item.quantity);
+  //int calculatedTotalQuantity() => billingItems.fold(0, (total, item) => total + item.quantity);
+  // int calculatedTotalQuantity() {
+  //   return billingItems.fold<int>(0, (total, item) {
+  //     if (item.product.isLoose == "1") {
+  //       final double variation = item.variation;
+  //       final double qty = item.quantity.toDouble();
+  //       return total + (variation * qty).round();
+  //     } else {
+  //       return total + item.quantity;
+  //     }
+  //   });
+  // }
+  double calculatedTotalQuantity() {
+    return billingItems.fold<double>(0.0, (total, item) {
+      if (item.product.isLoose == "1") {
+        final double variation = item.variation; // e.g. 200 grams
+        final double qty = item.quantity.toDouble();
+        // convert grams to kg => 200 g = 0.2 kg
+        return total + ((variation / 1000) * qty);
+      } else {
+        return total + item.quantity;
+      }
+    });
+  }
 
   double calculateTotalGST() {
     return billingItems.fold(

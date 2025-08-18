@@ -50,6 +50,10 @@ class DeliveryAddressEntry {
     stateController.dispose();
     pinController.dispose();
   }
+  @override
+  String toString() {
+    return "${doorController.text}, ${areaController.text}, ${cityController.text}, ${stateController.text}, ${pinController.text}";
+  }
 }
 
 class MenuItem {
@@ -694,24 +698,58 @@ class CustomersProvider with ChangeNotifier {
         addresses: _addresses,
         deliveryAddresses: _deliveryAddresses,
           );
-
       if (response.responseCode == 200) {
         // Store Customer Details:
         localData.customerName = name;
         localData.customerMobile = mobile;
         localData.customerAddress = "${_addresses.first.doorController.text},${_addresses.first.areaController.text},${_addresses.first.cityController.text},${_addresses.first.pinController.text}".replaceAll(',,', ','); // Fix
-        localData.deliveryAddress = "${_deliveryAddresses.first.doorController.text},${_addresses.first.areaController.text},${_addresses.first.cityController.text},${_addresses.first.pinController.text}".replaceAll(',,', ','); // Fix
+        localData.deliveryAddress = "${_deliveryAddresses.first.doorController.text},${_deliveryAddresses.first.areaController.text},${_deliveryAddresses.first.cityController.text},${_deliveryAddresses.first.pinController.text}".replaceAll(',,', ','); // Fix
         customerAddressController.text = localData.customerAddress.toString();
-        deliveryAddressController.text = localData.deliveryAddress.toString();
+
+        if (!context.mounted) return;
+        await getAllCustomers(context);
+        final newCustomer = Customer(
+          userId: _allCustomers.last.userId, // or generate temp id
+          name: localData.customerName,
+          mobile: localData.customerMobile,
+          addressDetails: [
+            AddressDetail(
+              type: "home",
+              addressLine1: _addresses.first.doorController.text,
+              area: _addresses.first.areaController.text,
+              city: _addresses.first.cityController.text,
+              state: "", // if needed
+              pincode: _addresses.first.pinController.text,
+            ),
+            AddressDetail(
+              type: "delivery",
+              addressLine1: _deliveryAddresses.first.doorController.text,
+              area: _deliveryAddresses.first.areaController.text,
+              city: _deliveryAddresses.first.cityController.text,
+              state: "",
+              pincode: _deliveryAddresses.first.pinController.text,
+            ),
+          ],
+        );
         if (!context.mounted) return;
         Navigator.pop(context);
-       setCustomerDetails(
-            customerId: "",
-            customerName: localData.customerName,
-            customerMobile: localData.customerMobile,
-            customerAddress: customerAddressController.text,
-            deliveryAddress: deliveryAddressController.text
+        cusController.text = "${localData.customerName} - ${localData.customerMobile}";
+        setDeliveryAddressList(
+            _deliveryAddresses.map((e) => e.toString()).toList()
         );
+        setSelectedDeliveryAddress(localData.deliveryAddress.toString());
+        deliveryAddressController.text = localData.deliveryAddress.toString();
+        print("_deliveryAddressList: ${_deliveryAddressList.length} - ${localData.deliveryAddress.toString()}");
+        notifyListeners();
+       setCustomerDetails(
+          customerId: newCustomer.userId.toString(),
+          customerName: localData.customerName,
+          customerMobile: localData.customerMobile,
+          customerAddress: customerAddressController.text,
+          deliveryAddress: deliveryAddressController.text,
+        );
+        notifyListeners();
+
         // Clear Fields:
         customerName.clear();
         customerMobile.clear();
@@ -724,9 +762,6 @@ class CustomersProvider with ChangeNotifier {
         _addresses.clear();
         _deliveryAddresses.clear();
         notifyListeners();
-
-        if (!context.mounted) return;
-        await getAllCustomers(context);
 
         Toasts.showToastBar(context: context, text: 'Customer is added.',color: AppColors.successMessage);
       } else if (response.responseCode == 409) {
@@ -1082,7 +1117,7 @@ class CustomersProvider with ChangeNotifier {
   String get selectedCustomerMobile => _selectedCustomerMobile;
 
   /// -------- Fetch all Customers -----------------
-
+  TextEditingController cusController = TextEditingController();
   List<Customer> _allCustomers = [];
   List<Customer> get allCustomersList => _allCustomers;
 
