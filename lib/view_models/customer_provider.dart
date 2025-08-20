@@ -737,9 +737,12 @@ class CustomersProvider with ChangeNotifier {
         setDeliveryAddressList(
             _deliveryAddresses.map((e) => e.toString()).toList()
         );
-        setSelectedDeliveryAddress(localData.deliveryAddress.toString());
-        deliveryAddressController.text = localData.deliveryAddress.toString();
-        print("_deliveryAddressList: ${_deliveryAddressList.length} - ${localData.deliveryAddress.toString()}");
+
+        if (_deliveryAddresses.isNotEmpty) {
+          final firstValue = _deliveryAddresses.first.toString();
+          setSelectedDeliveryAddress(firstValue);
+          deliveryAddressController.text = firstValue;
+        }
         notifyListeners();
        setCustomerDetails(
           customerId: newCustomer.userId.toString(),

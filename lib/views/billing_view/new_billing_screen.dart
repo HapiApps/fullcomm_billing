@@ -554,61 +554,34 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                 return SizedBox(
                                                                   width: screenWidth * 0.20,
                                                                   height: 40,
-                                                                  child: MyDropdownMenu<DeliveryAddressEntry>(
-                                                                    width: screenWidth * 0.20,
-                                                                    enableSearch: true,
-                                                                    enableFilter: true,
-                                                                    menuHeight: 350,
-                                                                    controller: customerProvider.deliveryAddressController,
-                                                                    dropdownMenuEntries: provider.deliveryAddresses.map((entry) {
-                                                                      return MyDropdownMenuEntry<DeliveryAddressEntry>(
-                                                                        value: entry,
-                                                                        enabled: true,
-                                                                        label: "${entry.doorController.text}, ${entry.areaController.text}, ${entry.cityController.text}, ${entry.stateController.text} - ${entry.pinController.text}",
-                                                                      );
-                                                                    }).toList(),
-                                                                    menuStyle: const MenuStyle(
-                                                                      backgroundColor: WidgetStatePropertyAll(Colors.white),
+                                                                    child: MyDropdownMenu<String>(
+                                                                      width:screenWidth * 0.20,
+                                                                      enableSearch: true,
+                                                                      enableFilter: true,
+                                                                      menuHeight: 350,
+                                                                      initialSelection: provider.selectedDeliveryAddress,
+                                                                      inputFormatters: InputFormatters.textOnlyInput,
+                                                                      controller: customerProvider.deliveryAddressController,
+                                                                      dropdownMenuEntries:provider.deliveryAddressList.map((state) {
+                                                                        return MyDropdownMenuEntry<String>(
+                                                                          value: state,
+                                                                          enabled: true,
+                                                                          label: state,
+                                                                        );
+                                                                      }).toList(),
+                                                                      menuStyle: MenuStyle(
+                                                                        backgroundColor: WidgetStatePropertyAll(Colors.white),
+                                                                      ),
+                                                                      hintText: provider.selectedDeliveryAddress.toString().isEmpty?
+                                                                      "Select Delivery Address" :
+                                                                      provider.selectedDeliveryAddress,
+                                                                      onSelected: (selectedAddress) {
+                                                                        provider.setSelectedDeliveryAddress(selectedAddress);
+                                                                      },
                                                                     ),
-                                                                    hintText: " ",
-                                                                    onSelected: (selectedAddress) {
-                                                                      provider.setSelectedDeliveryAddress(selectedAddress.toString());
-                                                                      customerProvider.deliveryAddressController.text = selectedAddress.toString(); // save in controller
-                                                                    },
-                                                                  ),
                                                                 );
                                                               },
                                                             ),)
-                                                      //       child: MyDropdownMenu<String>(
-                                                      //         width:screenWidth * 0.20,
-                                                      //         enableSearch: true,
-                                                      //         enableFilter: true,
-                                                      //         menuHeight: 350,
-                                                      //         initialSelection: provider.selectedDeliveryAddress,
-                                                      //
-                                                      //         inputFormatters: InputFormatters.textOnlyInput,
-                                                      //         controller: customerProvider.deliveryAddressController,
-                                                      //         dropdownMenuEntries:provider.deliveryAddressList.map((state) {
-                                                      //           return MyDropdownMenuEntry<String>(
-                                                      //             value: state,
-                                                      //             enabled: true,
-                                                      //             label: state,
-                                                      //           );
-                                                      //         }).toList(),
-                                                      //         menuStyle: MenuStyle(
-                                                      //           backgroundColor: WidgetStatePropertyAll(Colors.white),
-                                                      //         ),
-                                                      //         hintText: provider.selectedDeliveryAddress.toString().isEmpty?
-                                                      //         "Select Delivery Address" :
-                                                      //         provider.selectedDeliveryAddress,
-                                                      //         onSelected: (selectedAddress) {
-                                                      //           provider.setSelectedDeliveryAddress(selectedAddress);
-                                                      //         },
-                                                      //       ),
-                                                      //     );
-                                                      //   },
-                                                      // ),
-
                                                     ],
                                                   ),
                                           10.width,
@@ -648,13 +621,15 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                         children: [
                                           billingProvider.barcodeMode
                                               ? MyTextField(
-                                                  width: screenWidth * 0.35,
+                                                  width: screenWidth * 0.55,
                                                   height: 45,
                                                   isOptional: true,
                                                   controller: billingProvider.barcodeScanner,
                                                   labelText: 'Scan...',
                                                   maxLines: null,
                                                   minLines: 2,
+                                            focusedBorderColor: AppColors.primary,
+                                            enabledBorderColor: Color(0xff9e9e9e),
                                                   //textAlign: TextAlign.left,
                                                   autofocus: true,
                                                   onChanged: (value) {
@@ -810,9 +785,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                               //   StrictNonZeroIntFormatter(),
                                               // ],
                                               onChanged: (value) {
-
                                                 if (billingProvider.selectedProduct != null) {
-
                                                   if (billingProvider.selectedProduct!.isLoose == '1') {
                                                     billingProvider.updateTemporaryFields(
                                                       variation: (double.parse(value) * 1000),
@@ -851,7 +824,6 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                       BillingItem(
                                                         id: billingProvider.selectedProduct!.id!.toString(),
                                                         product: billingProvider.selectedProduct!,
-
                                                         productTitle: billingProvider.selectedProduct!.isLoose == '0'
                                                             ? billingProvider.selectedProduct!.pTitle.toString()
                                                             : "${billingProvider.selectedProduct!.pTitle} ${billingProvider.temporaryVariation / 1000}kg",
@@ -883,7 +855,6 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                       color: Colors.red);
                                                   // Reset focus back to dropdown
                                                 }
-
                                               },
                                             ),
                                           ),
