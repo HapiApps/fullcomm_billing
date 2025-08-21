@@ -110,7 +110,6 @@ class ListConstant{
     StateObj(id: 26, name: "Uttar Pradesh", short: "UP",code:"IN-UP" ),
     StateObj(id: 27, name: "Uttarakhand", short: "UK",code:"IN-UK" ),
     StateObj(id: 28, name: "West Bengal", short: "WB",code:"IN-WB" ),
-    StateObj(id: 29, name: "", short: "",code:"" ),
   ];
 
 

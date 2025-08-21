@@ -62,101 +62,121 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: AppColors.darkBlue,
                 ),
                 70.height,
-                MyTextField(
-                  labelText: 'Mobile Number',
-                  isOptional: true,
-                  width: screenWidth > 800
-                      ? screenWidth * 0.20
-                      : screenWidth * 0.35,
-                  height: 50,
-                  controller: userProvider.mobileController,
-                  focusedBorderColor: AppColors.primary,
-                  enabledBorderColor: Color(0xff9e9e9e),
-                  fillColor: Color(0xffffffff),
-                  borderRadius: 5,
-                  keyboardType: TextInputType.number,
-                  autofocus: true,
-                  textInputAction: TextInputAction.next,
-                  inputFormatters: InputFormatters.mobileNumberInput,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        MyText(
+                            text: 'Mobile Number',
+                            fontSize: 13,
+                            color: Color(0xff9E9E9E)),
+                        MyText(text: "*", color: Colors.red, fontSize: 20)
+                      ],
+                    ),
+                    MyTextField(
+                      labelText: 'Mobile Number',
+                      isOptional: true,
+                      width: screenWidth > 800
+                          ? screenWidth * 0.20
+                          : screenWidth * 0.35,
+                      height: 50,
+                      controller: userProvider.mobileController,
+                      focusedBorderColor: AppColors.primary,
+                      enabledBorderColor: Color(0xff9e9e9e),
+                      fillColor: Color(0xffffffff),
+                      borderRadius: 5,
+                      keyboardType: TextInputType.number,
+                      autofocus: true,
+                      textInputAction: TextInputAction.next,
+                      inputFormatters: InputFormatters.mobileNumberInput,
+                    ),
+                  ],
                 ),
                 25.height,
-                MyTextField(
-                  labelText: 'Password',
-                  height: 50,
-                  isOptional: true,
-                  obscureText: userProvider.isVisible,
-                  focusedBorderColor: AppColors.primary,
-                  enabledBorderColor: Color(0xff9e9e9e),
-                  fillColor: Color(0xffffffff),
-                  borderRadius: 5,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      userProvider.isVisible
-                          ? Icons.visibility_off
-                          : Icons.visibility,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        MyText(
+                            text: 'Password',
+                            fontSize: 13,
+                            color: Color(0xff9E9E9E)),
+                        MyText(text: "*", color: Colors.red, fontSize: 20)
+                      ],
                     ),
-                    onPressed: () {
-                      userProvider.toggleVisibility();
-                    },
-                  ),
-                  width: screenWidth > 800
-                      ? screenWidth * 0.20
-                      : screenWidth * 0.35,
-                  controller: userProvider.passwordController,
-                  textInputAction: TextInputAction.next,
-                  onFieldSubmitted: (value) {
-                    userProvider.loginButtonController.start(); // Start Loading
-                    if (userProvider.mobileController.text.trim().isEmpty) {
-                      userProvider.loginButtonController.reset();
-                      Toasts.showToastBar(
-                        context: context,
-                        text: 'Please enter your mobile number.',
-                        color: AppColors.errorMessage,
-                      );
-                    } else if (userProvider.mobileController.text
-                        .trim()
-                        .length !=
-                        10) {
-                      userProvider.loginButtonController.reset();
-                      Toasts.showToastBar(
-                        context: context,
-                        text: 'Please enter 10 digit mobile number.',
-                        color: AppColors.errorMessage,
-                      );
-                    } else if (userProvider.passwordController.text
-                        .trim()
-                        .isEmpty) {
-                      userProvider.loginButtonController.reset();
-                      Toasts.showToastBar(
-                        context: context,
-                        text: 'Please enter your password.',
-                        color: AppColors.errorMessage,
-                      );
-                    } else if (userProvider.passwordController.text
-                        .trim()
-                        .length <
-                        8) {
-                      userProvider.loginButtonController.reset();
-                      Toasts.showToastBar(
-                        context: context,
-                        text: 'Password must be at least 8 characters.',
-                        color: AppColors.errorMessage,
-                      );
-                    } else {
-                      userProvider.login(
-                        context: context,
-                        mobile: userProvider.mobileController.text.trim(),
-                        password:
-                        userProvider.passwordController.text.trim(),
-                      );
-                      // userProvider.loginButtonController.reset();
-                      // Toasts.showToastBar(
-                      //   context: context,
-                      //   text: 'Invalid Mobile/Password!',
-                      //   color: AppColors.errorMessage,
-                      // );
-                    }
-                  },
+                    MyTextField(
+                      labelText: 'Password',
+                      height: 50,
+                      isOptional: true,
+                      obscureText: userProvider.isVisible,
+                      focusedBorderColor: AppColors.primary,
+                      enabledBorderColor: Color(0xff9e9e9e),
+                      fillColor: Color(0xffffffff),
+                      borderRadius: 5,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          userProvider.isVisible
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                        ),
+                        onPressed: () {
+                          userProvider.toggleVisibility();
+                        },
+                      ),
+                      width: screenWidth > 800
+                          ? screenWidth * 0.20
+                          : screenWidth * 0.35,
+                      controller: userProvider.passwordController,
+                      textInputAction: TextInputAction.next,
+                      inputFormatters: InputFormatters.passwordInput,
+                      onFieldSubmitted: (value) {
+                        userProvider.loginButtonController.start(); // Start Loading
+                        if (userProvider.mobileController.text.trim().isEmpty) {
+                          userProvider.loginButtonController.reset();
+                          Toasts.showToastBar(
+                            context: context,
+                            text: 'Please enter your mobile number.',
+                            color: AppColors.errorMessage,
+                          );
+                        } else if (userProvider.mobileController.text.trim().length != 10) {
+                          userProvider.loginButtonController.reset();
+                          Toasts.showToastBar(
+                            context: context,
+                            text: 'Please enter 10 digit mobile number.',
+                            color: AppColors.errorMessage,
+                          );
+                        } else if (userProvider.passwordController.text.trim().isEmpty) {
+                          userProvider.loginButtonController.reset();
+                          Toasts.showToastBar(
+                            context: context,
+                            text: 'Please enter your password.',
+                            color: AppColors.errorMessage,
+                          );
+                        } else if (userProvider.passwordController.text.trim().length < 8 || userProvider.passwordController.text.trim().length > 16) {
+                          userProvider.loginButtonController.reset();
+                          Toasts.showToastBar(
+                            context: context,
+                            text: 'Password must be 8–16 characters.',
+                            color: AppColors.errorMessage,
+                          );
+                        } else {
+                          userProvider.login(
+                            context: context,
+                            mobile: userProvider.mobileController.text.trim(),
+                            password: userProvider.passwordController.text.trim(),
+                          );
+                          // userProvider.loginButtonController.reset();
+                          // Toasts.showToastBar(
+                          //   context: context,
+                          //   text: 'Invalid Mobile/Password!',
+                          //   color: AppColors.errorMessage,
+                          // );
+                        }
+                      },
+                    ),
+                  ],
                 ),
                 50.height,
                 Buttons.loginButton(
@@ -187,20 +207,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         text: 'Please enter 10 digit mobile number.',
                         color: AppColors.errorMessage,
                       );
-                    } else if (userProvider.passwordController.text
-                        .trim()
-                        .isEmpty) {
+                    } else if (userProvider.passwordController.text.trim().isEmpty) {
                       userProvider.loginButtonController.reset();
                       Toasts.showToastBar(
                         context: context,
                         text: 'Please enter your Password',
                         color: AppColors.errorMessage,
                       );
-                    } else if (userProvider.passwordController.text.trim().length < 8) {
+                    } else if (userProvider.passwordController.text.trim().length < 8 || userProvider.passwordController.text.trim().length > 16) {
                       userProvider.loginButtonController.reset();
                       Toasts.showToastBar(
                         context: context,
-                        text: 'Password must be at least 8 characters.',
+                        text: 'Password must be 8–16 characters.',
                         color: AppColors.errorMessage,
                       );
                     } else {

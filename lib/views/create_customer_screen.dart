@@ -108,7 +108,6 @@ class AddCustomerDialog extends StatelessWidget {
                                 borderRadius: 3,
                                 onChanged: (value) {
                                   if (value.isNotEmpty) {
-                                    // first letter uppercase + rest as is
                                     String newValue = value[0].toUpperCase() + value.substring(1);
                                     if (newValue != value) {
                                       customerProvider.customerName.value = customerProvider.customerName.value.copyWith(
@@ -332,6 +331,7 @@ class AddCustomerDialog extends StatelessWidget {
                                               enableFilter: true,
                                               menuHeight: 350,
                                               inputFormatters: InputFormatters.textOnlyInput,
+                                              initialSelection: entry.selectedState,
                                               dropdownMenuEntries: listConstant.statesOfIndia.map((state) {
                                                 return MyDropdownMenuEntry<StateObj>(
                                                   value: state,
@@ -342,7 +342,7 @@ class AddCustomerDialog extends StatelessWidget {
                                               menuStyle: MenuStyle(
                                                 backgroundColor: WidgetStatePropertyAll(AppColors.white),
                                               ),
-                                              hintText: " ",
+                                              hintText: "Enter State",
                                               onSelected: (StateObj? selectedState) {
                                                 entry.selectedState = selectedState;
                                                 entry.stateController.text = selectedState?.name ?? "";
@@ -381,39 +381,55 @@ class AddCustomerDialog extends StatelessWidget {
                                       ),
                                     ],
                                   ),7.height,
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: index == customerProvider.addresses.length - 1
-                                        ? TextButton.icon(
-                                      onPressed: () {
-                                        if(entry.cityController.text.isEmpty){
-                                          Toasts.showToastBar(
-                                              context: context,
-                                              text: "Please enter city",
-                                              color: Colors.red);
-                                        }else if(entry.stateController.text.isEmpty){
-                                          Toasts.showToastBar(
-                                              context: context,
-                                              text: "Please enter state",
-                                              color: Colors.red);
-                                        }else if(entry.pinController.text.isEmpty || entry.pinController.text.length!=6){
-                                          Toasts.showToastBar(
-                                              context: context,
-                                              text: "Please enter pincode",
-                                              color: Colors.red);
-                                        }else{
-                                          customerProvider.addAddress();
-                                        }
-                                      },
-                                      icon: const Icon(Icons.add, color: Color(0xff00B669)),
-                                      label: const MyText(text: "Add Address", color: Color(0xff00B669)),
-                                    )
-                                        : IconButton(
-                                      icon: const Icon(Icons.delete, color: Colors.red),
-                                      onPressed: () {
-                                        customerProvider.removeAddress(index);
-                                      },
-                                    ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                     TextButton.icon(
+                                          onPressed: () {
+                                            if(entry.cityController.text.isEmpty){
+                                              Toasts.showToastBar(
+                                                  context: context,
+                                                  text: "Please enter city",
+                                                  color: Colors.red);
+                                            }else if(entry.stateController.text.isEmpty){
+                                              Toasts.showToastBar(
+                                                  context: context,
+                                                  text: "Please enter state",
+                                                  color: Colors.red);
+                                            }else if(entry.pinController.text.isEmpty){
+                                              Toasts.showToastBar(
+                                                  context: context,
+                                                  text: "Please enter pincode",
+                                                  color: Colors.red);
+                                            }else if(entry.pinController.text.length!=6){
+                                              Toasts.showToastBar(
+                                                  context: context,
+                                                  text: "Pincode must be 6 characters.",
+                                                  color: Colors.red);
+                                            }else{
+                                              customerProvider.addAddress();
+                                            }
+                                          },
+                                          icon: const Icon(Icons.add, color: Color(0xff00B669)),
+                                          label: const MyText(text: "Add Address", color: Color(0xff00B669)),
+                                        ),
+                                           IconButton(
+                                          icon: const Icon(Icons.delete, color: Colors.red),
+                                          onPressed: () {
+                                            if(customerProvider.addresses.length==1){
+                                              Toasts.showToastBar(
+                                                  context: context,
+                                                  text: "At least one address required",
+                                                color: AppColors.errorMessage
+                                              );
+                                            }else{
+                                              entry.selectedState = null;
+                                              entry.stateController.text = "";
+                                              customerProvider.removeAddress(index);
+                                            }
+                                          },
+                                        ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -545,6 +561,7 @@ class AddCustomerDialog extends StatelessWidget {
                                               enableFilter: true,
                                               menuHeight: 350,
                                               inputFormatters: InputFormatters.textOnlyInput,
+                                              initialSelection: entry.selectedState,
                                               dropdownMenuEntries: listConstant.statesOfIndia.map((state) {
                                                 return MyDropdownMenuEntry<StateObj>(
                                                   value: state,
@@ -556,8 +573,9 @@ class AddCustomerDialog extends StatelessWidget {
                                                 backgroundColor: WidgetStatePropertyAll(
                                                     Colors.white),
                                               ),
-                                              hintText: " ",
+                                              hintText: "Enter State",
                                               onSelected: (StateObj? selectedState) {
+                                                entry.selectedState = selectedState;
                                                 entry.stateController.text = selectedState?.name ?? "";
                                               },
                                             ),
@@ -594,40 +612,57 @@ class AddCustomerDialog extends StatelessWidget {
                                       ),
                                     ],
                                   ),
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: index == customerProvider.deliveryAddresses.length - 1
-                                        ? TextButton.icon(
-                                      onPressed: () {
-                                        if(entry.cityController.text.isEmpty){
-                                          Toasts.showToastBar(
-                                              context: context,
-                                              text: "Please enter city",
-                                              color: Colors.red);
-                                        }else if(entry.stateController.text.isEmpty){
-                                          Toasts.showToastBar(
-                                              context: context,
-                                              text: "Please enter state",
-                                              color: Colors.red);
-                                        }else if(entry.pinController.text.isEmpty || entry.pinController.text.length!=6){
-                                          Toasts.showToastBar(
-                                              context: context,
-                                              text: "Please enter pincode",
-                                              color: Colors.red);
-                                        }else {
-                                          customerProvider.addDeliveryAddress();
-                                        }
-                                      },
-                                      icon: const Icon(Icons.add, color: Color(0xff00B669)),
-                                      label: const MyText(text: "Add Address", color: Color(0xff00B669)),
-                                    )
-                                        : IconButton(
-                                      icon: const Icon(Icons.delete, color: Colors.red),
-                                      onPressed: () {
-                                        customerProvider.removeDeliveryAddress(index);
-                                      },
-                                    ),
-                                  ),
+                               Row(
+                                 mainAxisAlignment: MainAxisAlignment.end,
+                                 children: [
+                                   TextButton.icon(
+                                     onPressed: () {
+                                       if(entry.cityController.text.isEmpty){
+                                         Toasts.showToastBar(
+                                             context: context,
+                                             text: "Please enter city",
+                                             color: Colors.red);
+                                       }else if(entry.stateController.text.isEmpty){
+                                         Toasts.showToastBar(
+                                             context: context,
+                                             text: "Please enter state",
+                                             color: Colors.red);
+                                       }else if(entry.pinController.text.isEmpty){
+                                         Toasts.showToastBar(
+                                             context: context,
+                                             text: "Please enter pincode",
+                                             color: Colors.red);
+                                       }else if(entry.pinController.text.length!=6){
+                                         Toasts.showToastBar(
+                                             context: context,
+                                             text: "Pincode must be 6 characters.",
+                                             color: Colors.red);
+                                       }else {
+                                         customerProvider.addDeliveryAddress();
+                                       }
+                                     },
+                                     icon: const Icon(Icons.add, color: Color(0xff00B669)),
+                                     label: const MyText(text: "Add Address", color: Color(0xff00B669)),
+                                   ),
+                                   IconButton(
+                                     icon: const Icon(Icons.delete, color: Colors.red),
+                                     onPressed: () {
+                                       if(customerProvider.deliveryAddresses.length==1){
+                                         Toasts.showToastBar(
+                                             context: context,
+                                             text: "At least one address required",
+                                             color: AppColors.errorMessage
+                                         );
+                                       }else{
+                                         entry.selectedState = null;
+                                         entry.stateController.text = "";
+                                         customerProvider.removeDeliveryAddress(index);
+                                       }
+                                     },
+                                   ),
+                                 ],
+                               )
+
                                 ],
                               ),
                             ),
@@ -685,7 +720,7 @@ class AddCustomerDialog extends StatelessWidget {
                                 customerProvider.loadingButtonController.reset();
                                 Toasts.showToastBar(
                                     context: context,
-                                    text: "Please enter customer mobile",
+                                    text: "Please enter customer mobile no.",
                                     color: Colors.red);
                               }  else if (customerProvider.customerMobile.text.length!=10) {
                                 customerProvider.loadingButtonController.reset();
@@ -711,6 +746,12 @@ class AddCustomerDialog extends StatelessWidget {
                                     context: context,
                                     text: "Please enter customer address pincode",
                                     color: Colors.red);
+                              }else if(customerProvider.addresses[0].pinController.text.length!=6){
+                                customerProvider.loadingButtonController.reset();
+                                Toasts.showToastBar(
+                                    context: context,
+                                    text: "Pincode must be 6 characters.",
+                                    color: Colors.red);
                               }else if(customerProvider.deliveryAddresses[0].cityController.text.isEmpty){
                                 customerProvider.loadingButtonController.reset();
                                 Toasts.showToastBar(
@@ -728,6 +769,12 @@ class AddCustomerDialog extends StatelessWidget {
                                 Toasts.showToastBar(
                                     context: context,
                                     text: "Please enter delivery address pincode",
+                                    color: Colors.red);
+                              }else if(customerProvider.deliveryAddresses[0].pinController.text.length!=6){
+                                customerProvider.loadingButtonController.reset();
+                                Toasts.showToastBar(
+                                    context: context,
+                                    text: "Pincode must be 6 characters.",
                                     color: Colors.red);
                               }else{
                                 customerProvider.addCustomer(

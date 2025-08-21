@@ -47,8 +47,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   minDate: DateTime(2023),
                   maxDate: DateTime.now(),
                   selectionMode: DateRangePickerSelectionMode.range,
-                  onSelectionChanged:
-                      (DateRangePickerSelectionChangedArgs args) {
+                  onSelectionChanged: (DateRangePickerSelectionChangedArgs args) {
                     setState(() {
                       selectedRange = args.value;
                     });
@@ -108,17 +107,17 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
     // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-
       DateTime today = DateTime.now();
       DateTime tomorrow = today.add(const Duration(days: 1));
       String todayStr = DateFormat('yyyy-MM-dd').format(today);
       String tomorrowStr = DateFormat('yyyy-MM-dd').format(tomorrow);
-      Provider.of<BillingProvider>(context, listen: false)
-          .getAllOrderDetails(todayStr, tomorrowStr);
+      Provider.of<BillingProvider>(context, listen: false).getAllOrderDetails(todayStr, tomorrowStr);
       final billingProvider = Provider.of<BillingProvider>(context, listen: false);
       billingProvider.searchName.clear();
       billingProvider.searchAmount.clear();
       billingProvider.searchProd.clear();
+      billingProvider.setDateRange(null);
+      billingProvider.changeDateFilter("Today");
     });
   }
 
@@ -164,10 +163,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                         onChanged: (value) {
                           billingProvider.changeDateFilter(value!);
                           DateTime today = DateTime.now();
-                          DateTime end =
-                              today.subtract(const Duration(days: 30));
-                          String todayStr =
-                              DateFormat('yyyy-MM-dd').format(today);
+                          DateTime end = today.subtract(const Duration(days: 30));
+                          String todayStr = DateFormat('yyyy-MM-dd').format(today);
                           String endStr = DateFormat('yyyy-MM-dd').format(end);
                           billingProvider.getAllOrderDetails(endStr, todayStr);
                           billingProvider.setDateRange(null);
@@ -252,72 +249,114 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                       ),
                     ),
                   ),
-                  MyTextField(
-                    labelText: 'Customer Name',
-                    width: 210,
-                    isOptional: true,
-                    height: 40,
-                    controller: billingProvider.searchName,
-                    keyboardType: TextInputType.text,
-                    autofocus: true,
-                    textInputAction: TextInputAction.next,
-                    onChanged: (value) {
-                      billingProvider.setSearchQuery(name: value);
-                    },
-                    suffixIcon: IconButton(
-                        onPressed: () {
-                          billingProvider.searchName.clear();
-                          billingProvider.setSearchQuery(name: "");
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const MyText(
+                        text: 'Customer Name',
+                        color: Color(0xff9E9E9E),
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      MyTextField(
+                        labelText: 'Customer Name',
+                        width: 210,
+                        isOptional: true,
+                        height: 40,
+                        controller: billingProvider.searchName,
+                        keyboardType: TextInputType.text,
+                        autofocus: true,
+                        textInputAction: TextInputAction.next,
+                        focusedBorderColor: AppColors.primary,
+                        enabledBorderColor: Colors.grey.shade300,
+                        borderRadius: 5,
+                        onChanged: (value) {
+                          billingProvider.setSearchQuery(name: value);
                         },
-                        icon: const Icon(
-                          Icons.clear,
-                          size: 14,
-                        )),
+                        suffixIcon: IconButton(
+                            onPressed: () {
+                              billingProvider.searchName.clear();
+                              billingProvider.setSearchQuery(name: "");
+                            },
+                            icon: const Icon(
+                              Icons.clear,
+                              size: 14,
+                            )),
+                      ),
+                    ],
                   ),
-                  MyTextField(
-                    labelText: 'Amount',
-                    isOptional: true,
-                    width: 210,
-                    height: 40,
-                    controller: billingProvider.searchAmount,
-                    keyboardType: TextInputType.number,
-                    autofocus: true,
-                    textInputAction: TextInputAction.next,
-                    inputFormatters: InputFormatters.mobileNumberInput,
-                    onChanged: (value) {
-                      billingProvider.setSearchQuery(total: value);
-                    },
-                    suffixIcon: IconButton(
-                        onPressed: () {
-                          billingProvider.searchAmount.clear();
-                          billingProvider.setSearchQuery(total: "");
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const MyText(
+                        text: 'Amount',
+                        color: Color(0xff9E9E9E),
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      MyTextField(
+                        labelText: 'Amount',
+                        isOptional: true,
+                        width: 210,
+                        height: 40,
+                        controller: billingProvider.searchAmount,
+                        keyboardType: TextInputType.number,
+                        autofocus: true,
+                        textInputAction: TextInputAction.next,
+                        inputFormatters: InputFormatters.mobileNumberInput,
+                        focusedBorderColor: AppColors.primary,
+                        enabledBorderColor: Colors.grey.shade300,
+                        borderRadius: 5,
+                        onChanged: (value) {
+                          billingProvider.setSearchQuery(total: value);
                         },
-                        icon: const Icon(
-                          Icons.clear,
-                          size: 14,
-                        )),
+                        suffixIcon: IconButton(
+                            onPressed: () {
+                              billingProvider.searchAmount.clear();
+                              billingProvider.setSearchQuery(total: "");
+                            },
+                            icon: const Icon(
+                              Icons.clear,
+                              size: 14,
+                            )),
+                      ),
+                    ],
                   ),
-                  MyTextField(
-                    labelText: 'Product Name',
-                    isOptional: true,
-                    width: 210,
-                    height: 40,
-                    controller: billingProvider.searchProd,
-                    keyboardType: TextInputType.text,
-                    autofocus: true,
-                    textInputAction: TextInputAction.next,
-                    onChanged: (value) {
-                      billingProvider.setSearchQuery(product: value);
-                    },
-                    suffixIcon: IconButton(
-                        onPressed: () {
-                          billingProvider.searchProd.clear();
-                          billingProvider.setSearchQuery(product: "");
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const MyText(
+                        text: 'Product Name',
+                        color: Color(0xff9E9E9E),
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      MyTextField(
+                        labelText: 'Product Name',
+                        isOptional: true,
+                        width: 210,
+                        height: 40,
+                        controller: billingProvider.searchProd,
+                        keyboardType: TextInputType.text,
+                        autofocus: true,
+                        focusedBorderColor: AppColors.primary,
+                        enabledBorderColor: Colors.grey.shade300,
+                        borderRadius: 5,
+                        textInputAction: TextInputAction.next,
+                        onChanged: (value) {
+                          billingProvider.setSearchQuery(product: value);
                         },
-                        icon: const Icon(
-                          Icons.clear,
-                          size: 14,
-                        )),
+                        suffixIcon: IconButton(
+                            onPressed: () {
+                              billingProvider.searchProd.clear();
+                              billingProvider.setSearchQuery(product: "");
+                            },
+                            icon: const Icon(
+                              Icons.clear,
+                              size: 14,
+                            )),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -553,7 +592,17 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                                   ),
                                                 ),
                                                 actions: [
-                                                  TextButton(
+                                                  ElevatedButton(
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor:
+                                                          Colors.white,
+                                                      shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(5),
+                                                        side: BorderSide(
+                                                          color: AppColors.primary,
+                                                        ),
+                                                      ),
+                                                    ),
                                                     onPressed: () =>
                                                         Navigator.pop(context),
                                                     child: const Text("Close"),
@@ -593,8 +642,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                             children: [
                                               GestureDetector(
                                                 child: const Icon(
-                                                    Icons
-                                                        .shopping_cart_outlined,
+                                                    Icons.shopping_cart_outlined,
                                                     color: Colors.grey),
                                                 onTap: () {
                                                   if (products.isNotEmpty &&
@@ -631,7 +679,17 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                                           ),
                                                         ),
                                                         actions: [
-                                                          TextButton(
+                                                          ElevatedButton(
+                                                            style: ElevatedButton.styleFrom(
+                                                              backgroundColor:
+                                                              Colors.white,
+                                                              shape: RoundedRectangleBorder(
+                                                                borderRadius: BorderRadius.circular(5),
+                                                                side: BorderSide(
+                                                                  color: AppColors.primary,
+                                                                ),
+                                                              ),
+                                                            ),
                                                             onPressed: () =>
                                                                 Navigator.pop(
                                                                     context),
@@ -656,8 +714,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                                 onPressed: () async {
                                                   final BillPdf pdfService =
                                                       BillPdf();
-                                                  await pdfService
-                                                      .printCustomBill(context,
+                                                  await pdfService.printCustomBill(context,
                                                           data: data);
                                                 },
                                                 child: const Text("Print",

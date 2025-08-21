@@ -77,27 +77,39 @@ class MyTextField extends StatelessWidget {
         focusNode: focusNode,
         keyboardType: keyboardType,
         inputFormatters: inputFormatters,
-        autofocus: false,
         obscureText: obscureText ?? false,
         obscuringCharacter: '•',
         textAlign: textAlign ?? TextAlign.start,
         decoration: InputDecoration(
           filled: true,
           fillColor: fillColor ?? AppColors.textFieldBackground,
-          label: Row(
-            mainAxisSize: MainAxisSize.min,
-            children:[
-              MyText(
-                text: labelText.toString(),
-              ),
-                  isOptional==false?const MyText(
-                    text: "*",
-                    color:Colors.red,
-                    fontSize: 20,
-                  ):0.height,
-
-            ],
-          ),
+          // label: RichText(
+          //   text: TextSpan(
+          //     text: labelText ?? "",
+          //     style: GoogleFonts.lato(color: Colors.black),
+          //     children: [
+          //       if (!isOptional)
+          //         const TextSpan(
+          //           text: " *",
+          //           style: TextStyle(color: Colors.red, fontSize: 16),
+          //         ),
+          //     ],
+          //   ),
+          // ),
+          // label: Row(
+          //   mainAxisSize: MainAxisSize.min,
+          //   children:[
+          //     MyText(
+          //       text: labelText.toString(),
+          //     ),
+          //         isOptional==false?const MyText(
+          //           text: "*",
+          //           color:Colors.red,
+          //           fontSize: 20,
+          //         ):0.height,
+          //
+          //   ],
+          // ),
           labelStyle: GoogleFonts.lato(),
           hintText: hintText,
           hintStyle: GoogleFonts.lato(),

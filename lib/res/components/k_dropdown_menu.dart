@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../colors.dart';
 
@@ -626,6 +627,9 @@ class _MyDropdownMenuState<T> extends State<MyDropdownMenu<T>> {
                   borderSide: BorderSide(width: 0, color: AppColors.primary)),
               hintText: widget.hintText,
               helperText: widget.helperText,
+              hintStyle: GoogleFonts.lato(
+                fontSize: 13
+              ),
               errorText: widget.errorText,
               prefixIcon: widget.leadingIcon != null
                   ? SizedBox(key: _leadingKey, child: widget.leadingIcon)

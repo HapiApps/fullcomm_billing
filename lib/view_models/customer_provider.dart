@@ -149,14 +149,18 @@ class CustomersProvider with ChangeNotifier {
     ""
   ];
 
-  String _selectedState = "Tamil Nadu";
+  String? _selectedState;
 
   List<String> get states => _states;
 
   String? get selectedState => _selectedState;
 
   void changeState(String state) {
-    _selectedState = state;
+   if(state.isEmpty){
+     _selectedState = null;
+   }else{
+     _selectedState = state;
+   }
     notifyListeners();
   }
 
@@ -537,6 +541,11 @@ class CustomersProvider with ChangeNotifier {
                                           enableFilter: true,
                                           menuHeight: 350,
                                           inputFormatters: InputFormatters.textOnlyInput,
+                                          initialSelection: selectedState == null
+                                              ? null
+                                              : listConstant.statesOfIndia.firstWhere(
+                                                (s) => s.name == selectedState,
+                                          ),
                                           dropdownMenuEntries: listConstant.statesOfIndia.map((state) {
                                             return MyDropdownMenuEntry<StateObj>(
                                               value: state,
@@ -593,35 +602,40 @@ class CustomersProvider with ChangeNotifier {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      deliveryStreet.clear();
-                                      deliveryCity.clear();
-                                      deliveryArea.clear();
-                                      deliveryPincode.clear();
-                                      deliveryName.clear();
-                                      deliveryMobile.clear();
-                                      vehicleNumer.clear();
-                                      deliveryState.clear();
-                                      changeState("");
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Color(0xffEEEFF2), // button background color
-                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8), // rounded corners
+                                  SizedBox(
+                                    height: 50,
+                                    width: 100,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        deliveryStreet.clear();
+                                        deliveryCity.clear();
+                                        deliveryArea.clear();
+                                        deliveryPincode.clear();
+                                        deliveryName.clear();
+                                        deliveryMobile.clear();
+                                        vehicleNumer.clear();
+                                        deliveryState.clear();
+                                        changeState("");
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Color(0xffEEEFF2), // button background color
+                                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8), // rounded corners
+                                        ),
+                                        elevation: 0, // shadow
                                       ),
-                                      elevation: 0, // shadow
-                                    ),
-                                    child: const Text(
-                                      "Clear",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
+                                      child: const Text(
+                                        "Clear",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          //fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
                                       ),
                                     ),
                                   ),
+                                  20.width,
                                   Buttons.loginButton(
                                     context: context,
                                     width: 120,
@@ -638,7 +652,7 @@ class CustomersProvider with ChangeNotifier {
                                         loadingButtonController.reset();
                                         Toasts.showToastBar(
                                             context: context,
-                                            text: "Please enter delivery mobile",
+                                            text: "Please enter delivery mobile no.",
                                             color: Colors.red);
                                       } else if (deliveryCity.text.isEmpty) {
                                        loadingButtonController.reset();
@@ -651,6 +665,12 @@ class CustomersProvider with ChangeNotifier {
                                         Toasts.showToastBar(
                                             context: context,
                                             text: "Please enter pincode",
+                                            color: Colors.red);
+                                      } else if (deliveryPincode.text.length!=6) {
+                                        loadingButtonController.reset();
+                                        Toasts.showToastBar(
+                                            context: context,
+                                            text: "Pincode must be 6 characters.",
                                             color: Colors.red);
                                       }else {
                                         addDelivery(
@@ -680,6 +700,22 @@ class CustomersProvider with ChangeNotifier {
             });
       },
     );
+  }
+
+  void clearCustomerData() {
+    localData.customerName = "";
+    localData.customerMobile = "";
+    localData.customerAddress = "";
+    localData.deliveryAddress = "";
+
+    customerAddressController.clear();
+    deliveryAddressController.clear();
+    cusController.text="";
+    setSelectedDeliveryAddress("");
+    _addresses.clear();
+    _deliveryAddresses.clear();
+
+    notifyListeners();
   }
   /// ----------- Add Customer ----------------------
   Future<void> addCustomer({
@@ -1065,11 +1101,18 @@ class CustomersProvider with ChangeNotifier {
         localData.customerMobile = mobile;
         localData.deliveryAddress = "$dAddressLine1,$dArea,$dCity,$dState,$dPinCode".replaceAll(',,', ',');
         deliveryAddressController.text = "$dAddressLine1,$dArea,$dCity,$dState,$dPinCode".replaceAll(',,', ',');
-        setSelectedDeliveryAddress(deliveryAddressController.text);
+        //setSelectedDeliveryAddress(deliveryAddressController.text);
         List<String> addresses = [];
         addresses.add(deliveryAddressController.text);
         setDeliveryAddressList(addresses);
+
+        if (_deliveryAddresses.isNotEmpty) {
+          final firstValue = _deliveryAddresses.first.toString();
+          setSelectedDeliveryAddress(firstValue);
+          deliveryAddressController.text = firstValue;
+        }
         if (!context.mounted) return;
+        Toasts.showToastBar(context: context, text: 'Delivery Address is added.',color: AppColors.green);
         Navigator.pop(context);
         deliveryStreet.clear();
         deliveryCity.clear();
@@ -1080,8 +1123,6 @@ class CustomersProvider with ChangeNotifier {
         vehicleNumer.clear();
         if (!context.mounted) return;
         await getAllCustomers(context);
-        if (!context.mounted) return;
-        Toasts.showToastBar(context: context, text: 'Delivery Address is added.',color: AppColors.green);
 
       } else if (response.responseCode == 409) {
         // Existing Customer :
@@ -1180,15 +1221,18 @@ class CustomersProvider with ChangeNotifier {
       context: context!,
       builder: (context) {
         return AlertDialog(
-          title: const MyText(text:'Product ',fontSize: 15,),
+          title: const MyText(text:'Product Name',fontSize: 15,color: AppColors.primary,fontWeight: FontWeight.bold,),
           content: SizedBox(
-            height: 100,
+            height: 50,
             child: MyTextField(
               hintText: "Product Name",
               autofocus: false,
               isOptional: true,
               focusNode:focus,
-              labelText: "Product Name",
+              labelText: "",
+              borderRadius: 2,
+              focusedBorderColor: AppColors.primary,
+              enabledBorderColor: Color(0xff9e9e9e),
               controller: controller!,
               textCapitalization: TextCapitalization.words,
               keyboardType: TextInputType.text,
@@ -1198,13 +1242,31 @@ class CustomersProvider with ChangeNotifier {
           ),
           actions: [
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
+                  side: BorderSide(
+                    color:AppColors.primary
+                  )
+                )// Make the button transparent
+              ),
                 onPressed: (){
                   Navigator.of(context).pop();
                 },
                 child: MyText(text: "Cancel",color: AppColors.black,)),
             ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor:AppColors.primary,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
+                        side: BorderSide(
+                            color:AppColors.primary
+                        )
+                    )// Make the button transparent
+                ),
                 onPressed: onChanged,
-                child: MyText(text: "Ok",color: AppColors.primary,))
+                child: MyText(text: "Ok",color:Colors.white,))
           ],
         );
       },

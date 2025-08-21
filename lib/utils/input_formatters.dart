@@ -6,7 +6,9 @@ class InputFormatters {
     FilteringTextInputFormatter.digitsOnly,
     FilteringTextInputFormatter.allow(RegExp("[0-9]"))
   ];
-
+  static List<TextInputFormatter> passwordInput = [
+    LengthLimitingTextInputFormatter(16)
+  ];
   static List<TextInputFormatter> quantityInput = [
     LengthLimitingTextInputFormatter(5),
     FilteringTextInputFormatter.digitsOnly,

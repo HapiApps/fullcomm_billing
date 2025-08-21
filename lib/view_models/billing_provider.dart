@@ -10,6 +10,7 @@ import 'package:fullcomm_billing/models/order_details.dart';
 import 'package:fullcomm_billing/repo/place_order_repo.dart';
 import 'package:fullcomm_billing/repo/products_repo.dart';
 import 'package:fullcomm_billing/utils/toast_messages.dart';
+import 'package:provider/provider.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import '../models/bill_obj.dart';
@@ -24,6 +25,7 @@ import '../utils/input_formatters.dart';
 import '../utils/text_formats.dart';
 import '../views/billing_view/new_billing_screen.dart';
 import '../views/pdf/bill_pdf.dart';
+import 'customer_provider.dart';
 
 class BillingProvider with ChangeNotifier {
   final ProductsRepository _productsRepo = ProductsRepository();
@@ -387,7 +389,8 @@ class BillingProvider with ChangeNotifier {
         order.customerName = '';
         order.customerMobile = '';
         order.customerAddress = '';
-
+        final customersProvider = Provider.of<CustomersProvider>(context, listen: false);
+        customersProvider.clearCustomerData();
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => const NewBillingScreen()));
       } else {
@@ -827,7 +830,6 @@ class BillingProvider with ChangeNotifier {
 
     _filterOrders();
   }
-
   void _filterOrders() {
     _allOrders = _searchAllOrders.where((order) {
       final nameMatch = order.name?.toLowerCase().contains(_nameQuery) ?? false;
@@ -835,10 +837,11 @@ class BillingProvider with ChangeNotifier {
       bool totalMatch = true;
       if (_totalQuery.isNotEmpty) {
         final enteredAmount = int.tryParse(_totalQuery);
-        final actualAmount = int.tryParse(order.oTotal ?? '');
+        String rawAmount = order.oTotal?.replaceAll(RegExp(r'[^0-9]'), '') ?? '';
+        final actualAmount = int.tryParse(rawAmount);
+
         if (enteredAmount != null && actualAmount != null) {
-          totalMatch = (actualAmount >= enteredAmount - 100 &&
-              actualAmount <= enteredAmount + 100);
+          totalMatch = actualAmount >= enteredAmount;
         } else {
           totalMatch = false;
         }
@@ -854,6 +857,33 @@ class BillingProvider with ChangeNotifier {
 
     notifyListeners();
   }
+
+  // void _filterOrders() {
+  //   _allOrders = _searchAllOrders.where((order) {
+  //     final nameMatch = order.name?.toLowerCase().contains(_nameQuery) ?? false;
+  //
+  //     bool totalMatch = true;
+  //     if (_totalQuery.isNotEmpty) {
+  //       final enteredAmount = int.tryParse(_totalQuery);
+  //       final actualAmount = int.tryParse(order.oTotal ?? '');
+  //       if (enteredAmount != null && actualAmount != null) {
+  //         totalMatch = (actualAmount >= enteredAmount - 100 &&
+  //             actualAmount <= enteredAmount + 100);
+  //       } else {
+  //         totalMatch = false;
+  //       }
+  //     }
+  //
+  //     final productMatch =
+  //         order.productTitles?.toLowerCase().contains(_productQuery) ?? false;
+  //
+  //     return (_nameQuery.isEmpty || nameMatch) &&
+  //         (_totalQuery.isEmpty || totalMatch) &&
+  //         (_productQuery.isEmpty || productMatch);
+  //   }).toList();
+  //
+  //   notifyListeners();
+  // }
 
   void searchOrders(String value) {
     final suggestions = _searchAllOrders.where((user) {
