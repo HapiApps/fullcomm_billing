@@ -678,9 +678,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                       width: screenWidth * 0.60,
                                                       padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
                                                       child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
+                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                         children: [
                                                           MyText(
                                                             text: product.isLoose == '0'
@@ -751,24 +749,42 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                           Container(
                                             width: screenWidth * 0.10,
                                             alignment: Alignment.center,
-                                            child: MyTextField(
+                                            child: TextFormField(
                                               focusNode: fieldFocusNode,
-                                              isOptional: true,
-                                              height: 50,
-                                              focusedBorderColor: AppColors.primary,
-                                              enabledBorderColor: Color(0xff9e9e9e),
-                                              controller:
-                                                  quantityVariationController,
-                                              labelText: billingProvider
-                                                          .selectedProduct
-                                                          ?.isLoose ==
-                                                      '1'
-                                                  ? "Variation(kg)"
-                                                  : "Quantity",
+                                              decoration: InputDecoration(
+                                                filled: true,
+                                                fillColor: AppColors.textFieldBackground,
+                                                labelText:billingProvider.selectedProduct
+                                                    ?.isLoose == '1'
+                                                    ? "Variation(kg)"
+                                                    : "Quantity",
+                                                labelStyle: GoogleFonts.lato(),
+                                                contentPadding: const EdgeInsets.fromLTRB(10, 30, 5, 0),
+                                                border: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(20),
+                                                  borderSide:  BorderSide(
+                                                    width: 0,
+                                                    color:  AppColors.textFieldBackground,
+                                                  ),
+                                                ),
+                                                enabledBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(20),
+                                                  borderSide:  BorderSide(
+                                                    width: 0,
+                                                    color:  Color(0xff9e9e9e),
+                                                  ),
+                                                ),
+                                                focusedBorder: OutlineInputBorder(
+                                                  borderRadius: BorderRadius.circular(20),
+                                                  borderSide:  BorderSide(
+                                                    width: 0,
+                                                    color: AppColors.primary,
+                                                  ),
+                                                ),
+                                              ),
+                                              controller: quantityVariationController,
                                               keyboardType: TextInputType.number,
-                                              inputFormatters: billingProvider
-                                                          .selectedProduct
-                                                          ?.isLoose == '1'
+                                              inputFormatters: billingProvider.selectedProduct?.isLoose == '1'
                                                   ? InputFormatters.variationInput
                                                   : InputFormatters.quantityInput,
                                               //     : [
@@ -781,17 +797,12 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                       variation: (double.parse(value) * 1000),
                                                     );
                                                   } else {
-                                                    billingProvider
-                                                        .updateTemporaryFields(
-                                                      quantity: int.tryParse(
-                                                              value) ??
-                                                          billingProvider
-                                                              .temporaryQuantity,
+                                                    billingProvider.updateTemporaryFields(
+                                                      quantity: int.tryParse(value) ??
+                                                          billingProvider.temporaryQuantity,
                                                     );
                                                   }
                                                 } else {
-                                                  // Optionally reset focus or show a message
-                                                  //dropdownFocusNode.requestFocus();
                                                   Toasts.showToastBar(
                                                       context: context,
                                                       text: "Please add product",
@@ -1191,8 +1202,25 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                         textAlign: TextAlign.center,
                                         keyboardType: TextInputType.number,
                                         inputFormatters: [
-                                          LengthLimitingTextInputFormatter(5), // Limit to 5 digits
+                                          LengthLimitingTextInputFormatter(5),
+                                          FilteringTextInputFormatter.allow(RegExp("[0-9]"))
                                         ],
+                                        onFieldSubmitted: (value){
+                                          if(value=="0"){
+                                            Toasts.showToastBar(
+                                              context: context,
+                                              text: "Please enter valid quantity",
+                                              color: Colors.red,
+                                            );
+                                          }else{
+                                            billingProvider.updateBillingItem(
+                                              index,
+                                              isLoose: '0',
+                                              quantity: int.tryParse(value) ?? billProduct.quantity,
+                                            );
+                                          }
+
+                                        },
                                         onChanged: (value) {
                                           if (value.isNotEmpty) {
                                             //   int stockQty = int.parse(billingProvider.selectedProduct!.stockQty.toString());
@@ -1204,11 +1232,11 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                             //       color: Colors.red,
                                             //     );
                                             //   }else{
-                                            billingProvider.updateBillingItem(
-                                              index,
-                                              isLoose: '0',
-                                              quantity: int.tryParse(value) ?? billProduct.quantity,
-                                            );
+                                            // billingProvider.updateBillingItem(
+                                            //   index,
+                                            //   isLoose: '0',
+                                            //   quantity: int.tryParse(value) ?? billProduct.quantity,
+                                            // );
                                             // }
                                           } else {
 
@@ -1228,7 +1256,8 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                         ),
                                         keyboardType: TextInputType.numberWithOptions(decimal: true),
                                         inputFormatters: [
-                                          LengthLimitingTextInputFormatter(5), // Limit to 5 digits
+                                          LengthLimitingTextInputFormatter(5),
+                                          FilteringTextInputFormatter.allow(RegExp("[0-9 .]"))
                                         ],
                                         onChanged: (value) {
                                           // optional: validation / preview only

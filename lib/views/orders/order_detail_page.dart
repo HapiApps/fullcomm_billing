@@ -594,8 +594,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                                 actions: [
                                                   ElevatedButton(
                                                     style: ElevatedButton.styleFrom(
-                                                      backgroundColor:
-                                                          Colors.white,
+                                                      backgroundColor: Colors.white,
                                                       shape: RoundedRectangleBorder(
                                                         borderRadius: BorderRadius.circular(5),
                                                         side: BorderSide(

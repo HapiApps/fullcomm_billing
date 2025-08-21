@@ -32,6 +32,7 @@ class AddressEntry {
     cityController.dispose();
     stateController.dispose();
     pinController.dispose();
+    selectedState = null;
   }
 }
 
@@ -49,6 +50,7 @@ class DeliveryAddressEntry {
     cityController.dispose();
     stateController.dispose();
     pinController.dispose();
+    selectedState = null;
   }
   @override
   String toString() {
@@ -207,8 +209,9 @@ class CustomersProvider with ChangeNotifier {
         _addresses[i].dispose();
       }
       _addresses.removeRange(1, _addresses.length);
+      notifyListeners();
     }
-    notifyListeners();
+
   }
 
   void keepFirstDeliveryClearRest() {
@@ -217,6 +220,7 @@ class CustomersProvider with ChangeNotifier {
       _deliveryAddresses.first.areaController.clear();
       _deliveryAddresses.first.cityController.clear();
       _deliveryAddresses.first.stateController.text = "";
+      _deliveryAddresses.first.selectedState = null;
       _deliveryAddresses.first.pinController.clear();
 
       for (var i = 1; i < _deliveryAddresses.length; i++) {
@@ -654,13 +658,19 @@ class CustomersProvider with ChangeNotifier {
                                             context: context,
                                             text: "Please enter delivery mobile no.",
                                             color: Colors.red);
+                                      } else if (deliveryMobile.text.trim().length!=10) {
+                                        loadingButtonController.reset();
+                                        Toasts.showToastBar(
+                                            context: context,
+                                            text: "Mobile number must be 10 characters.",
+                                            color: Colors.red);
                                       } else if (deliveryCity.text.isEmpty) {
                                        loadingButtonController.reset();
                                         Toasts.showToastBar(
                                             context: context,
                                             text: "Please enter city",
                                             color: Colors.red);
-                                      } else if (deliveryPincode.text.isEmpty || deliveryPincode.text.length!=6) {
+                                      } else if (deliveryPincode.text.isEmpty) {
                                         loadingButtonController.reset();
                                         Toasts.showToastBar(
                                             context: context,

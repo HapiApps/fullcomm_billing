@@ -4,6 +4,7 @@ import 'package:fullcomm_billing/res/colors.dart';
 import 'package:fullcomm_billing/utils/sized_box.dart';
 import 'package:fullcomm_billing/utils/toast_messages.dart';
 import 'package:fullcomm_billing/view_models/credentials_provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../res/components/buttons.dart';
 import '../../res/components/k_back_container.dart';
@@ -65,14 +66,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        MyText(
-                            text: 'Mobile Number',
-                            fontSize: 13,
-                            color: Color(0xff9E9E9E)),
-                        MyText(text: "*", color: Colors.red, fontSize: 20)
-                      ],
+                    RichText(
+                      text: TextSpan(
+                        text: 'Mobile Number',
+                        style: GoogleFonts.lato(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold
+                        ),
+                        children: [
+                            const TextSpan(
+                              text: " *",
+                              style: TextStyle(color: Colors.red, fontSize: 20),
+                            ),
+                        ],
+                      ),
                     ),
                     MyTextField(
                       labelText: 'Mobile Number',
@@ -97,14 +105,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        MyText(
-                            text: 'Password',
-                            fontSize: 13,
-                            color: Color(0xff9E9E9E)),
-                        MyText(text: "*", color: Colors.red, fontSize: 20)
-                      ],
+                    RichText(
+                      text: TextSpan(
+                        text: 'Password',
+                        style: GoogleFonts.lato(
+                            color: Colors.black,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold
+                        ),
+                        children: [
+                          const TextSpan(
+                            text: " *",
+                            style: TextStyle(color: Colors.red, fontSize: 20),
+                          ),
+                        ],
+                      ),
                     ),
                     MyTextField(
                       labelText: 'Password',

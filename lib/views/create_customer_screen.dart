@@ -326,12 +326,14 @@ class AddCustomerDialog extends StatelessWidget {
                                           SizedBox(
                                             width: MediaQuery.of(context).size.width * 0.13,
                                             child: MyDropdownMenu<StateObj>(
+                                              key: ValueKey(entry.selectedState),
                                               width: 280,
                                               enableSearch: true,
                                               enableFilter: true,
                                               menuHeight: 350,
                                               inputFormatters: InputFormatters.textOnlyInput,
                                               initialSelection: entry.selectedState,
+                                              controller: entry.stateController,
                                               dropdownMenuEntries: listConstant.statesOfIndia.map((state) {
                                                 return MyDropdownMenuEntry<StateObj>(
                                                   value: state,
@@ -556,10 +558,12 @@ class AddCustomerDialog extends StatelessWidget {
                                           SizedBox(
                                             width: MediaQuery.of(context).size.width * 0.13,
                                             child: MyDropdownMenu<StateObj>(
+                                              key: ValueKey(entry.selectedState),
                                               width: 280,
                                               enableSearch: true,
                                               enableFilter: true,
                                               menuHeight: 350,
+                                              controller: entry.stateController,
                                               inputFormatters: InputFormatters.textOnlyInput,
                                               initialSelection: entry.selectedState,
                                               dropdownMenuEntries: listConstant.statesOfIndia.map((state) {
@@ -713,85 +717,119 @@ class AddCustomerDialog extends StatelessWidget {
                               if (customerProvider.customerName.text.isEmpty) {
                                 customerProvider.loadingButtonController.reset();
                                 Toasts.showToastBar(
-                                    context: context,
-                                    text: "Please enter customer name",
-                                    color: Colors.red);
-                              } else if (customerProvider.customerMobile.text.isEmpty) {
-                                customerProvider.loadingButtonController.reset();
-                                Toasts.showToastBar(
-                                    context: context,
-                                    text: "Please enter customer mobile no.",
-                                    color: Colors.red);
-                              }  else if (customerProvider.customerMobile.text.length!=10) {
-                                customerProvider.loadingButtonController.reset();
-                                Toasts.showToastBar(
-                                    context: context,
-                                    text: "Please enter 10 digits mobile number",
-                                    color: Colors.red);
-                              }else if(customerProvider.addresses[0].cityController.text.isEmpty){
-                                customerProvider.loadingButtonController.reset();
-                                Toasts.showToastBar(
-                                    context: context,
-                                    text: "Please enter customer address city",
-                                    color: Colors.red);
-                              }else if(customerProvider.addresses[0].stateController.text.isEmpty){
-                                customerProvider.loadingButtonController.reset();
-                                Toasts.showToastBar(
-                                    context: context,
-                                    text: "Please enter customer address state",
-                                    color: Colors.red);
-                              }else if(customerProvider.addresses[0].pinController.text.isEmpty){
-                                customerProvider.loadingButtonController.reset();
-                                Toasts.showToastBar(
-                                    context: context,
-                                    text: "Please enter customer address pincode",
-                                    color: Colors.red);
-                              }else if(customerProvider.addresses[0].pinController.text.length!=6){
-                                customerProvider.loadingButtonController.reset();
-                                Toasts.showToastBar(
-                                    context: context,
-                                    text: "Pincode must be 6 characters.",
-                                    color: Colors.red);
-                              }else if(customerProvider.deliveryAddresses[0].cityController.text.isEmpty){
-                                customerProvider.loadingButtonController.reset();
-                                Toasts.showToastBar(
-                                    context: context,
-                                    text: "Please enter delivery address city",
-                                    color: Colors.red);
-                              }else if(customerProvider.deliveryAddresses[0].stateController.text.isEmpty){
-                                customerProvider.loadingButtonController.reset();
-                                Toasts.showToastBar(
-                                    context: context,
-                                    text: "Please enter delivery address state",
-                                    color: Colors.red);
-                              }else if(customerProvider.deliveryAddresses[0].pinController.text.isEmpty){
-                                customerProvider.loadingButtonController.reset();
-                                Toasts.showToastBar(
-                                    context: context,
-                                    text: "Please enter delivery address pincode",
-                                    color: Colors.red);
-                              }else if(customerProvider.deliveryAddresses[0].pinController.text.length!=6){
-                                customerProvider.loadingButtonController.reset();
-                                Toasts.showToastBar(
-                                    context: context,
-                                    text: "Pincode must be 6 characters.",
-                                    color: Colors.red);
-                              }else{
-                                customerProvider.addCustomer(
-                                    context: context,
-                                    name: customerProvider.customerName.text,
-                                    mobile: customerProvider.customerMobile.text,
-                                    gst: customerProvider.customerGST.text,
-                                    gstLocation: customerProvider.customerGSTLocation.text
-                                  // addressLine1: customerStreet.text,
-                                  // area: customerArea.text,
-                                  // pincode: customerPincode.text,
-                                  // city: customerCity.text,
-                                  // state: customerState.text,
+                                  context: context,
+                                  text: "Please enter customer name",
+                                  color: Colors.red,
                                 );
+                                return;
+                              }
+                              if (customerProvider.customerMobile.text.isEmpty) {
+                                customerProvider.loadingButtonController.reset();
+                                Toasts.showToastBar(
+                                  context: context,
+                                  text: "Please enter customer mobile no.",
+                                  color: Colors.red,
+                                );
+                                return;
+                              }
+                              if (customerProvider.customerMobile.text.length != 10) {
+                                customerProvider.loadingButtonController.reset();
+                                Toasts.showToastBar(
+                                  context: context,
+                                  text: "Please enter 10 digits mobile number",
+                                  color: Colors.red,
+                                );
+                                return;
+                              }
+                              for (int i = 0; i < customerProvider.addresses.length; i++) {
+                                final address = customerProvider.addresses[i];
+                                if (address.cityController.text.isEmpty) {
+                                  Toasts.showToastBar(
+                                    context: context,
+                                    text: "Please enter customer address city (Address ${i + 1})",
+                                    color: Colors.red,
+                                  );
+                                  customerProvider.loadingButtonController.reset();
+                                  return;
+                                }
+                                if (address.stateController.text.isEmpty) {
+                                  Toasts.showToastBar(
+                                    context: context,
+                                    text: "Please enter customer address state (Address ${i + 1})",
+                                    color: Colors.red,
+                                  );
+                                  customerProvider.loadingButtonController.reset();
+                                  return;
+                                }
+                                if (address.pinController.text.isEmpty) {
+                                  Toasts.showToastBar(
+                                    context: context,
+                                    text: "Please enter customer address pincode (Address ${i + 1})",
+                                    color: Colors.red,
+                                  );
+                                  customerProvider.loadingButtonController.reset();
+                                  return;
+                                }
+                                if (address.pinController.text.length != 6) {
+                                  Toasts.showToastBar(
+                                    context: context,
+                                    text: "Pincode must be 6 characters. (Address ${i + 1})",
+                                    color: Colors.red,
+                                  );
+                                  customerProvider.loadingButtonController.reset();
+                                  return;
+                                }
                               }
 
+                              for (int i = 0; i < customerProvider.deliveryAddresses.length; i++) {
+                                final delivery = customerProvider.deliveryAddresses[i];
+                                if (delivery.cityController.text.isEmpty) {
+                                  Toasts.showToastBar(
+                                    context: context,
+                                    text: "Please enter delivery address city (Delivery ${i + 1})",
+                                    color: Colors.red,
+                                  );
+                                  customerProvider.loadingButtonController.reset();
+                                  return;
+                                }
+                                if (delivery.stateController.text.isEmpty) {
+                                  Toasts.showToastBar(
+                                    context: context,
+                                    text: "Please enter delivery address state (Delivery ${i + 1})",
+                                    color: Colors.red,
+                                  );
+                                  customerProvider.loadingButtonController.reset();
+                                  return;
+                                }
+                                if (delivery.pinController.text.isEmpty) {
+                                  Toasts.showToastBar(
+                                    context: context,
+                                    text: "Please enter delivery address pincode (Delivery ${i + 1})",
+                                    color: Colors.red,
+                                  );
+                                  customerProvider.loadingButtonController.reset();
+                                  return;
+                                }
+                                if (delivery.pinController.text.length != 6) {
+                                  Toasts.showToastBar(
+                                    context: context,
+                                    text: "Pincode must be 6 characters. (Delivery ${i + 1})",
+                                    color: Colors.red,
+                                  );
+                                  customerProvider.loadingButtonController.reset();
+                                  return;
+                                }
+                              }
+
+                              customerProvider.addCustomer(
+                                context: context,
+                                name: customerProvider.customerName.text,
+                                mobile: customerProvider.customerMobile.text,
+                                gst: customerProvider.customerGST.text,
+                                gstLocation: customerProvider.customerGSTLocation.text,
+                              );
                             },
+
                             text: 'Save Customer', loadingButtonController: customerProvider.loadingButtonController,
                           ),
                         ],
