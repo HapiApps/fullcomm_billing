@@ -67,6 +67,7 @@ class OrderData {
   String? payBackAmt;
   String? savings;
   String? productUnit;
+  String? productLoose;
 
   OrderData(
       {this.id,
@@ -107,6 +108,7 @@ class OrderData {
       this.receivedAmt,
       this.payBackAmt,
       this.savings,
+        this.productLoose,
       this.productUnit});
 
   factory OrderData.fromJson(Map<String, dynamic> json) => OrderData(
@@ -149,6 +151,7 @@ class OrderData {
         payBackAmt: json["pay_back_amt"]?.toString(),
         savings: json["savings"]?.toString(),
         productUnit: json["product_unit"]?.toString(),
+        productLoose: json["product_loose"]?.toString(),
       );
 
   Map<String, dynamic> toJson() => {
@@ -190,6 +193,7 @@ class OrderData {
         "received_amt": receivedAmt,
         "pay_back_amt": payBackAmt,
         "savings": savings,
-        "product_unit": productUnit
+        "product_unit": productUnit,
+        "product_loose": productLoose
       };
 }

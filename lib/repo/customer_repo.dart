@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 import 'package:fullcomm_billing/api/api_urls.dart';
@@ -36,33 +37,44 @@ class CustomersRepository {
     required String vehicleNo,
   }) async {
     final body = jsonEncode({
-      'action':"add_delivery",
+      'action': "add_delivery",
       "name": name,
       "mobile": mobile,
+      "user_id": "694",
       "platform": LocalData.platformKey,
       "created_by": localData.userName,
       "d_address_line_1": dAddressLine1,
-      "user_id":userId,
+      "cos_id": localData.cosId,
       "d_area": dArea,
       'd_pincode': dPinCode,
       'd_city': dCity,
       'd_state': dState,
       'd_country': 'India',
-      'vehicle_number':vehicleNo
+      'vehicle_number': vehicleNo,
     });
-
+    log("body$body");
     try {
       final response = await http.post(
-          Uri.parse(ApiUrl.script),
-          body: body
+        Uri.parse(ApiUrl.script),
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: body,
       );
-      print("add delivery address ${response.body}");
+
+      print("add delivery address raw response: ${response.body}");
+
+      // Ensure body is not empty before decoding
+      if (response.body.isEmpty) {
+        throw Exception("Empty response from server");
+      }
+
       return CommonResponse.fromJson(jsonDecode(response.body));
     } catch (e) {
       throw Exception("add delivery address Error : $e");
     }
   }
-
 
   /// ------------ Add Customer ---------------
   Future<CommonResponse> addCustomer({
@@ -79,24 +91,29 @@ class CustomersRepository {
       "platform": LocalData.platformKey,
       "created_by": localData.userName,
       "cos_id": localData.cosId,
+      "user_id": localData.userId,
       "gst": gst,
       "gst_location": gstLocation,
-      "customer_addresses": addresses.map((addr) => {
-        "address_line_1": addr.doorController.text.trim(),
-        "area": addr.areaController.text.trim(),
-        "pincode": addr.pinController.text.trim(),
-        "city": addr.cityController.text.trim(),
-        "state": addr.stateController.text.trim(),
-        "country": "India",
-      }).toList(),
-      "delivery_addresses": deliveryAddresses.map((addr) => {
-        "address_line_1": addr.doorController.text.trim(),
-        "area": addr.areaController.text.trim(),
-        "pincode": addr.pinController.text.trim(),
-        "city": addr.cityController.text.trim(),
-        "state": addr.stateController.text.trim(),
-        "country": "India",
-      }).toList(),
+      "customer_addresses": addresses
+          .map((addr) => {
+                "address_line_1": addr.doorController.text.trim(),
+                "area": addr.areaController.text.trim(),
+                "pincode": addr.pinController.text.trim(),
+                "city": addr.cityController.text.trim(),
+                "state": addr.stateController.text.trim(),
+                "country": "India",
+              })
+          .toList(),
+      "delivery_addresses": deliveryAddresses
+          .map((addr) => {
+                "address_line_1": addr.doorController.text.trim(),
+                "area": addr.areaController.text.trim(),
+                "pincode": addr.pinController.text.trim(),
+                "city": addr.cityController.text.trim(),
+                "state": addr.stateController.text.trim(),
+                "country": "India",
+              })
+          .toList(),
       "action": "b_add_customer"
     });
 

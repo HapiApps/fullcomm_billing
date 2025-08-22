@@ -330,18 +330,33 @@ class BillingProvider with ChangeNotifier {
   //     }
   //   });
   // }
+  // double calculatedTotalQuantity() {
+  //   return billingItems.fold<double>(0.0, (total, item) {
+  //     if (item.product.isLoose == "1") {
+  //       final double variation = item.variation;
+  //       final double qty = item.quantity.toDouble();
+  //       // convert grams to kg => 200 g = 0.2 kg
+  //       return total + ((variation / 1000) * qty);
+  //     } else {
+  //       return total + item.quantity;
+  //     }
+  //   });
+  // }
   double calculatedTotalQuantity() {
-    return billingItems.fold<double>(0.0, (total, item) {
+    double total = billingItems.fold<double>(0.0, (total, item) {
       if (item.product.isLoose == "1") {
-        final double variation = item.variation; // e.g. 200 grams
+        final double variation = item.variation;
         final double qty = item.quantity.toDouble();
-        // convert grams to kg => 200 g = 0.2 kg
         return total + ((variation / 1000) * qty);
       } else {
         return total + item.quantity;
       }
     });
+
+    // Round to 3 decimal places
+    return double.parse(total.toStringAsFixed(3));
   }
+
 
   double calculateTotalGST() {
     return billingItems.fold(
@@ -391,6 +406,7 @@ class BillingProvider with ChangeNotifier {
         order.customerAddress = '';
         final customersProvider = Provider.of<CustomersProvider>(context, listen: false);
         customersProvider.clearCustomerData();
+        fetchBill();
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => const NewBillingScreen()));
       } else {
@@ -502,12 +518,13 @@ class BillingProvider with ChangeNotifier {
   String billNo = "";
   List<BillObj> allBill = [];
   List<BillObj> get allBillList => allBill;
-  Future<void> fetchBill(BuildContext context) async {
+  Future<void> fetchBill() async {
     try {
       PreviousBillObj response = await _productsRepo.getBill();
+      log("get billNo Response: $response");
       if (response.responseCode == "200") {
         allBill = response.data;
-        var i = int.parse(allBill[0].invoiceNo) + 1;
+        var i = allBill[0].invoiceNo;
         billNo = i.toString();
       } else {
         billNo = '';

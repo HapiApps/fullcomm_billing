@@ -29,14 +29,23 @@ class BillingItem {
   })  : proController = proController ?? TextEditingController(),
         proFocusNode = proFocusNode ?? FocusNode();
 
-
   /// Calculate Mrp per product (for one product) :
+  // double mrpPerProduct() {
+  //   if (product.isLoose == '1') {
+  //     // Loose product:
+  //     return (double.parse(product.mrp.toString()) /
+  //             (double.parse(product.stockQty.toString()))) *
+  //         variation;
+  //   } else {
+  //     // Regular product:
+  //     return (double.parse(product.mrp.toString()));
+  //   }
+  // } /// old
+
   double mrpPerProduct() {
     if (product.isLoose == '1') {
       // Loose product:
-      return (double.parse(product.mrp.toString()) /
-              (double.parse(product.stockQty.toString()))) *
-          variation;
+      return (double.parse(product.mrp.toString()));
     } else {
       // Regular product:
       return (double.parse(product.mrp.toString()));
@@ -44,11 +53,23 @@ class BillingItem {
   }
 
   /// Calculate Mrp per product (for one product) :
+  // double outPricePerProduct() {
+  //   if (product.isLoose == '1') {
+  //     // Loose product:
+  //     return (variation * double.parse(product.pricePerG));
+  //     // return (double.parse(product.outPrice.toString())/(double.parse(product.stockQty.toString())/1000));
+  //   } else {
+  //     // Regular product:
+  //     return (double.parse(product.outPrice.toString()));
+  //   }
+  // }
+
   double outPricePerProduct() {
     if (product.isLoose == '1') {
       // Loose product:
-      return (variation * double.parse(product.pricePerG));
+      // return (variation * double.parse(product.pricePerG));
       // return (double.parse(product.outPrice.toString())/(double.parse(product.stockQty.toString())/1000));
+      return (double.parse(product.outPrice.toString()));
     } else {
       // Regular product:
       return (double.parse(product.outPrice.toString()));
@@ -59,7 +80,8 @@ class BillingItem {
   double calculateOutPrice() {
     if (product.isLoose == '1') {
       // Loose product:
-      return (double.parse(product.pricePerG) * 1000);
+      //return (double.parse(product.pricePerG) * 1000);
+      return double.parse(product.pricePerG);
       // return (double.parse(product.outPrice.toString())/(double.parse(product.stockQty.toString())/1000));
     } else {
       // Regular product:
@@ -70,19 +92,15 @@ class BillingItem {
   /// Calculate Subtotal :
   double calculateSubtotal() {
     if (product.isLoose == '1') {
-      print("variation Cal $variation ${product.pricePerG}");
-
       // Loose product: variation * pricePerGram (Variation is in gram)
       return (variation * double.parse(product.pricePerG));
     } else {
-
       return (double.parse(product.outPrice.toString()) * quantity);
     }
   }
 
   /// Calculate MRP Subtotal :
   double calculateMrpSubtotal() {
-    print("product.pricePerG ${product.pricePerG}");
     if (product.isLoose == '1') {
       // Loose product: variation * pricePerGram (Variation is in gram)
       return (variation * double.parse(product.pricePerG));
@@ -117,7 +135,8 @@ class BillingItem {
       'is_loose': product.isLoose.toString(),
       'batch_no': product.batchNo.toString(),
       'p_title': productTitle,
-      'qty': product.isLoose == '0' ? quantity : int.parse(variation.toString()),
+      'qty':
+          product.isLoose == '0' ? quantity : int.parse(variation.toString()),
       'p_discount': (calculateMrpSubtotal() - calculateSubtotal()).toString(),
       'product_img': product.pImg.toString(),
       'out_price': calculateSubtotal().toString(),

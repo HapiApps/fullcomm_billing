@@ -501,7 +501,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                       ? Column(
                           children: [
                             350.height,
-                            const MyText(text: "Not Found", color: Colors.grey)
+                            const MyText(text: "Not Found", color: Colors.grey,fontSize: 20,)
                           ],
                         )
                       : Expanded(
@@ -711,8 +711,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                                       horizontal: 10),
                                                 ),
                                                 onPressed: () async {
-                                                  final BillPdf pdfService =
-                                                      BillPdf();
+                                                  final BillPdf pdfService = BillPdf();
                                                   await pdfService.printCustomBill(context,
                                                           data: data);
                                                 },

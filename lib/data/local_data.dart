@@ -7,7 +7,7 @@ class LocalData {
   String userId = '0';
   String userName = '';
   String userMobile = '';
-  String cosId = '';
+  String cosId = '221234';
 
   // Customer Details :
   String customerName = '';
