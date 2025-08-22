@@ -88,7 +88,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
       Provider.of<BillingProvider>(context, listen: false).getProducts(); // Fetch all Products & Stocks
       Provider.of<CustomersProvider>(context, listen: false).getAllCustomers(context); // Fetch all Products & Stocks
       Provider.of<CustomersProvider>(context, listen: false).resetCustomerDetails(); // Reset Customer details
-      Provider.of<BillingProvider>(context, listen: false).fetchBill(context);
+      Provider.of<BillingProvider>(context, listen: false).fetchBill();
       Provider.of<BillingProvider>(context, listen: false).setBillingItems([]); // Set Billing Items with Empty Table
     });
   }
@@ -109,8 +109,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
     return Consumer3<UserDataProvider, CustomersProvider, BillingProvider>(
-        builder:
-            (context, userDataProvider, customerProvider, billingProvider, _) {
+        builder: (context, userDataProvider, customerProvider, billingProvider, _) {
       return Shortcuts(
           shortcuts: <LogicalKeySet, Intent>{
             LogicalKeySet(LogicalKeyboardKey.alt, LogicalKeyboardKey.keyP):
@@ -671,8 +670,8 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                     hintText: "Search Product...",
                                                     labelText: " Product",
                                                     labelBuilder: (product) => product.isLoose == '0'
-                                                        ? '${product.pTitle} ${product.pVariation}${product.unit}'
-                                                        : '${product.pTitle} (${product.pVariation})',
+                                                        ? '${product.pTitle} ${product.pVariation ?? ""}${product.unit ?? ""}'
+                                                        : '${product.pTitle} (${product.pVariation ?? ""})',
                                                     itemBuilder: (product) =>
                                                         Container(
                                                       width: screenWidth * 0.60,
@@ -682,8 +681,8 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                         children: [
                                                           MyText(
                                                             text: product.isLoose == '0'
-                                                                ? '${product.pTitle} ${product.pVariation}${product.unit}'
-                                                                : '${product.pTitle} (${product.pVariation})',
+                                                                ? '${product.pTitle} ${product.pVariation ?? ""}${product.unit ?? ""}'
+                                                                : '${product.pTitle} (${product.pVariation ?? ""})',
                                                             color: Colors.black,
                                                             fontSize: 14,
                                                           ),
@@ -694,8 +693,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                   ? "₹${(double.parse(product.mrp.toString()) / (double.parse(product.stockQty.toString()) / 1000)).toStringAsFixed(1)}/kg"
                                                                   : "₹${double.parse(product.mrp.toString()).toStringAsFixed(1)}",
                                                               fontSize: 14,
-                                                              color:
-                                                                  Colors.orange,
+                                                              color: Colors.orange,
                                                             ),
                                                           ),
                                                         ],
@@ -809,59 +807,155 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                       color: Colors.red);
                                                 }
                                               },
-                                              onFieldSubmitted: (_) {
+                                              onFieldSubmitted: (value) {
                                                 if (billingProvider.selectedProduct != null) {
-                                                  int stockQty = int.parse(billingProvider.selectedProduct!.stockQty.toString());
-                                                  int enteredQty = int.tryParse(quantityVariationController.text) ?? 0;
-                                                  if (enteredQty > stockQty) {
-                                                    Toasts.showToastBar(
-                                                      context: context,
-                                                      text: "Entered quantity is more than the available stock ($stockQty).",
-                                                      color: Colors.red,
-                                                    );
-                                                    fieldFocusNode.requestFocus();
-                                                  } else if(enteredQty==0){
-                                                    Toasts.showToastBar(
-                                                      context: context,
-                                                      text: "Please enter valid quantity",
-                                                      color: Colors.red,
-                                                    );
-                                                  }else {
-                                                    billingProvider.addBillingItem(
-                                                      BillingItem(
-                                                        id: billingProvider.selectedProduct!.id!.toString(),
-                                                        product: billingProvider.selectedProduct!,
-                                                        productTitle: billingProvider.selectedProduct!.isLoose == '0'
-                                                            ? billingProvider.selectedProduct!.pTitle.toString()
-                                                            : "${billingProvider.selectedProduct!.pTitle} ${billingProvider.temporaryVariation / 1000}kg",
-                                                        variation: billingProvider.selectedProduct!.isLoose == '1'
-                                                            ? billingProvider.temporaryVariation
-                                                            : 1,
-                                                        variationUnit:
-                                                        "${billingProvider.selectedProduct!.pVariation}${billingProvider.selectedProduct!.unit}",
-                                                        quantity: billingProvider.selectedProduct!.isLoose == '0'
-                                                            ? billingProvider.temporaryQuantity
-                                                            : 1,
-                                                        proController: TextEditingController(),
-                                                        proFocusNode: FocusNode(),
-                                                      ),
-                                                    );
-                                                    billingProvider.barcodeScanner.text = "";
-                                                    billingProvider.selectedProduct = null;
-                                                    scrollDown();
-                                                    dropdownFocusNode.requestFocus();
-                                                    dropdownController.clear();
-                                                    quantityVariationController.clear();
+                                                  final product = billingProvider.selectedProduct!;
+                                                  if (product.isLoose == '1') {
+                                                    final parsed = double.tryParse(value);
+                                                    if (parsed != null && parsed > 0) {
+                                                      int stockQty = int.tryParse(product.stockQty.toString()) ?? 0;
+                                                      double enteredQty = (parsed * 1000).toDouble(); // grams
+                                                      if (enteredQty > stockQty) {
+                                                        Toasts.showToastBar(
+                                                          context: context,
+                                                          text: "Entered weight is more than available stock (${stockQty}g).",
+                                                          color: Colors.red,
+                                                        );
+                                                        fieldFocusNode.requestFocus();
+                                                      } else if(product.pricePerG==null){
+                                                        Toasts.showToastBar(
+                                                          context: context,
+                                                          text: "The per-gram price for this product is not available",
+                                                          color: Colors.red,
+                                                        );
+                                                        fieldFocusNode.requestFocus();
+                                                      }else {
+                                                        billingProvider.addBillingItem(
+                                                          BillingItem(
+                                                            id: product.id!.toString(),
+                                                            product: product,
+                                                            productTitle: "${product.pTitle} $parsed kg",
+                                                            variation: enteredQty, // grams
+                                                            variationUnit: "${product.pVariation}${product.unit}",
+                                                            quantity: 1,
+                                                            proController: TextEditingController(),
+                                                            proFocusNode: FocusNode(),
+                                                          ),
+                                                        );
+                                                        billingProvider.barcodeScanner.clear();
+                                                        billingProvider.selectedProduct = null;
+                                                        scrollDown();
+                                                        dropdownFocusNode.requestFocus();
+                                                        dropdownController.clear();
+                                                        quantityVariationController.clear();
+                                                      }
+                                                    } else {
+                                                      Toasts.showToastBar(
+                                                        context: context,
+                                                        text: 'Please enter valid weight',
+                                                        color: Colors.red,
+                                                      );
+                                                    }
+                                                  } else {
+                                                    int stockQty = int.tryParse(product.stockQty.toString()) ?? 0;
+                                                    int enteredQty = int.tryParse(quantityVariationController.text) ?? 0;
+                                                    if (enteredQty > stockQty) {
+                                                      Toasts.showToastBar(
+                                                        context: context,
+                                                        text: "Entered quantity is more than the available stock ($stockQty).",
+                                                        color: Colors.red,
+                                                      );
+                                                      fieldFocusNode.requestFocus();
+                                                    } else if (enteredQty == 0) {
+                                                      Toasts.showToastBar(
+                                                        context: context,
+                                                        text: "Please enter valid quantity",
+                                                        color: Colors.red,
+                                                      );
+                                                    } else {
+                                                      billingProvider.addBillingItem(
+                                                        BillingItem(
+                                                          id: product.id!.toString(),
+                                                          product: product,
+                                                          productTitle: product.pTitle.toString(),
+                                                          variation: 1,
+                                                          variationUnit: "${product.pVariation}${product.unit}",
+                                                          quantity: enteredQty,
+                                                          proController: TextEditingController(),
+                                                          proFocusNode: FocusNode(),
+                                                        ),
+                                                      );
+                                                      billingProvider.barcodeScanner.clear();
+                                                      billingProvider.selectedProduct = null;
+                                                      scrollDown();
+                                                      dropdownFocusNode.requestFocus();
+                                                      dropdownController.clear();
+                                                      quantityVariationController.clear();
+                                                    }
                                                   }
                                                 } else {
                                                   log("No product selected!");
                                                   Toasts.showToastBar(
-                                                      context: context,
-                                                      text: "Please add product",
-                                                      color: Colors.red);
-                                                  // Reset focus back to dropdown
+                                                    context: context,
+                                                    text: "Please add product",
+                                                    color: Colors.red,
+                                                  );
                                                 }
                                               },
+
+                                              // onFieldSubmitted: (_) {
+                                              //   if (billingProvider.selectedProduct != null) {
+                                              //     int stockQty = int.parse(billingProvider.selectedProduct!.stockQty.toString());
+                                              //     int enteredQty = int.tryParse(quantityVariationController.text) ?? 0;
+                                              //     if (enteredQty > stockQty) {
+                                              //       Toasts.showToastBar(
+                                              //         context: context,
+                                              //         text: "Entered quantity is more than the available stock ($stockQty).",
+                                              //         color: Colors.red,
+                                              //       );
+                                              //       fieldFocusNode.requestFocus();
+                                              //     } else if(enteredQty==0){
+                                              //       Toasts.showToastBar(
+                                              //         context: context,
+                                              //         text: "Please enter valid quantity",
+                                              //         color: Colors.red,
+                                              //       );
+                                              //     }else {
+                                              //       billingProvider.addBillingItem(
+                                              //         BillingItem(
+                                              //           id: billingProvider.selectedProduct!.id!.toString(),
+                                              //           product: billingProvider.selectedProduct!,
+                                              //           productTitle: billingProvider.selectedProduct!.isLoose == '0'
+                                              //               ? billingProvider.selectedProduct!.pTitle.toString()
+                                              //               : "${billingProvider.selectedProduct!.pTitle} ${billingProvider.temporaryVariation / 1000}kg",
+                                              //           variation: billingProvider.selectedProduct!.isLoose == '1'
+                                              //               ? billingProvider.temporaryVariation
+                                              //               : 1,
+                                              //           variationUnit:
+                                              //           "${billingProvider.selectedProduct!.pVariation}${billingProvider.selectedProduct!.unit}",
+                                              //           quantity: billingProvider.selectedProduct!.isLoose == '0'
+                                              //               ? billingProvider.temporaryQuantity
+                                              //               : 1,
+                                              //           proController: TextEditingController(),
+                                              //           proFocusNode: FocusNode(),
+                                              //         ),
+                                              //       );
+                                              //       billingProvider.barcodeScanner.text = "";
+                                              //       billingProvider.selectedProduct = null;
+                                              //       scrollDown();
+                                              //       dropdownFocusNode.requestFocus();
+                                              //       dropdownController.clear();
+                                              //       quantityVariationController.clear();
+                                              //     }
+                                              //   } else {
+                                              //     log("No product selected!");
+                                              //     Toasts.showToastBar(
+                                              //         context: context,
+                                              //         text: "Please add product",
+                                              //         color: Colors.red);
+                                              //     // Reset focus back to dropdown
+                                              //   }
+                                              // },
                                             ),
                                           ),
                                         ],
@@ -922,18 +1016,10 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                           paymentId: billingProvider.selectBillMethod.toString() == "Cash"
                                                               ? '2'
                                                               : '1',
-                                                          products: billingProvider
-                                                              .billingItems,
-                                                          orderGrandTotal: billingProvider
-                                                              .calculatedGrandTotal()
-                                                              .toString(),
-                                                          orderSubTotal: billingProvider
-                                                              .calculatedGrandTotal()
-                                                              .toString(),
-                                                          receivedAmt: billingProvider
-                                                                  .paymentReceived
-                                                                  .text
-                                                                  .isEmpty
+                                                          products: billingProvider.billingItems,
+                                                          orderGrandTotal: billingProvider.calculatedGrandTotal().toString(),
+                                                          orderSubTotal: billingProvider.calculatedGrandTotal().toString(),
+                                                          receivedAmt: billingProvider.paymentReceived.text.isEmpty
                                                               ? "0.0"
                                                               : double.parse(billingProvider.paymentReceived.text).toStringAsFixed(1),
                                                           payBackAmt: (((billingProvider.paymentReceived.text.isEmpty ? 0.0 : double.parse(billingProvider.paymentReceived.text)) - billingProvider.calculatedGrandTotal()).abs().toStringAsFixed(2)),
@@ -1205,48 +1291,60 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                           LengthLimitingTextInputFormatter(5),
                                           FilteringTextInputFormatter.allow(RegExp("[0-9]"))
                                         ],
-                                        onFieldSubmitted: (value){
-                                          if(value=="0"){
-                                            Toasts.showToastBar(
-                                              context: context,
-                                              text: "Please enter valid quantity",
-                                              color: Colors.red,
-                                            );
-                                          }else{
-                                            billingProvider.updateBillingItem(
-                                              index,
-                                              isLoose: '0',
-                                              quantity: int.tryParse(value) ?? billProduct.quantity,
-                                            );
+                                        // onFieldSubmitted: (value){
+                                        //   if(value=="0"){
+                                        //     Toasts.showToastBar(
+                                        //       context: context,
+                                        //       text: "Please enter valid quantity",
+                                        //       color: Colors.red,
+                                        //     );
+                                        //   }else{
+                                        //     billingProvider.updateBillingItem(
+                                        //       index,
+                                        //       isLoose: '0',
+                                        //       quantity: int.tryParse(value) ?? billProduct.quantity,
+                                        //     );
+                                        //   }
+                                        // },
+                                          onChanged: (value) {
+                                            if (value == "0" || value.isEmpty) {
+                                              Toasts.showToastBar(
+                                                context: context,
+                                                text: "Please enter valid quantity",
+                                                color: Colors.red,
+                                              );
+                                              return;
+                                            }
+
+                                            final selectedProduct = billProduct.product;
+
+                                            if (selectedProduct.stockQty == null) {
+                                              Toasts.showToastBar(
+                                                context: context,
+                                                text: "No product selected or stock missing",
+                                                color: Colors.red,
+                                              );
+                                              return;
+                                            }
+
+                                            int stockQty = int.tryParse(selectedProduct.stockQty.toString()) ?? 0;
+                                            int enteredQty = int.tryParse(value) ?? billProduct.quantity ?? 0;
+
+                                            if (enteredQty > stockQty) {
+                                              Toasts.showToastBar(
+                                                context: context,
+                                                text: "Entered quantity is more than the available stock ($stockQty).",
+                                                color: Colors.red,
+                                              );
+                                            } else {
+                                              billingProvider.updateBillingItem(
+                                                index,
+                                                isLoose: '0',
+                                                quantity: enteredQty,
+                                              );
+                                            }
                                           }
 
-                                        },
-                                        onChanged: (value) {
-                                          if (value.isNotEmpty) {
-                                            //   int stockQty = int.parse(billingProvider.selectedProduct!.stockQty.toString());
-                                            //   int enteredQty = int.tryParse(value) ?? billProduct.quantity;
-                                            //   if (enteredQty > stockQty) {
-                                            //     Toasts.showToastBar(
-                                            //       context: context,
-                                            //       text: "Entered quantity is more than the available stock ($stockQty).",
-                                            //       color: Colors.red,
-                                            //     );
-                                            //   }else{
-                                            // billingProvider.updateBillingItem(
-                                            //   index,
-                                            //   isLoose: '0',
-                                            //   quantity: int.tryParse(value) ?? billProduct.quantity,
-                                            // );
-                                            // }
-                                          } else {
-
-                                            // billingProvider.updateBillingItem(
-                                            //   index,
-                                            //   isLoose: '0',
-                                            //   quantity: 1,
-                                            // );
-                                          }
-                                        },
                                       ),
                                     ):SizedBox(
                                       height: 40,
@@ -1319,8 +1417,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                     child: Align(
                                       alignment: Alignment.centerRight,
                                       child: Text(
-                                        TextFormat.formattedAmount(
-                                            billProduct.mrpPerProduct()),
+                                        TextFormat.formattedAmount(billProduct.mrpPerProduct()),
                                         textAlign: TextAlign.end,
                                       ),
                                     ),
@@ -1331,10 +1428,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                   Expanded(
                                       child: Align(
                                         alignment: Alignment.centerRight,
-                                        child: Text(TextFormat
-                                            .formattedAmount(
-                                            billProduct
-                                                .calculateOutPrice())),
+                                        child: Text(billProduct.product.isLoose == '1'?billProduct.calculateOutPrice().toString():TextFormat.formattedAmount(billProduct.calculateOutPrice())),
                                       )),
                                   VerticalDivider(
                                     color: Color(0xff9E9E9E),

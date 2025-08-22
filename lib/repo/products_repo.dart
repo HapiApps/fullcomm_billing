@@ -35,8 +35,9 @@ class ProductsRepository {
 
   Future<PreviousBillObj> getBill() async {
     final Map<String, dynamic> requestBody = {
-      'action': "fetch_bill",
+      'action': "b_select_last_order",
       'cos_id': localData.cosId,
+      'user_id': localData.userName.trim()
     };
     return await ApiService.postRequest1(
       ApiUrl.script, // API endpoint

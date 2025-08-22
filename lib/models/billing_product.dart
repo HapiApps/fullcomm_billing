@@ -59,7 +59,8 @@ class BillingItem {
   double calculateOutPrice() {
     if (product.isLoose == '1') {
       // Loose product:
-      return (double.parse(product.pricePerG) * 1000);
+      //return (double.parse(product.pricePerG) * 1000);
+      return double.parse(product.pricePerG);
       // return (double.parse(product.outPrice.toString())/(double.parse(product.stockQty.toString())/1000));
     } else {
       // Regular product:
@@ -70,8 +71,6 @@ class BillingItem {
   /// Calculate Subtotal :
   double calculateSubtotal() {
     if (product.isLoose == '1') {
-      print("variation Cal $variation ${product.pricePerG}");
-
       // Loose product: variation * pricePerGram (Variation is in gram)
       return (variation * double.parse(product.pricePerG));
     } else {
@@ -82,7 +81,6 @@ class BillingItem {
 
   /// Calculate MRP Subtotal :
   double calculateMrpSubtotal() {
-    print("product.pricePerG ${product.pricePerG}");
     if (product.isLoose == '1') {
       // Loose product: variation * pricePerGram (Variation is in gram)
       return (variation * double.parse(product.pricePerG));

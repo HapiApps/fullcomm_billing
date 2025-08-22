@@ -17,7 +17,8 @@ class InputFormatters {
 
   static List<TextInputFormatter> variationInput = [
     LengthLimitingTextInputFormatter(5),
-    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$')),
+    FilteringTextInputFormatter.allow(RegExp("[0-9 .]"))
+    //FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$')),
   ];
 
   static List<TextInputFormatter> pinCodeInput = [
