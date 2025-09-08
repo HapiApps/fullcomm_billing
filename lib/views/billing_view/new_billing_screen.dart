@@ -83,6 +83,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
     super.initState();
     _focusNode.requestFocus();
     _focusNodeSearch.requestFocus();
+    log("${localData.userId}user");
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       await Provider.of<UserDataProvider>(context, listen: false)
           .initializeUserData(); // Fetch all Products & Stocks
@@ -555,11 +556,12 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                 onClear: () {
                                                   customerProvider
                                                       .setCustomerDetails(
-                                                          customerId: "",
-                                                          customerName: "",
-                                                          customerMobile: "",
-                                                          customerAddress: "",
-                                                          deliveryAddress: "");
+                                                    customerId: "",
+                                                    customerName: "",
+                                                    customerMobile: "",
+                                                    customerAddress: "",
+                                                    deliveryAddress: "",
+                                                  );
                                                   customerProvider
                                                       .setSelectedDeliveryAddress(
                                                           "");
@@ -617,53 +619,38 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                     Consumer<CustomersProvider>(
                                                   builder:
                                                       (context, provider, _) {
-                                                    return SizedBox(
+                                                    return MyDropdownMenu<
+                                                        String>(
                                                       width: screenWidth * 0.20,
-                                                      height: 40,
-                                                      child: MyDropdownMenu<
-                                                          String>(
-                                                        width:
-                                                            screenWidth * 0.20,
-                                                        enableSearch: true,
-                                                        enableFilter: true,
-                                                        menuHeight: 350,
-                                                        initialSelection: provider
-                                                            .selectedDeliveryAddress,
-                                                        inputFormatters:
-                                                            InputFormatters
-                                                                .textOnlyInput,
-                                                        controller: customerProvider
-                                                            .deliveryAddressController,
-                                                        dropdownMenuEntries:
-                                                            provider
-                                                                .deliveryAddressList
-                                                                .map((state) {
-                                                          return MyDropdownMenuEntry<
-                                                              String>(
-                                                            value: state,
-                                                            enabled: true,
-                                                            label: state,
-                                                          );
-                                                        }).toList(),
-                                                        menuStyle: MenuStyle(
-                                                          backgroundColor:
-                                                              WidgetStatePropertyAll(
-                                                                  Colors.white),
-                                                        ),
-                                                        hintText: provider
-                                                                .selectedDeliveryAddress
-                                                                .toString()
-                                                                .isEmpty
-                                                            ? ""
-                                                            : provider
-                                                                .selectedDeliveryAddress,
-                                                        onSelected:
-                                                            (selectedAddress) {
+                                                      enableSearch: true,
+                                                      enableFilter: true,
+                                                      menuHeight: 350,
+                                                      initialSelection: provider
+                                                                  .selectedDeliveryAddress
+                                                                  ?.isEmpty ??
+                                                              true
+                                                          ? null
+                                                          : provider
+                                                              .selectedDeliveryAddress,
+                                                      controller: provider
+                                                          .deliveryAddressController,
+                                                      dropdownMenuEntries:
                                                           provider
-                                                              .setSelectedDeliveryAddress(
-                                                                  selectedAddress);
-                                                        },
-                                                      ),
+                                                              .deliveryAddressList
+                                                              .map((state) {
+                                                        return MyDropdownMenuEntry<
+                                                            String>(
+                                                          value: state,
+                                                          label: state,
+                                                        );
+                                                      }).toList(),
+                                                      onSelected:
+                                                          (selectedAddress) {
+                                                        provider
+                                                            .setSelectedDeliveryAddress(
+                                                                selectedAddress ??
+                                                                    "");
+                                                      },
                                                     );
                                                   },
                                                 ),
@@ -677,17 +664,15 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                 tooltip: "Add Delivery Address",
                                                 onPressed: () {
                                                   if (customerProvider
-                                                              .selectedCustomerMobile ==
-                                                          '' ||
-                                                      customerProvider
-                                                              .selectedCustomerName ==
-                                                          '') {
+                                                      .selectedCustomerId
+                                                      .isEmpty) {
                                                     Toasts.showToastBar(
-                                                        context: context,
-                                                        text:
-                                                            'Please Select Customer',
-                                                        color: AppColors
-                                                            .errorMessage);
+                                                      context: context,
+                                                      text:
+                                                          'Please Select Customer',
+                                                      color: AppColors
+                                                          .errorMessage,
+                                                    );
                                                   } else {
                                                     customerProvider
                                                         .changeState(
@@ -695,7 +680,8 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                     customerProvider
                                                         .addDeliveryAddressDialog(
                                                             context,
-                                                            localData.userId);
+                                                            customerProvider
+                                                                .selectedCustomerId);
                                                   }
                                                 },
                                                 icon: Icon(
@@ -730,7 +716,8 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                   isOptional: true,
                                                   controller: billingProvider
                                                       .barcodeScanner,
-                                                  labelText: 'Scan...',
+                                                  labelText: 'Barcode ...',
+                                                  hintText: 'Scan Barcode...',
                                                   maxLines: null,
                                                   minLines: 2,
                                                   focusedBorderColor:
@@ -747,38 +734,42 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                   onEditingComplete: () {
                                                     //billingProvider.findProductByBarcode(context,billingProvider.barcodeScanner.text);
                                                     try {
-                                                      final product = billingProvider
-                                                          .productsList
-                                                          .firstWhere((p) =>
-                                                              p.barcode ==
-                                                              billingProvider
-                                                                  .barcodeScanner
-                                                                  .text);
+                                                      final enteredBarcode =
+                                                          billingProvider
+                                                              .barcodeScanner
+                                                              .text
+                                                              .trim();
+
+                                                      // Debug print to check scanned value
+                                                      log("Scanned Barcode: $enteredBarcode");
+
+                                                      final product =
+                                                          billingProvider
+                                                              .productsList
+                                                              .firstWhere((p) {
+                                                        log("Checking product barcode: ${p.barcode}"); // 🔑 print each product barcode
+                                                        return p.barcode ==
+                                                            enteredBarcode;
+                                                      });
 
                                                       billingProvider
                                                               .selectedProduct =
                                                           product;
+
                                                       billingProvider
                                                               .barcodeScanner
                                                               .text =
-                                                          "${billingProvider.selectedProduct!.pTitle.toString()} ${billingProvider.selectedProduct!.pVariation.toString()}${billingProvider.selectedProduct!.unit.toString()}";
-                                                      // billingProvider.updateTemporaryFields(
-                                                      //   variation: product.isLoose == '1'
-                                                      //           ? 1.0
-                                                      //           : null,
-                                                      //   quantity: product.isLoose == '0'
-                                                      //           ? 1
-                                                      //           : null,
-                                                      // );
+                                                          "${product.pTitle.toString()} ${product.pVariation.toString()}${product.unit.toString()}";
+
                                                       fieldFocusNode
                                                           .requestFocus();
                                                     } catch (e) {
                                                       Toasts.showToastBar(
-                                                          context: context,
-                                                          text:
-                                                              "Please scan correct barcode..",
-                                                          color: Colors.red);
-                                                      // Product not found — you can log or show a message if needed
+                                                        context: context,
+                                                        text:
+                                                            "Please scan correct barcode..",
+                                                        color: Colors.red,
+                                                      );
                                                     }
                                                   },
                                                 )
@@ -799,8 +790,8 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                     labelBuilder: (product) => product
                                                                 .isLoose ==
                                                             '0'
-                                                        ? '${product.pTitle} ${product.pVariation}${product.unit}'
-                                                        : '${product.pTitle} (${product.pVariation})',
+                                                        ? '${product.pTitle} ${product.pVariation ?? ""}${product.unit ?? ""}'
+                                                        : '${product.pTitle} (${product.pVariation ?? ""})',
                                                     itemBuilder: (product) =>
                                                         Container(
                                                       width: screenWidth * 0.60,
@@ -816,8 +807,8 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                             text: product
                                                                         .isLoose ==
                                                                     '0'
-                                                                ? '${product.pTitle} ${product.pVariation}${product.unit}'
-                                                                : '${product.pTitle} (${product.pVariation})',
+                                                                ? '${product.pTitle} ${product.pVariation ?? ""}${product.unit ?? ""}'
+                                                                : '${product.pTitle} (${product.pVariation ?? ""})',
                                                             color: Colors.black,
                                                             fontSize: 14,
                                                           ),
@@ -992,96 +983,157 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                       color: Colors.red);
                                                 }
                                               },
-                                              onFieldSubmitted: (_) {
+                                              onFieldSubmitted: (value) {
                                                 if (billingProvider
                                                         .selectedProduct !=
                                                     null) {
-                                                  int stockQty = int.parse(
+                                                  final product =
                                                       billingProvider
-                                                          .selectedProduct!
-                                                          .stockQty
-                                                          .toString());
-                                                  int enteredQty = int.tryParse(
-                                                          quantityVariationController
-                                                              .text) ??
-                                                      0;
-                                                  if (enteredQty > stockQty) {
-                                                    Toasts.showToastBar(
-                                                      context: context,
-                                                      text:
-                                                          "Entered quantity is more than the available stock ($stockQty).",
-                                                      color: Colors.red,
-                                                    );
-                                                    fieldFocusNode
-                                                        .requestFocus();
-                                                  } else if (enteredQty == 0) {
-                                                    Toasts.showToastBar(
-                                                      context: context,
-                                                      text:
-                                                          "Please enter valid quantity",
-                                                      color: Colors.red,
-                                                    );
+                                                          .selectedProduct!;
+                                                  if (product.isLoose == '1') {
+                                                    final parsed =
+                                                        double.tryParse(value);
+                                                    if (parsed != null &&
+                                                        parsed > 0) {
+                                                      int stockQty =
+                                                          int.tryParse(product
+                                                                  .stockQty
+                                                                  .toString()) ??
+                                                              0;
+                                                      double enteredQty =
+                                                          (parsed * 1000)
+                                                              .toDouble(); // grams
+                                                      if (enteredQty >
+                                                          stockQty) {
+                                                        Toasts.showToastBar(
+                                                          context: context,
+                                                          text:
+                                                              "Entered weight is more than available stock (${stockQty}g).",
+                                                          color: Colors.red,
+                                                        );
+                                                        fieldFocusNode
+                                                            .requestFocus();
+                                                      } else if (product
+                                                              .pricePerG ==
+                                                          null) {
+                                                        Toasts.showToastBar(
+                                                          context: context,
+                                                          text:
+                                                              "The per-gram price for this product is not available",
+                                                          color: Colors.red,
+                                                        );
+                                                        fieldFocusNode
+                                                            .requestFocus();
+                                                      } else {
+                                                        billingProvider
+                                                            .addBillingItem(
+                                                          BillingItem(
+                                                            id: product.id!
+                                                                .toString(),
+                                                            product: product,
+                                                            productTitle:
+                                                                "${product.pTitle} $parsed kg",
+                                                            variation:
+                                                                enteredQty, // grams
+                                                            variationUnit:
+                                                                "${product.pVariation}${product.unit}",
+                                                            quantity: 1,
+                                                            proController:
+                                                                TextEditingController(),
+                                                            proFocusNode:
+                                                                FocusNode(),
+                                                          ),
+                                                        );
+                                                        billingProvider
+                                                            .barcodeScanner
+                                                            .clear();
+                                                        billingProvider
+                                                                .selectedProduct =
+                                                            null;
+                                                        scrollDown();
+                                                        dropdownFocusNode
+                                                            .requestFocus();
+                                                        dropdownController
+                                                            .clear();
+                                                        quantityVariationController
+                                                            .clear();
+                                                      }
+                                                    } else {
+                                                      Toasts.showToastBar(
+                                                        context: context,
+                                                        text:
+                                                            'Please enter valid weight',
+                                                        color: Colors.red,
+                                                      );
+                                                    }
                                                   } else {
-                                                    billingProvider
-                                                        .addBillingItem(
-                                                      BillingItem(
-                                                        id: billingProvider
-                                                            .selectedProduct!
-                                                            .id!
-                                                            .toString(),
-                                                        product: billingProvider
-                                                            .selectedProduct!,
-                                                        productTitle: billingProvider
-                                                                    .selectedProduct!
-                                                                    .isLoose ==
-                                                                '0'
-                                                            ? billingProvider
-                                                                .selectedProduct!
-                                                                .pTitle
-                                                                .toString()
-                                                            : "${billingProvider.selectedProduct!.pTitle} ${billingProvider.temporaryVariation / 1000}kg",
-                                                        variation: billingProvider
-                                                                    .selectedProduct!
-                                                                    .isLoose ==
-                                                                '1'
-                                                            ? billingProvider
-                                                                .temporaryVariation
-                                                            : 1,
-                                                        variationUnit:
-                                                            "${billingProvider.selectedProduct!.pVariation}${billingProvider.selectedProduct!.unit}",
-                                                        quantity: billingProvider
-                                                                    .selectedProduct!
-                                                                    .isLoose ==
-                                                                '0'
-                                                            ? billingProvider
-                                                                .temporaryQuantity
-                                                            : 1,
-                                                        proController:
-                                                            TextEditingController(),
-                                                        proFocusNode:
-                                                            FocusNode(),
-                                                      ),
-                                                    );
-                                                    billingProvider
-                                                        .barcodeScanner
-                                                        .text = "";
-                                                    billingProvider
-                                                        .selectedProduct = null;
-                                                    scrollDown();
-                                                    dropdownFocusNode
-                                                        .requestFocus();
-                                                    dropdownController.clear();
-                                                    quantityVariationController
-                                                        .clear();
+                                                    int stockQty = int.tryParse(
+                                                            product.stockQty
+                                                                .toString()) ??
+                                                        0;
+                                                    int enteredQty = int.tryParse(
+                                                            quantityVariationController
+                                                                .text) ??
+                                                        0;
+                                                    if (enteredQty > stockQty) {
+                                                      Toasts.showToastBar(
+                                                        context: context,
+                                                        text:
+                                                            "Entered quantity is more than the available stock ($stockQty).",
+                                                        color: Colors.red,
+                                                      );
+                                                      fieldFocusNode
+                                                          .requestFocus();
+                                                    } else if (enteredQty ==
+                                                        0) {
+                                                      Toasts.showToastBar(
+                                                        context: context,
+                                                        text:
+                                                            "Please enter valid quantity",
+                                                        color: Colors.red,
+                                                      );
+                                                    } else {
+                                                      billingProvider
+                                                          .addBillingItem(
+                                                        BillingItem(
+                                                          id: product.id!
+                                                              .toString(),
+                                                          product: product,
+                                                          productTitle: product
+                                                              .pTitle
+                                                              .toString(),
+                                                          variation: 1,
+                                                          variationUnit:
+                                                              "${product.pVariation}${product.unit}",
+                                                          quantity: enteredQty,
+                                                          proController:
+                                                              TextEditingController(),
+                                                          proFocusNode:
+                                                              FocusNode(),
+                                                        ),
+                                                      );
+                                                      billingProvider
+                                                          .barcodeScanner
+                                                          .clear();
+                                                      billingProvider
+                                                              .selectedProduct =
+                                                          null;
+                                                      scrollDown();
+                                                      dropdownFocusNode
+                                                          .requestFocus();
+                                                      dropdownController
+                                                          .clear();
+                                                      quantityVariationController
+                                                          .clear();
+                                                    }
                                                   }
                                                 } else {
                                                   log("No product selected!");
                                                   Toasts.showToastBar(
-                                                      context: context,
-                                                      text:
-                                                          "Please add product",
-                                                      color: Colors.red);
-                                                  // Reset focus back to dropdown
+                                                    context: context,
+                                                    text: "Please add product",
+                                                    color: Colors.red,
+                                                  );
                                                 }
                                               },
                                             ),
@@ -1434,7 +1486,6 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                               billProduct.proController.clear();
                                                                               billProduct.proFocusNode.requestFocus();
 
-                                                                              // direct dialog call, no setState here
                                                                               customerProvider.showInputDialog(
                                                                                 context: context,
                                                                                 width: screenWidth * 0.20,
@@ -1445,8 +1496,8 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                                   final text = billProduct.proController.text;
                                                                                   if (text.isNotEmpty) {
                                                                                     setState(() {
-                                                                                      billProduct.product.pTitle = "";
-                                                                                      billProduct.product.pTitle = "${billProduct.productTitle}/$text";
+                                                                                      // Keep original product name and append new
+                                                                                      billProduct.product.pTitle = "${billProduct.product.pTitle}/$text";
                                                                                     });
                                                                                     Navigator.of(context).pop();
                                                                                   } else {
@@ -1460,7 +1511,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                                   final text = billProduct.proController.text;
                                                                                   if (text.isNotEmpty) {
                                                                                     setState(() {
-                                                                                      billProduct.product.pTitle = "${billProduct.productTitle}/$text";
+                                                                                      billProduct.product.pTitle = "${billProduct.product.pTitle}/$text";
                                                                                     });
                                                                                   }
                                                                                   Navigator.pop(context);
@@ -1499,7 +1550,8 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                             Text(
                                                                           billProduct.product.isLoose == '1'
                                                                               ? "${billProduct.product.pTitle}"
-                                                                              : "${billProduct.product.pTitle} ${billProduct.product.pVariation ?? ""}${billProduct.product.unit ?? ""}",
+                                                                              // : "${billProduct.product.pTitle} ${billProduct.product.pVariation ?? ""}${billProduct.product.unit ?? ""}",
+                                                                              : "${billProduct.product.pTitle ?? " "}",
                                                                           textAlign:
                                                                               TextAlign.center,
                                                                         ),
@@ -1533,62 +1585,75 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                           ? SizedBox(
                                                                               height: 40,
                                                                               child: TextFormField(
-                                                                                controller: billingProvider.quantityControllers[index] ??
-                                                                                    TextEditingController(
-                                                                                      text: "${billProduct.quantity}",
-                                                                                    ),
-                                                                                decoration: const InputDecoration(
-                                                                                  border: InputBorder.none,
-                                                                                  isDense: true,
-                                                                                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                                                                ),
-                                                                                textAlign: TextAlign.center,
-                                                                                keyboardType: TextInputType.number,
-                                                                                inputFormatters: [
-                                                                                  LengthLimitingTextInputFormatter(5),
-                                                                                  FilteringTextInputFormatter.allow(RegExp("[0-9]"))
-                                                                                ],
-                                                                                onFieldSubmitted: (value) {
-                                                                                  if (value == "0") {
-                                                                                    Toasts.showToastBar(
-                                                                                      context: context,
-                                                                                      text: "Please enter valid quantity",
-                                                                                      color: Colors.red,
-                                                                                    );
-                                                                                  } else {
-                                                                                    billingProvider.updateBillingItem(
-                                                                                      index,
-                                                                                      isLoose: '0',
-                                                                                      quantity: int.tryParse(value) ?? billProduct.quantity,
-                                                                                    );
-                                                                                  }
-                                                                                },
-                                                                                onChanged: (value) {
-                                                                                  if (value.isNotEmpty) {
-                                                                                    //   int stockQty = int.parse(billingProvider.selectedProduct!.stockQty.toString());
-                                                                                    //   int enteredQty = int.tryParse(value) ?? billProduct.quantity;
-                                                                                    //   if (enteredQty > stockQty) {
-                                                                                    //     Toasts.showToastBar(
-                                                                                    //       context: context,
-                                                                                    //       text: "Entered quantity is more than the available stock ($stockQty).",
-                                                                                    //       color: Colors.red,
-                                                                                    //     );
-                                                                                    //   }else{
-                                                                                    // billingProvider.updateBillingItem(
-                                                                                    //   index,
-                                                                                    //   isLoose: '0',
-                                                                                    //   quantity: int.tryParse(value) ?? billProduct.quantity,
-                                                                                    // );
-                                                                                    // }
-                                                                                  } else {
-                                                                                    // billingProvider.updateBillingItem(
-                                                                                    //   index,
-                                                                                    //   isLoose: '0',
-                                                                                    //   quantity: 1,
-                                                                                    // );
-                                                                                  }
-                                                                                },
-                                                                              ),
+                                                                                  controller: billingProvider.quantityControllers[index] ??
+                                                                                      TextEditingController(
+                                                                                        text: "${billProduct.quantity}",
+                                                                                      ),
+                                                                                  decoration: const InputDecoration(
+                                                                                    border: InputBorder.none,
+                                                                                    isDense: true,
+                                                                                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                                                                  ),
+                                                                                  textAlign: TextAlign.center,
+                                                                                  keyboardType: TextInputType.number,
+                                                                                  inputFormatters: [
+                                                                                    LengthLimitingTextInputFormatter(3),
+                                                                                    FilteringTextInputFormatter.allow(RegExp("[0-9]"))
+                                                                                  ],
+                                                                                  // onFieldSubmitted: (value){
+                                                                                  //   if(value=="0"){
+                                                                                  //     Toasts.showToastBar(
+                                                                                  //       context: context,
+                                                                                  //       text: "Please enter valid quantity",
+                                                                                  //       color: Colors.red,
+                                                                                  //     );
+                                                                                  //   }
+                                                                                  //   else{
+                                                                                  //     billingProvider.updateBillingItem(
+                                                                                  //       index,
+                                                                                  //       isLoose: '0',
+                                                                                  //       quantity: int.tryParse(value) ?? billProduct.quantity,
+                                                                                  //     );
+                                                                                  //   }
+                                                                                  // },
+                                                                                  onChanged: (value) {
+                                                                                    if (value == "0" || value.isEmpty) {
+                                                                                      Toasts.showToastBar(
+                                                                                        context: context,
+                                                                                        text: "Please enter valid quantity",
+                                                                                        color: Colors.red,
+                                                                                      );
+                                                                                      return;
+                                                                                    }
+
+                                                                                    final selectedProduct = billProduct.product;
+
+                                                                                    if (selectedProduct.stockQty == null) {
+                                                                                      Toasts.showToastBar(
+                                                                                        context: context,
+                                                                                        text: "No product selected or stock missing",
+                                                                                        color: Colors.red,
+                                                                                      );
+                                                                                      return;
+                                                                                    }
+
+                                                                                    int stockQty = int.tryParse(selectedProduct.stockQty.toString()) ?? 0;
+                                                                                    int enteredQty = int.tryParse(value) ?? billProduct.quantity ?? 0;
+
+                                                                                    if (enteredQty > stockQty) {
+                                                                                      Toasts.showToastBar(
+                                                                                        context: context,
+                                                                                        text: "Entered quantity is more than the available stock ($stockQty).",
+                                                                                        color: Colors.red,
+                                                                                      );
+                                                                                    } else {
+                                                                                      billingProvider.updateBillingItem(
+                                                                                        index,
+                                                                                        isLoose: '0',
+                                                                                        quantity: enteredQty,
+                                                                                      );
+                                                                                    }
+                                                                                  }),
                                                                             )
                                                                           : SizedBox(
                                                                               height: 40,
@@ -1598,7 +1663,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                                 ),
                                                                                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                                                                                 inputFormatters: [
-                                                                                  LengthLimitingTextInputFormatter(5),
+                                                                                  LengthLimitingTextInputFormatter(3),
                                                                                   FilteringTextInputFormatter.allow(RegExp("[0-9 .]"))
                                                                                 ],
                                                                                 onChanged: (value) {
@@ -1688,8 +1753,12 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                     alignment:
                                                                         Alignment
                                                                             .centerRight,
-                                                                    child: Text(
-                                                                        TextFormat.formattedAmount(
+                                                                    child: Text(billProduct.product.isLoose ==
+                                                                            '1'
+                                                                        ? billProduct
+                                                                            .calculateOutPrice()
+                                                                            .toString()
+                                                                        : TextFormat.formattedAmount(
                                                                             billProduct.calculateOutPrice())),
                                                                   )),
                                                                   VerticalDivider(
@@ -1752,7 +1821,6 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                           String itemName = billProduct.product.isLoose == '1'
                                                                               ? "${billProduct.product.pTitle} ${billProduct.variation / 1000}kg"
                                                                               : "${billProduct.product.pTitle} ${billProduct.variationUnit}";
-
                                                                           showDialog(
                                                                             context:
                                                                                 context,
@@ -3069,6 +3137,7 @@ DataCell _buildCell(String text, double width, Alignment alignment) {
 }
 
 /// Product Dropdown (Deprecated) :
+
 // MyDropdownMenu<ProductData>(
 //   enableSearch: true,
 //   enableFilter: true,

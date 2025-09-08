@@ -4,7 +4,7 @@ class ApiUrl {
   /// Dev
   /// //dash.fullcomm.in/V1/billing_scripts.php
   static const String domain =
-      "https://dash.fullcomm.in/V1"; //9239239233 // 12345678
+      "https://aruu.celwiz.com//V1"; //9239239233 // 12345678
 
   /// Pro
   //static const String domain = "https://martwayd.celwiz.com/P1";  //6381445361

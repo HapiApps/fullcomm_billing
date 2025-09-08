@@ -5,7 +5,7 @@ class ProjectData {
 //   static const String cashId = '314';
 
   //DEV
-  static const String version = '0.0.9';
+  static const String version = '0.0.13';
   static const String cashId = "577";
 
   static const String billTitle = 'Santhosh Rice Mandy';
@@ -17,6 +17,8 @@ class ProjectData {
 
   // PRODUCTION Mode
   static const String domain = "https://martwayd.celwiz.com/DEV";
-  static const String billAddress = '221/257,KVB Garden,Raja Annamalai Puram,\nChennai-600028';
-  static const String billFooter = 'For Order WhatsApp : 86376 23735\nThanks for Shopping!\nVisit Us Again.';
+  static const String billAddress =
+      '221/257,KVB Garden,Raja Annamalai Puram,\nChennai-600028';
+  static const String billFooter =
+      'For Order WhatsApp : 86376 23735\nThanks for Shopping!\nVisit Us Again.';
 }

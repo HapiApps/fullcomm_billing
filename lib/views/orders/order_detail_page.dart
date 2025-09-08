@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:fullcomm_billing/utils/sized_box.dart';
 import 'package:provider/provider.dart';
@@ -21,7 +22,6 @@ class OrderDetailPage extends StatefulWidget {
 }
 
 class _OrderDetailPageState extends State<OrderDetailPage> {
-
   void showDatePickerDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -47,7 +47,8 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                   minDate: DateTime(2023),
                   maxDate: DateTime.now(),
                   selectionMode: DateRangePickerSelectionMode.range,
-                  onSelectionChanged: (DateRangePickerSelectionChangedArgs args) {
+                  onSelectionChanged:
+                      (DateRangePickerSelectionChangedArgs args) {
                     setState(() {
                       selectedRange = args.value;
                     });
@@ -111,8 +112,10 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       DateTime tomorrow = today.add(const Duration(days: 1));
       String todayStr = DateFormat('yyyy-MM-dd').format(today);
       String tomorrowStr = DateFormat('yyyy-MM-dd').format(tomorrow);
-      Provider.of<BillingProvider>(context, listen: false).getAllOrderDetails(todayStr, tomorrowStr);
-      final billingProvider = Provider.of<BillingProvider>(context, listen: false);
+      Provider.of<BillingProvider>(context, listen: false)
+          .getAllOrderDetails(todayStr, tomorrowStr);
+      final billingProvider =
+          Provider.of<BillingProvider>(context, listen: false);
       billingProvider.searchName.clear();
       billingProvider.searchAmount.clear();
       billingProvider.searchProd.clear();
@@ -163,8 +166,10 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                         onChanged: (value) {
                           billingProvider.changeDateFilter(value!);
                           DateTime today = DateTime.now();
-                          DateTime end = today.subtract(const Duration(days: 30));
-                          String todayStr = DateFormat('yyyy-MM-dd').format(today);
+                          DateTime end =
+                              today.subtract(const Duration(days: 30));
+                          String todayStr =
+                              DateFormat('yyyy-MM-dd').format(today);
                           String endStr = DateFormat('yyyy-MM-dd').format(end);
                           billingProvider.getAllOrderDetails(endStr, todayStr);
                           billingProvider.setDateRange(null);
@@ -222,31 +227,45 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                     onTap: () {
                       showDatePickerDialog(context);
                     },
-                    child: Container(
-                      width: 210,
-                      height: 30,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.grey.shade400),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          billingProvider.stDate.isEmpty
-                              ? const SizedBox()
-                              : MyText(
-                                  text:
-                                      "${billingProvider.stDate} to ${billingProvider.enDate}",
-                                  fontSize: 13,
-                                  color: Colors.black,
-                                ),
-                          const SizedBox(width: 5),
-                          const Icon(Icons.calendar_today,
-                              color: Colors.grey, size: 17),
-                          const SizedBox(width: 10),
-                        ],
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const MyText(
+                          text: 'Select Date',
+                          color: Color(0xff9E9E9E),
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        Container(
+                          width: 210,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.grey.shade400),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              billingProvider.stDate.isEmpty
+                                  ? const SizedBox()
+                                  : MyText(
+                                      text: billingProvider.stDate ==
+                                              billingProvider.enDate
+                                          ? billingProvider
+                                              .stDate // same date => show only once
+                                          : "${billingProvider.stDate} to ${billingProvider.enDate}", // different dates
+                                      fontSize: 13,
+                                      color: Colors.black,
+                                    ),
+                              const SizedBox(width: 5),
+                              const Icon(Icons.calendar_today,
+                                  color: Colors.grey, size: 17),
+                              const SizedBox(width: 10),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   Column(
@@ -266,6 +285,13 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                         controller: billingProvider.searchName,
                         keyboardType: TextInputType.text,
                         autofocus: true,
+
+                        // 🔑 allow only letters and spaces
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'[a-zA-Z\s]')),
+                        ],
+
                         textInputAction: TextInputAction.next,
                         focusedBorderColor: AppColors.primary,
                         enabledBorderColor: Colors.grey.shade300,
@@ -274,14 +300,15 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                           billingProvider.setSearchQuery(name: value);
                         },
                         suffixIcon: IconButton(
-                            onPressed: () {
-                              billingProvider.searchName.clear();
-                              billingProvider.setSearchQuery(name: "");
-                            },
-                            icon: const Icon(
-                              Icons.clear,
-                              size: 14,
-                            )),
+                          onPressed: () {
+                            billingProvider.searchName.clear();
+                            billingProvider.setSearchQuery(name: "");
+                          },
+                          icon: const Icon(
+                            Icons.clear,
+                            size: 14,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -303,7 +330,9 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                         keyboardType: TextInputType.number,
                         autofocus: true,
                         textInputAction: TextInputAction.next,
-                        inputFormatters: InputFormatters.mobileNumberInput,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                        ],
                         focusedBorderColor: AppColors.primary,
                         enabledBorderColor: Colors.grey.shade300,
                         borderRadius: 5,
@@ -501,7 +530,11 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                       ? Column(
                           children: [
                             350.height,
-                            const MyText(text: "Not Found", color: Colors.grey,fontSize: 20,)
+                            const MyText(
+                              text: "Not Found",
+                              color: Colors.grey,
+                              fontSize: 20,
+                            )
                           ],
                         )
                       : Expanded(
@@ -552,9 +585,15 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                                   fontWeight:
                                                       FontWeight.bold))),
                                     ],
-                                    rows: billingProvider.allOrders.where((data) => data.invoiceNo != "0").map((data) {
-                                      var products = data.productTitles.toString().split('||');
-                                      var productsUnit = data.productUnit.toString().split('||');
+                                    rows: billingProvider.allOrders
+                                        .where((data) => data.invoiceNo != "0")
+                                        .map((data) {
+                                      var products = data.productTitles
+                                          .toString()
+                                          .split('||');
+                                      var productsUnit = data.productUnit
+                                          .toString()
+                                          .split('||');
                                       return DataRow(
                                         onSelectChanged: (selected) {
                                           if (products.isNotEmpty &&
@@ -593,12 +632,18 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                                 ),
                                                 actions: [
                                                   ElevatedButton(
-                                                    style: ElevatedButton.styleFrom(
-                                                      backgroundColor: Colors.white,
-                                                      shape: RoundedRectangleBorder(
-                                                        borderRadius: BorderRadius.circular(5),
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      backgroundColor:
+                                                          Colors.white,
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(5),
                                                         side: BorderSide(
-                                                          color: AppColors.primary,
+                                                          color:
+                                                              AppColors.primary,
                                                         ),
                                                       ),
                                                     ),
@@ -637,11 +682,13 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                             ),
                                           )),
                                           DataCell(Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
                                             children: [
                                               GestureDetector(
                                                 child: const Icon(
-                                                    Icons.shopping_cart_outlined,
+                                                    Icons
+                                                        .shopping_cart_outlined,
                                                     color: Colors.grey),
                                                 onTap: () {
                                                   if (products.isNotEmpty &&
@@ -679,13 +726,21 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                                         ),
                                                         actions: [
                                                           ElevatedButton(
-                                                            style: ElevatedButton.styleFrom(
+                                                            style:
+                                                                ElevatedButton
+                                                                    .styleFrom(
                                                               backgroundColor:
-                                                              Colors.white,
-                                                              shape: RoundedRectangleBorder(
-                                                                borderRadius: BorderRadius.circular(5),
-                                                                side: BorderSide(
-                                                                  color: AppColors.primary,
+                                                                  Colors.white,
+                                                              shape:
+                                                                  RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            5),
+                                                                side:
+                                                                    BorderSide(
+                                                                  color: AppColors
+                                                                      .primary,
                                                                 ),
                                                               ),
                                                             ),
@@ -711,8 +766,10 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                                       horizontal: 10),
                                                 ),
                                                 onPressed: () async {
-                                                  final BillPdf pdfService = BillPdf();
-                                                  await pdfService.printCustomBill(context,
+                                                  final BillPdf pdfService =
+                                                      BillPdf();
+                                                  await pdfService
+                                                      .printCustomBill(context,
                                                           data: data);
                                                 },
                                                 child: const Text("Print",

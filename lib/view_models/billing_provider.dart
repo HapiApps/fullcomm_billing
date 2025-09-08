@@ -195,7 +195,8 @@ class BillingProvider with ChangeNotifier {
   }
 
   // Update Billing Items : (For Edit Option)
-  void updateBillingItem(int index, {required String isLoose, double? variation, int? quantity}) {
+  void updateBillingItem(int index,
+      {required String isLoose, double? variation, int? quantity}) {
     if (index < 0 || index >= billingItems.length) {
       log("Invalid index: $index");
       return; // Exit if index is invalid
@@ -208,7 +209,8 @@ class BillingProvider with ChangeNotifier {
       if (variationControllers[index] != null) {
         variationControllers[index]!.value = TextEditingValue(
           text: variation.toString(),
-          selection: TextSelection.collapsed(offset: variation.toString().length),
+          selection:
+              TextSelection.collapsed(offset: variation.toString().length),
         );
       } else {
         log("Variation controller for index $index is null");
@@ -221,7 +223,7 @@ class BillingProvider with ChangeNotifier {
       // Ensure the controller exists
       if (quantityControllers[index] != null) {
         quantityControllers[index]!.value = TextEditingValue(
-          text: quantity.toString()=="0"?"":quantity.toString(),
+          text: quantity.toString() == "0" ? "" : quantity.toString(),
           selection:
               TextSelection.collapsed(offset: quantity.toString().length),
         );
@@ -293,7 +295,7 @@ class BillingProvider with ChangeNotifier {
     // Step 1: Total from all products
     double productsTotal = billingItems.fold(
       0.0,
-          (total, item) => total + item.calculateSubtotal(),
+      (total, item) => total + item.calculateSubtotal(),
     );
     double totalGst = calculateTotalGST();
     // Step 2: Get bill-level charges
@@ -307,9 +309,12 @@ class BillingProvider with ChangeNotifier {
     double freightAmount = (productsTotal * freightPercent) / 100;
 
     // Step 4: Return final total
-    return productsTotal + cuttingAmount + loadingAmount + freightAmount + totalGst;
+    return productsTotal +
+        cuttingAmount +
+        loadingAmount +
+        freightAmount +
+        totalGst;
   }
-
 
   String calculatedMrpSubtotal() {
     return TextFormat.formattedAmount(billingItems.fold(
@@ -357,18 +362,19 @@ class BillingProvider with ChangeNotifier {
     return double.parse(total.toStringAsFixed(3));
   }
 
-
   double calculateTotalGST() {
     return billingItems.fold(
       0.0,
-          (sum, item) => sum + (double.tryParse(item.sgst) ?? 0.0),
+      (sum, item) => sum + (double.tryParse(item.sgst) ?? 0.0),
     );
   }
 
   double calculateTotalCGST() {
     return calculateTotalGST() / 2;
   }
-  double calculateRoundOff() => (calculatedGrandTotal().roundToDouble() - calculatedGrandTotal());
+
+  double calculateRoundOff() =>
+      (calculatedGrandTotal().roundToDouble() - calculatedGrandTotal());
 
   double calculateTotalSGST() {
     return calculateTotalGST() / 2;
@@ -404,7 +410,8 @@ class BillingProvider with ChangeNotifier {
         order.customerName = '';
         order.customerMobile = '';
         order.customerAddress = '';
-        final customersProvider = Provider.of<CustomersProvider>(context, listen: false);
+        final customersProvider =
+            Provider.of<CustomersProvider>(context, listen: false);
         customersProvider.clearCustomerData();
         fetchBill();
         Navigator.push(context,
@@ -426,9 +433,9 @@ class BillingProvider with ChangeNotifier {
     }
   }
 
-  TextEditingController loadingCharge   = TextEditingController(text: '0');
-  TextEditingController freightCharge   = TextEditingController(text: '0');
-  TextEditingController cuttingCharge   = TextEditingController(text: '0');
+  TextEditingController loadingCharge = TextEditingController(text: '0');
+  TextEditingController freightCharge = TextEditingController(text: '0');
+  TextEditingController cuttingCharge = TextEditingController(text: '0');
 
   final FocusNode loadingChargeFocusNode = FocusNode();
   final FocusNode freightChargeFocusNode = FocusNode();
@@ -436,9 +443,9 @@ class BillingProvider with ChangeNotifier {
 
   bool _isFooterButtons = false;
   bool get isFooterButtons => _isFooterButtons;
-  void updateFooterButtons(){
-    _isFooterButtons =! _isFooterButtons;
-    _isFooterButtons =! _isFooterButtons;
+  void updateFooterButtons() {
+    _isFooterButtons = !_isFooterButtons;
+    _isFooterButtons = !_isFooterButtons;
     notifyListeners();
   }
 
@@ -490,10 +497,7 @@ class BillingProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  final List<String> gst = [
-    "Non GST Cash Invoice",
-    "GST Cash Invoice"
-  ];
+  final List<String> gst = ["Non GST Cash Invoice", "GST Cash Invoice"];
 
   String _selectedGst = "Non GST Cash Invoice";
 
@@ -505,7 +509,6 @@ class BillingProvider with ChangeNotifier {
       notifyListeners();
     }
   }
-
 
   List<String> sizes = ["A3", "A4", "A5", "Roll80"];
   String selectedSize = "Roll80";
@@ -600,7 +603,11 @@ class BillingProvider with ChangeNotifier {
                 right: 10,
                 top: 10,
                 child: IconButton(
-                  icon: SvgPicture.asset("assets/images/clear.svg",width: 30,height: 30,),
+                  icon: SvgPicture.asset(
+                    "assets/images/clear.svg",
+                    width: 30,
+                    height: 30,
+                  ),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -847,15 +854,20 @@ class BillingProvider with ChangeNotifier {
 
     _filterOrders();
   }
+
   void _filterOrders() {
     _allOrders = _searchAllOrders.where((order) {
       final nameMatch = order.name?.toLowerCase().contains(_nameQuery) ?? false;
 
       bool totalMatch = true;
       if (_totalQuery.isNotEmpty) {
-        final enteredAmount = int.tryParse(_totalQuery);
-        String rawAmount = order.oTotal?.replaceAll(RegExp(r'[^0-9]'), '') ?? '';
-        final actualAmount = int.tryParse(rawAmount);
+        // 🔹 Clean user input
+        String enteredClean = _totalQuery.replaceAll(',', '');
+        final enteredAmount = double.tryParse(enteredClean);
+
+        // 🔹 Clean order amount (remove commas, keep dot for decimal)
+        String rawAmount = order.oTotal?.replaceAll(',', '').trim() ?? '';
+        final actualAmount = double.tryParse(rawAmount);
 
         if (enteredAmount != null && actualAmount != null) {
           totalMatch = actualAmount >= enteredAmount;
@@ -874,6 +886,34 @@ class BillingProvider with ChangeNotifier {
 
     notifyListeners();
   }
+
+  // void _filterOrders() {
+  //   _allOrders = _searchAllOrders.where((order) {
+  //     final nameMatch = order.name?.toLowerCase().contains(_nameQuery) ?? false;
+  //
+  //     bool totalMatch = true;
+  //     if (_totalQuery.isNotEmpty) {
+  //       final enteredAmount = int.tryParse(_totalQuery);
+  //       String rawAmount = order.oTotal?.replaceAll(RegExp(r'[^0-9]'), '') ?? '';
+  //       final actualAmount = int.tryParse(rawAmount);
+  //
+  //       if (enteredAmount != null && actualAmount != null) {
+  //         totalMatch = actualAmount >= enteredAmount;
+  //       } else {
+  //         totalMatch = false;
+  //       }
+  //     }
+  //
+  //     final productMatch =
+  //         order.productTitles?.toLowerCase().contains(_productQuery) ?? false;
+  //
+  //     return (_nameQuery.isEmpty || nameMatch) &&
+  //         (_totalQuery.isEmpty || totalMatch) &&
+  //         (_productQuery.isEmpty || productMatch);
+  //   }).toList();
+  //
+  //   notifyListeners();
+  // }
 
   // void _filterOrders() {
   //   _allOrders = _searchAllOrders.where((order) {

@@ -363,7 +363,8 @@ class CustomersProvider with ChangeNotifier {
                                 width: 350,
                                 height: 40,
                                 // controller: customersProvider.deliveryName,
-                                textCapitalization: TextCapitalization.words,
+                                textCapitalization:
+                                    TextCapitalization.sentences,
                                 keyboardType: TextInputType.text,
                                 textInputAction: TextInputAction.next,
                                 isOptional: true,
@@ -394,7 +395,8 @@ class CustomersProvider with ChangeNotifier {
                                 width: 350,
                                 height: 40,
                                 controller: deliveryMobile,
-                                textCapitalization: TextCapitalization.words,
+                                textCapitalization:
+                                    TextCapitalization.sentences,
                                 keyboardType: TextInputType.number,
                                 inputFormatters:
                                     InputFormatters.mobileNumberInput,
@@ -437,7 +439,8 @@ class CustomersProvider with ChangeNotifier {
                                 fillColor: Color(0xffffffff),
                                 borderRadius: 5,
                                 controller: vehicleNumer,
-                                textCapitalization: TextCapitalization.words,
+                                textCapitalization:
+                                    TextCapitalization.sentences,
                                 keyboardType: TextInputType.text,
                                 textInputAction: TextInputAction.next,
                               ),
@@ -466,7 +469,8 @@ class CustomersProvider with ChangeNotifier {
                                 fillColor: Color(0xffffffff),
                                 borderRadius: 5,
                                 controller: deliveryStreet,
-                                textCapitalization: TextCapitalization.words,
+                                textCapitalization:
+                                    TextCapitalization.sentences,
                                 keyboardType: TextInputType.text,
                                 textInputAction: TextInputAction.next,
                               ),
@@ -500,7 +504,8 @@ class CustomersProvider with ChangeNotifier {
                                 fillColor: Color(0xffffffff),
                                 borderRadius: 5,
                                 controller: deliveryArea,
-                                textCapitalization: TextCapitalization.words,
+                                textCapitalization:
+                                    TextCapitalization.sentences,
                                 keyboardType: TextInputType.text,
                                 textInputAction: TextInputAction.next,
                               ),
@@ -532,7 +537,8 @@ class CustomersProvider with ChangeNotifier {
                                 fillColor: Color(0xffffffff),
                                 borderRadius: 5,
                                 controller: deliveryCity,
-                                textCapitalization: TextCapitalization.words,
+                                textCapitalization:
+                                    TextCapitalization.sentences,
                                 textInputAction: TextInputAction.next,
                                 // validator: validationConstant.validatePincode,
                               ),
@@ -580,7 +586,7 @@ class CustomersProvider with ChangeNotifier {
                                     backgroundColor:
                                         WidgetStatePropertyAll(AppColors.white),
                                   ),
-                                  hintText: " ",
+                                  hintText: "Enter State",
                                   onSelected: (StateObj? selectedState) {
                                     if (selectedState?.name != null) {
                                       deliveryState.text =
@@ -643,7 +649,7 @@ class CustomersProvider with ChangeNotifier {
                                 deliveryName.clear();
                                 deliveryMobile.clear();
                                 vehicleNumer.clear();
-                                deliveryState.clear();
+                                // deliveryState.clear();
                                 changeState("");
                               },
                               style: ElevatedButton.styleFrom(
@@ -1289,23 +1295,40 @@ class CustomersProvider with ChangeNotifier {
             fontWeight: FontWeight.bold,
           ),
           content: SizedBox(
-            height: 50,
-            child: MyTextField(
-              hintText: "Product Name",
-              autofocus: false,
-              isOptional: true,
-              focusNode: focus,
-              labelText: "",
-              borderRadius: 2,
-              focusedBorderColor: AppColors.primary,
-              enabledBorderColor: Color(0xff9e9e9e),
-              controller: controller!,
-              textCapitalization: TextCapitalization.words,
-              keyboardType: TextInputType.text,
-              textInputAction: TextInputAction.next,
-              onFieldSubmitted: onSubmitted,
-            ),
-          ),
+              height: 50,
+              child: MyTextField(
+                hintText: "Product Name",
+                autofocus: false,
+                isOptional: true,
+                focusNode: focus,
+                labelText: "",
+                borderRadius: 2,
+                focusedBorderColor: AppColors.primary,
+                enabledBorderColor: const Color(0xff9e9e9e),
+                controller: controller!,
+                textCapitalization: TextCapitalization.words,
+                keyboardType: TextInputType.text,
+                textInputAction: TextInputAction.next,
+                onFieldSubmitted: onSubmitted,
+
+                // 🔹 Capitalize each word's first letter
+                onChanged: (value) {
+                  if (value.isNotEmpty) {
+                    String newValue = value.split(' ').map((word) {
+                      if (word.isEmpty) return '';
+                      return word[0].toUpperCase() + word.substring(1);
+                    }).join(' ');
+
+                    if (newValue != value) {
+                      controller!.value = controller!.value.copyWith(
+                        text: newValue,
+                        selection:
+                            TextSelection.collapsed(offset: newValue.length),
+                      );
+                    }
+                  }
+                },
+              )),
           actions: [
             ElevatedButton(
                 style: ElevatedButton.styleFrom(

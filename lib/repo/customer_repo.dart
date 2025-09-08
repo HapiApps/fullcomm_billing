@@ -40,7 +40,7 @@ class CustomersRepository {
       'action': "add_delivery",
       "name": name,
       "mobile": mobile,
-      "user_id": "694",
+      "user_id": userId,
       "platform": LocalData.platformKey,
       "created_by": localData.userName,
       "d_address_line_1": dAddressLine1,
