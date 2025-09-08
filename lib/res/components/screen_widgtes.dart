@@ -17,15 +17,13 @@ class ScreenWidgets {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SvgPicture.asset(
-          image,
+            image,
             height: height ?? MediaQuery.of(context).size.height * 0.35,
             width: width ?? MediaQuery.of(context).size.height * 0.35,
-
           ),
-
           MyText(
             text: text,
-            fontSize: TextFormat.responsiveFontSize(context, 16),
+            fontSize: TextFormat.responsiveFontSize(context, 14),
             textAlign: TextAlign.center,
           )
         ],

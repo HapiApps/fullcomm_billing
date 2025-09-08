@@ -82,6 +82,7 @@ class BillingItem {
       // Loose product:
       //return (double.parse(product.pricePerG) * 1000);
       return double.parse(product.pricePerG);
+      // return (double.parse(product.outPrice.toString()));
       // return (double.parse(product.outPrice.toString())/(double.parse(product.stockQty.toString())/1000));
     } else {
       // Regular product:

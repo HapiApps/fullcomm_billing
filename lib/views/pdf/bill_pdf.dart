@@ -781,7 +781,7 @@ class BillPdf {
                           children: [
                             pw.Padding(
                               padding: const pw.EdgeInsets.symmetric(
-                                  vertical: 3), // 👈 row spacing
+                                  vertical: 5), // 👈 row spacing
                               child: pw.Text(
                                 "${billingItem.productTitle} ${billingItem.variationUnit}",
                                 style: simpleText,
@@ -792,10 +792,11 @@ class BillPdf {
                               padding:
                                   const pw.EdgeInsets.symmetric(vertical: 3),
                               child: pw.Text(
-                                billingItem.variationUnit.contains("Loose")
-                                    ? (billingItem.quantity / 1000)
-                                        .toStringAsFixed(2) // Loose → Kg
-                                    : billingItem.quantity.toString(),
+                                //   billingItem.variationUnit == "UMOKg"
+                                // ? (billingItem.quantity / 1000)
+                                //     .toStringAsFixed(2) // 2500 → 2.50
+                                // :
+                                billingItem.quantity.toString(),
                                 style: simpleText,
                                 textAlign: pw.TextAlign.right,
                               ),
@@ -853,22 +854,30 @@ class BillPdf {
                         'Items : ${billingItems.length}',
                         style: simpleText,
                       ),
+
                       // pw.Text(
                       //   'Qty : ${billingItems.fold(0, (total, item) => total + item.quantity)}',
                       //   style: simpleText,
                       // ),
                       pw.Text(
-                        'Qty : ${billingItems.fold<double>(0.0, (total, item) {
-                          if (item.variationUnit.contains("Loose")) {
-                            // variation is in grams
-                            final double variationInKg = item.quantity / 1000;
-                            return total + variationInKg;
-                          } else {
-                            return total + item.quantity;
-                          }
-                        }).toStringAsFixed(2)}',
+                        'Qty : ${billingItems.fold<int>(0, (total, item) {
+                          return total + item.quantity.toInt();
+                        })}',
                         style: simpleText,
                       ),
+
+                      // pw.Text(
+                      //   'Qty : ${billingItems.fold<double>(0.0, (total, item) {
+                      //     if (item.variationUnit.contains("Loose")) {
+                      //       // variation is in grams
+                      //       final double variationInKg = item.quantity / 1000;
+                      //       return total + variationInKg;
+                      //     } else {
+                      //       return total + item.quantity;
+                      //     }
+                      //   }).toStringAsFixed(2)}',
+                      //   style: simpleText,
+                      // ),
 
                       pw.Text(
                         'Grand Total : ₹${double.parse(data.oTotal.toString()).toStringAsFixed(1)}',

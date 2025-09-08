@@ -57,7 +57,7 @@ class BillingProvider with ChangeNotifier {
       stDate = _formatDate(start);
       enDate = _formatDate(end);
 
-      final endForApi = end.add(const Duration(days: 1));
+      final endForApi = end.add(const Duration(days: 0));
       getAllOrderDetails(start.toString(), endForApi.toString());
     } else {
       stDate = '';
@@ -861,18 +861,50 @@ class BillingProvider with ChangeNotifier {
 
       bool totalMatch = true;
       if (_totalQuery.isNotEmpty) {
-        // 🔹 Clean user input
-        String enteredClean = _totalQuery.replaceAll(',', '');
-        final enteredAmount = double.tryParse(enteredClean);
-
-        // 🔹 Clean order amount (remove commas, keep dot for decimal)
+        String enteredClean = _totalQuery.replaceAll(',', '').trim();
         String rawAmount = order.oTotal?.replaceAll(',', '').trim() ?? '';
         final actualAmount = double.tryParse(rawAmount);
 
-        if (enteredAmount != null && actualAmount != null) {
-          totalMatch = actualAmount >= enteredAmount;
-        } else {
+        if (actualAmount == null) {
           totalMatch = false;
+        } else if (enteredClean.contains('-')) {
+          // 🔹 Range match (200-700)
+          final parts = enteredClean.split('-');
+          if (parts.length == 2) {
+            final min = double.tryParse(parts[0].trim());
+            final max = double.tryParse(parts[1].trim());
+            if (min != null && max != null) {
+              totalMatch = actualAmount >= min && actualAmount <= max;
+            } else {
+              totalMatch = false;
+            }
+          }
+        } else if (enteredClean.startsWith('>')) {
+          // 🔹 Greater than
+          final min = double.tryParse(enteredClean.substring(1).trim());
+          if (min != null) {
+            totalMatch = actualAmount > min;
+          } else {
+            totalMatch = false;
+          }
+        } else if (enteredClean.startsWith('<')) {
+          // 🔹 Less than
+          final max = double.tryParse(enteredClean.substring(1).trim());
+          if (max != null) {
+            totalMatch = actualAmount < max;
+          } else {
+            totalMatch = false;
+          }
+        } else {
+          // 🔹 Single value → default range (value - 300 to value + 200)
+          final value = double.tryParse(enteredClean);
+          if (value != null) {
+            double min = value - 300;
+            double max = value + 200;
+            totalMatch = actualAmount >= min && actualAmount <= max;
+          } else {
+            totalMatch = false;
+          }
         }
       }
 

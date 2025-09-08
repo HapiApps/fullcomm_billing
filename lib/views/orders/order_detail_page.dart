@@ -685,77 +685,77 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.start,
                                             children: [
-                                              GestureDetector(
-                                                child: const Icon(
-                                                    Icons
-                                                        .shopping_cart_outlined,
-                                                    color: Colors.grey),
-                                                onTap: () {
-                                                  if (products.isNotEmpty &&
-                                                      products[0] != "null") {
-                                                    showDialog(
-                                                      context: context,
-                                                      builder: (context) =>
-                                                          AlertDialog(
-                                                        title: const Text(
-                                                            "Products"),
-                                                        content: SizedBox(
-                                                          width: 300,
-                                                          child:
-                                                              ListView.builder(
-                                                            shrinkWrap: true,
-                                                            itemCount:
-                                                                products.length,
-                                                            itemBuilder:
-                                                                (context,
-                                                                    index) {
-                                                              return Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                        .symmetric(
-                                                                        vertical:
-                                                                            4),
-                                                                child: Text(
-                                                                    "${products[index]} ${productsUnit[index]}",
-                                                                    style: const TextStyle(
-                                                                        color: Colors
-                                                                            .grey)),
-                                                              );
-                                                            },
-                                                          ),
-                                                        ),
-                                                        actions: [
-                                                          ElevatedButton(
-                                                            style:
-                                                                ElevatedButton
-                                                                    .styleFrom(
-                                                              backgroundColor:
-                                                                  Colors.white,
-                                                              shape:
-                                                                  RoundedRectangleBorder(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            5),
-                                                                side:
-                                                                    BorderSide(
-                                                                  color: AppColors
-                                                                      .primary,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            onPressed: () =>
-                                                                Navigator.pop(
-                                                                    context),
-                                                            child: const Text(
-                                                                "Close"),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    );
-                                                  }
-                                                },
-                                              ),
+                                              // GestureDetector(
+                                              //   child: const Icon(
+                                              //       Icons
+                                              //           .shopping_cart_outlined,
+                                              //       color: Colors.grey),
+                                              //   onTap: () {
+                                              //     if (products.isNotEmpty &&
+                                              //         products[0] != "null") {
+                                              //       showDialog(
+                                              //         context: context,
+                                              //         builder: (context) =>
+                                              //             AlertDialog(
+                                              //           title: const Text(
+                                              //               "Products"),
+                                              //           content: SizedBox(
+                                              //             width: 300,
+                                              //             child:
+                                              //                 ListView.builder(
+                                              //               shrinkWrap: true,
+                                              //               itemCount:
+                                              //                   products.length,
+                                              //               itemBuilder:
+                                              //                   (context,
+                                              //                       index) {
+                                              //                 return Padding(
+                                              //                   padding:
+                                              //                       const EdgeInsets
+                                              //                           .symmetric(
+                                              //                           vertical:
+                                              //                               4),
+                                              //                   child: Text(
+                                              //                       "${products[index]} ${productsUnit[index]}",
+                                              //                       style: const TextStyle(
+                                              //                           color: Colors
+                                              //                               .grey)),
+                                              //                 );
+                                              //               },
+                                              //             ),
+                                              //           ),
+                                              //           actions: [
+                                              //             ElevatedButton(
+                                              //               style:
+                                              //                   ElevatedButton
+                                              //                       .styleFrom(
+                                              //                 backgroundColor:
+                                              //                     Colors.white,
+                                              //                 shape:
+                                              //                     RoundedRectangleBorder(
+                                              //                   borderRadius:
+                                              //                       BorderRadius
+                                              //                           .circular(
+                                              //                               5),
+                                              //                   side:
+                                              //                       BorderSide(
+                                              //                     color: AppColors
+                                              //                         .primary,
+                                              //                   ),
+                                              //                 ),
+                                              //               ),
+                                              //               onPressed: () =>
+                                              //                   Navigator.pop(
+                                              //                       context),
+                                              //               child: const Text(
+                                              //                   "Close"),
+                                              //             ),
+                                              //           ],
+                                              //         ),
+                                              //       );
+                                              //     }
+                                              //   },
+                                              // ),
                                               ElevatedButton(
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor:

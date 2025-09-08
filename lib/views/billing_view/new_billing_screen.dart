@@ -26,6 +26,7 @@ import '../../res/components/customer_widgets.dart';
 import '../../res/components/k_dropdown_menu.dart';
 import '../../res/components/k_text_field.dart';
 import '../../res/components/keyboard_search.dart';
+import '../../res/widgets/hint.dart';
 import '../create_customer_screen.dart';
 import '../orders/order_detail_page.dart';
 
@@ -223,14 +224,14 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                   backgroundColor: Color(0xffffffff),
                   appBar: AppBar(
                     backgroundColor: Color(0xffffffff),
-                    toolbarHeight: 100,
+                    toolbarHeight: 60,
                     leadingWidth: 380,
                     leading: Row(
                       children: [
                         Image.asset(
                           'assets/logo/app_logo.png',
-                          width: 100,
-                          height: 90,
+                          width: 90,
+                          height: 80,
                         ),
                         10.width,
                         Text.rich(
@@ -238,14 +239,15 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                             text: '  Bill No :  ',
                             style: TextStyle(
                               fontSize: 15,
-                              color: AppColors.ash,
+                              color: AppColors.black,
+                              fontWeight: FontWeight.bold,
                             ),
                             children: [
                               TextSpan(
                                 text: billingProvider.billNo ?? '',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: AppColors.black,
+                                  color: AppColors.primary,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -258,14 +260,15 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                             text: 'Cashier Name:  ',
                             style: TextStyle(
                               fontSize: 15,
-                              color: AppColors.ash,
+                              color: AppColors.black,
+                              fontWeight: FontWeight.bold,
                             ),
                             children: [
                               TextSpan(
                                 text: localData.userName,
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: AppColors.black,
+                                  color: AppColors.primary,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -280,12 +283,12 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                         MyText(
                             text: "ARUU Billing Portal",
                             color: Colors.black,
-                            fontSize: 25,
+                            fontSize: 22,
                             fontWeight: FontWeight.bold),
                         MyText(
                           text: " v${ProjectData.version}",
                           color: Colors.grey,
-                          fontSize: 15,
+                          fontSize: 14,
                           textAlign: TextAlign.end,
                         ),
                       ],
@@ -326,6 +329,29 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                           billingProvider.getProducts();
                         },
                       ),
+                      20.width,
+                      Tooltip(
+                        message: "Shortcut Keys Help",
+                        child: IconButton(
+                          onPressed: () {
+                            ShortcutHelpDialog.show(context);
+                          },
+                          icon: Icon(
+                            Icons.lightbulb_outline,
+                            color: AppColors.primary,
+                            size: 40,
+                          ),
+                        ),
+                      ),
+
+                      // CustomerFieldWidgets.iconButton(
+                      //   context: context,
+                      //   toolTip: 'Hints',
+                      //   icon: 'assets/images/hint.svg',
+                      //   onPressed: () {
+                      //     ShortcutHelpDialog.show(context);
+                      //   },
+                      // ),
                       20.width,
                       CustomerFieldWidgets.iconButton(
                         context: context,
@@ -424,9 +450,10 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
+                                5.height,
                                 Container(
                                   width: screenWidth,
-                                  height: 80,
+                                  height: 70,
                                   //alignment: Alignment.center,
                                   padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
                                   color: Color(0xfffdfafa),
@@ -1288,7 +1315,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                 ///  Billing Table :
                                 billingProvider.billingItems.isEmpty
                                     ? SizedBox(
-                                        width: 260,
+                                        width: 200,
                                         child: Column(
                                           children: [
                                             ScreenWidgets.emptyAlert(context,
@@ -1563,17 +1590,20 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                   Expanded(
                                                                     child: billProduct.product.isLoose ==
                                                                             '1'
-                                                                        ? Center(
-                                                                            child:
-                                                                                Text(
-                                                                            billProduct.variationUnit,
-                                                                          ))
-                                                                        : Center(
-                                                                            child:
-                                                                                Text(
-                                                                            billProduct.variationUnit ??
-                                                                                "",
-                                                                          )),
+                                                                        ? (billProduct.variationUnit == null ||
+                                                                                billProduct.variation == null ||
+                                                                                billProduct.variationUnit.isEmpty)
+                                                                            ? const SizedBox.shrink() // null or empty -> show nothing
+                                                                            : Center(
+                                                                                child: Text(
+                                                                                  billProduct.variationUnit ?? "",
+                                                                                ),
+                                                                              )
+                                                                        : (billProduct.variationUnit == null || billProduct.variation == null || billProduct.variationUnit.isEmpty)
+                                                                            ? const SizedBox.shrink() // null or empty -> show nothing
+                                                                            : Center(
+                                                                                child: Text(billProduct.variationUnit),
+                                                                              ),
                                                                   ),
                                                                   VerticalDivider(
                                                                     color: Color(
@@ -1819,8 +1849,11 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                         onPressed:
                                                                             () {
                                                                           String itemName = billProduct.product.isLoose == '1'
-                                                                              ? "${billProduct.product.pTitle} ${billProduct.variation / 1000}kg"
-                                                                              : "${billProduct.product.pTitle} ${billProduct.variationUnit}";
+                                                                              ? "${billProduct.product.pTitle}"
+                                                                                  "${(billProduct.variation != null && billProduct.variation != 0) ? " ${billProduct.variation / 1000}kg" : ""}"
+                                                                              : "${billProduct.product.pTitle}"
+                                                                                  "${(billProduct.variationUnit != null && billProduct.variationUnit.isNotEmpty && billProduct.variationUnit.toLowerCase() != "null") ? " ${billProduct.variationUnit}" : ""}";
+
                                                                           showDialog(
                                                                             context:
                                                                                 context,

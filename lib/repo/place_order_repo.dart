@@ -96,6 +96,7 @@ class PlaceOrderRepository {
       'en_date': enDate,
       "cos_id": localData.cosId
     });
+    log("body details:${body}");
     try {
       final response = await http.post(Uri.parse(ApiUrl.script), body: body);
       return OrdersResponse.fromJson(jsonDecode(response.body));
