@@ -77,16 +77,15 @@ class BillingItem {
   }
 
   /// Calculate Out price per product (for one product) :
+  /// Calculate Out price per product (for one product)
   double calculateOutPrice() {
     if (product.isLoose == '1') {
-      // Loose product:
-      //return (double.parse(product.pricePerG) * 1000);
-      return double.parse(product.pricePerG);
-      // return (double.parse(product.outPrice.toString()));
-      // return (double.parse(product.outPrice.toString())/(double.parse(product.stockQty.toString())/1000));
+      // Loose product: convert price per gram to price per kg
+      double pricePerG = double.tryParse(product.pricePerG) ?? 0.0;
+      return pricePerG * 1000; // price for 1 kg
     } else {
-      // Regular product:
-      return (double.parse(product.outPrice.toString()));
+      // Regular product: return the standard outPrice
+      return double.tryParse(product.outPrice.toString()) ?? 0.0;
     }
   }
 

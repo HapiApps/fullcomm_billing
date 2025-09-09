@@ -350,16 +350,15 @@ class BillingProvider with ChangeNotifier {
   double calculatedTotalQuantity() {
     double total = billingItems.fold<double>(0.0, (total, item) {
       if (item.product.isLoose == "1") {
-        final double variation = item.variation;
-        final double qty = item.quantity.toDouble();
-        return total + ((variation / 1000) * qty);
+        // Loose product counts as 1
+        return total + 1;
       } else {
-        return total + item.quantity;
+        // Normal product counts by its quantity
+        return total + item.quantity.toDouble();
       }
     });
 
-    // Round to 3 decimal places
-    return double.parse(total.toStringAsFixed(3));
+    return total; // no need to fix decimals for count
   }
 
   double calculateTotalGST() {
@@ -1009,5 +1008,27 @@ class BillingProvider with ChangeNotifier {
     DateTime date = DateTime.parse(dateString);
     String formatted = DateFormat('dd-MM-yyyy').format(date);
     return formatted;
+  }
+
+  // 👇 இங்கே function add பண்ணுங்க
+  Map<String, dynamic> buildOrderPayload(BillingItem item) {
+    double qtyToSend;
+    double outPriceToSend;
+
+    if (item.variationUnit == "UMOKg") {
+      qtyToSend = item.quantity / 1000;
+      outPriceToSend = (double.tryParse(item.outPrice.toString()) ?? 0) * 1000;
+    } else {
+      qtyToSend = item.quantity.toDouble();
+      outPriceToSend = double.tryParse(item.outPrice.toString()) ?? 0;
+    }
+
+    return {
+      "id": item.id,
+      "title": item.productTitle,
+      "quantity": qtyToSend.toStringAsFixed(2),
+      "out_price": outPriceToSend.toStringAsFixed(2),
+      "unit": item.variationUnit,
+    };
   }
 }

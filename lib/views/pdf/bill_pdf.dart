@@ -272,7 +272,7 @@ class BillPdf {
                         style: simpleText,
                       ),
                       pw.Text(
-                        'Qty : ${billingProvider.calculatedTotalQuantity().toStringAsFixed(2)}',
+                        'Qty : ${billingProvider.calculatedTotalQuantity()}',
                         style: simpleText,
                       ),
                       pw.Text(
@@ -779,6 +779,7 @@ class BillPdf {
                       children: [
                         pw.TableRow(
                           children: [
+                            //title
                             pw.Padding(
                               padding: const pw.EdgeInsets.symmetric(
                                   vertical: 5), // 👈 row spacing
@@ -788,19 +789,24 @@ class BillPdf {
                                 textAlign: pw.TextAlign.left,
                               ),
                             ),
+
+                            //quantity
                             pw.Padding(
                               padding:
                                   const pw.EdgeInsets.symmetric(vertical: 3),
                               child: pw.Text(
-                                //   billingItem.variationUnit == "UMOKg"
-                                // ? (billingItem.quantity / 1000)
-                                //     .toStringAsFixed(2) // 2500 → 2.50
-                                // :
-                                billingItem.quantity.toString(),
+                                // Display text
+                                billingItem.variationUnit == "UOMKg"
+                                    ? (billingItem.quantity / 1000)
+                                        .toString() // grams → kg, truncated
+                                    : billingItem.quantity
+                                        .toString(), // normal product
                                 style: simpleText,
                                 textAlign: pw.TextAlign.right,
                               ),
                             ),
+
+                            // mrp
                             pw.Padding(
                               padding:
                                   const pw.EdgeInsets.symmetric(vertical: 3),
@@ -810,16 +816,29 @@ class BillPdf {
                                 textAlign: pw.TextAlign.right,
                               ),
                             ),
+
+                            // out price
+                            // pw.Padding(
+                            //   padding:
+                            //       const pw.EdgeInsets.symmetric(vertical: 3),
+                            //   child: pw.Text(
+                            //     double.parse(billingItem.outPrice.toString())
+                            //         .toStringAsFixed(2),
+                            //     style: simpleText,
+                            //     textAlign: pw.TextAlign.right,
+                            //   ),
+                            // ),
+
                             pw.Padding(
                               padding:
                                   const pw.EdgeInsets.symmetric(vertical: 3),
                               child: pw.Text(
-                                double.parse(billingItem.outPrice.toString())
-                                    .toStringAsFixed(2),
+                                billingItem.variation.toStringAsFixed(1),
                                 style: simpleText,
                                 textAlign: pw.TextAlign.right,
                               ),
                             ),
+                            // total
                             pw.Padding(
                               padding:
                                   const pw.EdgeInsets.symmetric(vertical: 3),
@@ -829,8 +848,7 @@ class BillPdf {
                                           billingItem.product.isLoose
                                                       .toString() ==
                                                   "1"
-                                              ? billingItem.product.pricePerG
-                                                  .toString()
+                                              ? billingItem.outPrice.toString()
                                               : billingItem.outPrice.toString(),
                                         ))
                                     .toStringAsFixed(2),
@@ -861,7 +879,11 @@ class BillPdf {
                       // ),
                       pw.Text(
                         'Qty : ${billingItems.fold<int>(0, (total, item) {
-                          return total + item.quantity.toInt();
+                          // Loose product counts as 1, normal product counts by quantity
+                          return total +
+                              (item.variationUnit == "UOMKg"
+                                  ? 1
+                                  : item.quantity);
                         })}',
                         style: simpleText,
                       ),

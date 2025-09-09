@@ -503,37 +503,121 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                 textEditingController:
                                                     customerProvider
                                                         .cusController,
+                                                // onSelected: (value) {
+                                                //   String formatAddress(
+                                                //       AddressDetail? value) {
+                                                //     if (value == null)
+                                                //       return '';
+                                                //     return "${value.addressLine1} ${value.area} ${value.city} ${value.state}-${value.pincode}"
+                                                //         .replaceAll(',,', ',');
+                                                //   }
+                                                //
+                                                //   AddressDetail? homeAddress;
+                                                //   List<AddressDetail>
+                                                //       deliveryAddresses = [];
+                                                //
+                                                //   // Get Home address (only one)
+                                                //   try {
+                                                //     homeAddress = value
+                                                //         .addressDetails!
+                                                //         .firstWhere(
+                                                //       (e) =>
+                                                //           e.type!
+                                                //               .toLowerCase() ==
+                                                //           'home',
+                                                //     );
+                                                //   } catch (_) {}
+                                                //   deliveryAddresses = value
+                                                //       .addressDetails!
+                                                //       .where((e) =>
+                                                //           e.type!
+                                                //               .toLowerCase() ==
+                                                //           'delivery')
+                                                //       .toList();
+                                                //   List<String>
+                                                //       deliveryFormattedList =
+                                                //       deliveryAddresses
+                                                //           .map((addr) =>
+                                                //               formatAddress(
+                                                //                   addr))
+                                                //           .toList();
+                                                //   String deliveryFormatted =
+                                                //       deliveryFormattedList
+                                                //               .isNotEmpty
+                                                //           ? deliveryFormattedList
+                                                //               .first
+                                                //           : '';
+                                                //   customerProvider
+                                                //       .setDeliveryAddressList(
+                                                //           deliveryFormattedList);
+                                                //   customerProvider
+                                                //       .setSelectedDeliveryAddress(
+                                                //           deliveryFormattedList
+                                                //                   .isEmpty
+                                                //               ? ""
+                                                //               : deliveryFormattedList
+                                                //                   .first);
+                                                //   customerProvider
+                                                //           .deliveryAddressController
+                                                //           .text =
+                                                //       deliveryFormattedList
+                                                //           .first;
+                                                //   customerProvider
+                                                //       .setCustomerDetails(
+                                                //           customerId: value
+                                                //               .userId
+                                                //               .toString(),
+                                                //           customerName: value
+                                                //               .name
+                                                //               .toString(),
+                                                //           customerMobile: value
+                                                //               .mobile
+                                                //               .toString(),
+                                                //           customerAddress:
+                                                //               formatAddress(
+                                                //                   homeAddress),
+                                                //           deliveryAddress:
+                                                //               deliveryFormatted);
+                                                //   _focusNode.requestFocus();
+                                                // },
                                                 onSelected: (value) {
                                                   String formatAddress(
                                                       AddressDetail? value) {
                                                     if (value == null)
                                                       return '';
-                                                    return "${value.addressLine1} ${value.area} ${value.city} ${value.state}-${value.pincode}"
-                                                        .replaceAll(',,', ',');
+                                                    return "${value.addressLine1 ?? ''} ${value.area ?? ''} ${value.city ?? ''} ${value.state ?? ''}-${value.pincode ?? ''}"
+                                                        .replaceAll(',,', ',')
+                                                        .trim();
                                                   }
 
                                                   AddressDetail? homeAddress;
                                                   List<AddressDetail>
                                                       deliveryAddresses = [];
-
-                                                  // Get Home address (only one)
                                                   try {
                                                     homeAddress = value
-                                                        .addressDetails!
-                                                        .firstWhere(
+                                                        .addressDetails
+                                                        ?.firstWhere(
                                                       (e) =>
-                                                          e.type!
+                                                          (e.type ?? '')
                                                               .toLowerCase() ==
                                                           'home',
+                                                      orElse: () =>
+                                                          AddressDetail(), // prevent crash
                                                     );
                                                   } catch (_) {}
+
+                                                  print(
+                                                      "Delivery  ${value.addressDetails}");
+
                                                   deliveryAddresses = value
-                                                      .addressDetails!
-                                                      .where((e) =>
-                                                          e.type!
-                                                              .toLowerCase() ==
-                                                          'delivery')
-                                                      .toList();
+                                                          .addressDetails
+                                                          ?.where((e) =>
+                                                              (e.type ?? '')
+                                                                  .toLowerCase() ==
+                                                              'delivery')
+                                                          .toList() ??
+                                                      [];
+
                                                   List<String>
                                                       deliveryFormattedList =
                                                       deliveryAddresses
@@ -541,43 +625,39 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                               formatAddress(
                                                                   addr))
                                                           .toList();
+
                                                   String deliveryFormatted =
                                                       deliveryFormattedList
                                                               .isNotEmpty
                                                           ? deliveryFormattedList
                                                               .first
                                                           : '';
+                                                  // Update provider
                                                   customerProvider
                                                       .setDeliveryAddressList(
                                                           deliveryFormattedList);
                                                   customerProvider
                                                       .setSelectedDeliveryAddress(
-                                                          deliveryFormattedList
-                                                                  .isEmpty
-                                                              ? ""
-                                                              : deliveryFormattedList
-                                                                  .first);
+                                                          deliveryFormatted);
                                                   customerProvider
-                                                          .deliveryAddressController
-                                                          .text =
-                                                      deliveryFormattedList
-                                                          .first;
+                                                      .deliveryAddressController
+                                                      .text = deliveryFormatted;
+
                                                   customerProvider
                                                       .setCustomerDetails(
-                                                          customerId: value
-                                                              .userId
-                                                              .toString(),
-                                                          customerName: value
-                                                              .name
-                                                              .toString(),
-                                                          customerMobile: value
-                                                              .mobile
-                                                              .toString(),
-                                                          customerAddress:
-                                                              formatAddress(
-                                                                  homeAddress),
-                                                          deliveryAddress:
-                                                              deliveryFormatted);
+                                                    customerId:
+                                                        value.userId.toString(),
+                                                    customerName:
+                                                        value.name.toString(),
+                                                    customerMobile:
+                                                        value.mobile.toString(),
+                                                    customerAddress:
+                                                        formatAddress(
+                                                            homeAddress),
+                                                    deliveryAddress:
+                                                        deliveryFormatted,
+                                                  );
+
                                                   _focusNode.requestFocus();
                                                 },
                                                 onClear: () {
@@ -691,7 +771,8 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                 tooltip: "Add Delivery Address",
                                                 onPressed: () {
                                                   if (customerProvider
-                                                      .selectedCustomerId
+                                                      .cusController.text
+                                                      .toString()
                                                       .isEmpty) {
                                                     Toasts.showToastBar(
                                                       context: context,
@@ -1785,9 +1866,8 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                                             .centerRight,
                                                                     child: Text(billProduct.product.isLoose ==
                                                                             '1'
-                                                                        ? billProduct
-                                                                            .calculateOutPrice()
-                                                                            .toString()
+                                                                        ? TextFormat.formattedAmount(billProduct
+                                                                            .calculateOutPrice())
                                                                         : TextFormat.formattedAmount(
                                                                             billProduct.calculateOutPrice())),
                                                                   )),
