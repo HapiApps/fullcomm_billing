@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fullcomm_billing/data/local_data.dart';
 import 'package:fullcomm_billing/repo/customer_repo.dart';
@@ -362,17 +363,23 @@ class CustomersProvider with ChangeNotifier {
                                 autofocus: false,
                                 width: 350,
                                 height: 40,
-                                // controller: customersProvider.deliveryName,
+                                controller: deliveryName,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'[a-zA-Z\s]')),
+                                  LengthLimitingTextInputFormatter(30),
+                                ],
                                 textCapitalization:
-                                    TextCapitalization.sentences,
+                                    TextCapitalization.words, // optional
                                 keyboardType: TextInputType.text,
                                 textInputAction: TextInputAction.next,
                                 isOptional: true,
                                 labelText: '',
+
                                 focusedBorderColor: AppColors.primary,
                                 enabledBorderColor: Colors.grey.shade300,
-                                fillColor: Color(0xffffffff),
-                                borderRadius: 5, controller: deliveryName,
+                                fillColor: const Color(0xffffffff),
+                                borderRadius: 5,
                               ),
                             ],
                           ),
@@ -395,17 +402,21 @@ class CustomersProvider with ChangeNotifier {
                                 width: 350,
                                 height: 40,
                                 controller: deliveryMobile,
-                                textCapitalization:
-                                    TextCapitalization.sentences,
+                                textCapitalization: TextCapitalization
+                                    .none, // optional, numbers don't need capitalization
                                 keyboardType: TextInputType.number,
-                                inputFormatters:
-                                    InputFormatters.mobileNumberInput,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter
+                                      .digitsOnly, // only digits allowed
+                                  LengthLimitingTextInputFormatter(
+                                      10), // optional: limit to 10 digits
+                                ],
                                 textInputAction: TextInputAction.next,
                                 labelText: '',
                                 isOptional: true,
                                 focusedBorderColor: AppColors.primary,
                                 enabledBorderColor: Colors.grey.shade300,
-                                fillColor: Color(0xffffffff),
+                                fillColor: const Color(0xffffffff),
                                 borderRadius: 5,
                               ),
                             ],
@@ -436,13 +447,18 @@ class CustomersProvider with ChangeNotifier {
                                 isOptional: true,
                                 focusedBorderColor: AppColors.primary,
                                 enabledBorderColor: Colors.grey.shade300,
-                                fillColor: Color(0xffffffff),
+                                fillColor: const Color(0xffffffff),
                                 borderRadius: 5,
                                 controller: vehicleNumer,
-                                textCapitalization:
-                                    TextCapitalization.sentences,
-                                keyboardType: TextInputType.text,
+                                textCapitalization: TextCapitalization
+                                    .none, // numbers don't need capitalization
+                                keyboardType: TextInputType.number,
                                 textInputAction: TextInputAction.next,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(
+                                      12), // allow only digits
+                                ],
                               ),
                             ],
                           ),
@@ -473,6 +489,9 @@ class CustomersProvider with ChangeNotifier {
                                     TextCapitalization.sentences,
                                 keyboardType: TextInputType.text,
                                 textInputAction: TextInputAction.next,
+                                inputFormatters: [
+                                  LengthLimitingTextInputFormatter(30),
+                                ],
                               ),
                             ],
                           ),
@@ -501,13 +520,18 @@ class CustomersProvider with ChangeNotifier {
                                 isOptional: true,
                                 focusedBorderColor: AppColors.primary,
                                 enabledBorderColor: Colors.grey.shade300,
-                                fillColor: Color(0xffffffff),
+                                fillColor: const Color(0xffffffff),
                                 borderRadius: 5,
                                 controller: deliveryArea,
-                                textCapitalization:
-                                    TextCapitalization.sentences,
+                                textCapitalization: TextCapitalization
+                                    .words, // capitalizes first letter of each word
                                 keyboardType: TextInputType.text,
                                 textInputAction: TextInputAction.next,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'[a-zA-Z\s]')),
+                                  LengthLimitingTextInputFormatter(30),
+                                ],
                               ),
                             ],
                           ),
@@ -540,6 +564,11 @@ class CustomersProvider with ChangeNotifier {
                                 textCapitalization:
                                     TextCapitalization.sentences,
                                 textInputAction: TextInputAction.next,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'[a-zA-Z\s]')),
+                                  LengthLimitingTextInputFormatter(30),
+                                ],
                                 // validator: validationConstant.validatePincode,
                               ),
                             ],
@@ -679,61 +708,105 @@ class CustomersProvider with ChangeNotifier {
                             width: 120,
                             height: 40,
                             loadingButtonController: loadingButtonController,
-                            onPressed: () {
+                            onPressed: () async {
+                              // ---------- VALIDATIONS ----------
                               if (deliveryName.text.isEmpty) {
                                 loadingButtonController.reset();
                                 Toasts.showToastBar(
                                     context: context,
                                     text: "Please enter delivery person name",
                                     color: Colors.red);
-                              } else if (deliveryMobile.text.isEmpty) {
+                                return;
+                              }
+                              if (deliveryMobile.text.isEmpty) {
                                 loadingButtonController.reset();
                                 Toasts.showToastBar(
                                     context: context,
                                     text: "Please enter delivery mobile no.",
                                     color: Colors.red);
-                              } else if (deliveryMobile.text.trim().length !=
-                                  10) {
+                                return;
+                              }
+                              if (deliveryMobile.text.trim().length != 10) {
                                 loadingButtonController.reset();
                                 Toasts.showToastBar(
                                     context: context,
                                     text:
                                         "Mobile number must be 10 characters.",
                                     color: Colors.red);
-                              } else if (deliveryCity.text.isEmpty) {
+                                return;
+                              }
+                              if (deliveryCity.text.isEmpty) {
                                 loadingButtonController.reset();
                                 Toasts.showToastBar(
                                     context: context,
                                     text: "Please enter city",
                                     color: Colors.red);
-                              } else if (deliveryPincode.text.isEmpty) {
+                                return;
+                              }
+                              if (deliveryPincode.text.isEmpty) {
                                 loadingButtonController.reset();
                                 Toasts.showToastBar(
                                     context: context,
                                     text: "Please enter pincode",
                                     color: Colors.red);
-                              } else if (deliveryPincode.text.length != 6) {
+                                return;
+                              }
+                              if (deliveryPincode.text.length != 6) {
                                 loadingButtonController.reset();
                                 Toasts.showToastBar(
                                     context: context,
                                     text: "Pincode must be 6 characters.",
                                     color: Colors.red);
+                                return;
+                              }
+
+                              // ---------- API CALL ----------
+                              final success = await addDelivery(
+                                context: context,
+                                name: deliveryName.text.trim(),
+                                mobile: deliveryMobile.text.trim(),
+                                dAddressLine1: deliveryStreet.text.trim(),
+                                dArea: deliveryArea.text.trim(),
+                                dPinCode: deliveryPincode.text.trim(),
+                                dCity: deliveryCity.text.trim(),
+                                dState: deliveryState.text.trim(),
+                                userId: userId,
+                                vehicleNo: vehicleNumer.text.trim(),
+                              );
+
+                              // ---------- AFTER SUCCESS ----------
+                              if (success) {
+                                // Build a single-line string for dropdown
+                                final newAddress =
+                                    "${deliveryStreet.text}, ${deliveryArea.text}, ${deliveryCity.text}, ${deliveryPincode.text}";
+
+                                // Update provider list & selected item
+                                Provider.of<CustomersProvider>(context,
+                                        listen: false)
+                                    .addDeliveryAddressLocally(newAddress);
+
+                                // Optional: clear all text fields here
+                                deliveryStreet.clear();
+                                deliveryCity.clear();
+                                deliveryArea.clear();
+                                deliveryPincode.clear();
+                                deliveryName.clear();
+                                deliveryMobile.clear();
+                                vehicleNumer.clear();
+                                // deliveryState.clear(); // if needed
+
+                                // Close dialog
+                                Navigator.pop(context);
                               } else {
-                                addDelivery(
+                                loadingButtonController.reset();
+                                Toasts.showToastBar(
                                     context: context,
-                                    name: deliveryName.text.trim(),
-                                    mobile: deliveryMobile.text.trim(),
-                                    dAddressLine1: deliveryStreet.text.trim(),
-                                    dArea: deliveryArea.text.trim(),
-                                    dPinCode: deliveryPincode.text.trim(),
-                                    dCity: deliveryCity.text.trim(),
-                                    dState: deliveryState.text.trim(),
-                                    userId: userId,
-                                    vehicleNo: vehicleNumer.text.trim());
+                                    text: "Failed to add delivery address",
+                                    color: Colors.red);
                               }
                             },
                             text: 'Submit',
-                          ),
+                          )
                         ],
                       ),
                     ],
@@ -745,6 +818,13 @@ class CustomersProvider with ChangeNotifier {
         });
       },
     );
+  }
+
+  // customers_provider.dart
+  String addDeliveryAddressLocally(String newAddress) {
+    deliveryAddressList.add(newAddress);
+    notifyListeners();
+    return newAddress; // ✅ now it returns a String
   }
 
   void clearCustomerData() {
@@ -1127,7 +1207,97 @@ class CustomersProvider with ChangeNotifier {
     );
   }
 
-  Future<void> addDelivery({
+  // Future<void> addDelivery({
+  //   required BuildContext context,
+  //   required String name,
+  //   required String mobile,
+  //   required String dAddressLine1,
+  //   required String dArea,
+  //   required String dPinCode,
+  //   required String dCity,
+  //   required String dState,
+  //   required String userId,
+  //   required String vehicleNo,
+  // }) async
+  // {
+  //   // try {
+  //   final response = await _customerRepo.addDelivery(
+  //       name: name,
+  //       mobile: mobile,
+  //       dAddressLine1: dAddressLine1,
+  //       dArea: dArea,
+  //       dPinCode: dPinCode,
+  //       dCity: dCity,
+  //       dState: dState,
+  //       userId: userId,
+  //       vehicleNo: vehicleNo);
+  //
+  //   if (response.responseCode == 200) {
+  //     // Store Customer Details:
+  //     localData.customerName = name;
+  //     localData.customerMobile = mobile;
+  //     localData.deliveryAddress =
+  //         "$dAddressLine1,$dArea,$dCity,$dState,$dPinCode"
+  //             .replaceAll(',,', ',');
+  //     deliveryAddressController.text =
+  //         "$dAddressLine1,$dArea,$dCity,$dState,$dPinCode"
+  //             .replaceAll(',,', ',');
+  //     //setSelectedDeliveryAddress(deliveryAddressController.text);
+  //     List<String> addresses = [];
+  //     addresses.add(deliveryAddressController.text);
+  //     setDeliveryAddressList(addresses);
+  //
+  //     if (_deliveryAddresses.isNotEmpty) {
+  //       final firstValue = _deliveryAddresses.first.toString();
+  //       setSelectedDeliveryAddress(firstValue);
+  //       deliveryAddressController.text = firstValue;
+  //     }
+  //     if (!context.mounted) return;
+  //     loadingButtonController.reset();
+  //     Toasts.showToastBar(
+  //         context: context,
+  //         text: 'Delivery Address is added.',
+  //         color: AppColors.green);
+  //     Navigator.pop(context);
+  //     deliveryStreet.clear();
+  //     deliveryCity.clear();
+  //     deliveryArea.clear();
+  //     deliveryPincode.clear();
+  //     deliveryName.clear();
+  //     deliveryMobile.clear();
+  //     vehicleNumer.clear();
+  //     if (!context.mounted) return;
+  //     await getAllCustomers(context);
+  //   } else if (response.responseCode == 409) {
+  //     // Existing Customer :
+  //     if (!context.mounted) return;
+  //     loadingButtonController.reset();
+  //     Toasts.showToastBar(
+  //         context: context,
+  //         text: 'Customer already exists.',
+  //         color: AppColors.errorMessage);
+  //   } else {
+  //     // Invalid Details :
+  //     if (!context.mounted) return;
+  //     loadingButtonController.reset();
+  //     Toasts.showToastBar(
+  //         context: context,
+  //         text: 'Enter Valid Details',
+  //         color: AppColors.errorMessage);
+  //   }
+  //   // } catch (e) {
+  //   //   Toasts.showToastBar(
+  //   //       context: context,
+  //   //       text: 'Something went wrong.',
+  //   //       color: AppColors.errorMessage);
+  //   //   throw Exception("addCustomer Error : $e");
+  //   // } finally {
+  //   //   loadingButtonController.reset();
+  //   //   notifyListeners();
+  //   // }
+  // }
+
+  Future<bool> addDelivery({
     required BuildContext context,
     required String name,
     required String mobile,
@@ -1139,8 +1309,8 @@ class CustomersProvider with ChangeNotifier {
     required String userId,
     required String vehicleNo,
   }) async {
-    // try {
-    final response = await _customerRepo.addDelivery(
+    try {
+      final response = await _customerRepo.addDelivery(
         name: name,
         mobile: mobile,
         dAddressLine1: dAddressLine1,
@@ -1149,71 +1319,77 @@ class CustomersProvider with ChangeNotifier {
         dCity: dCity,
         dState: dState,
         userId: userId,
-        vehicleNo: vehicleNo);
+        vehicleNo: vehicleNo,
+      );
 
-    if (response.responseCode == 200) {
-      // Store Customer Details:
-      localData.customerName = name;
-      localData.customerMobile = mobile;
-      localData.deliveryAddress =
-          "$dAddressLine1,$dArea,$dCity,$dState,$dPinCode"
-              .replaceAll(',,', ',');
-      deliveryAddressController.text =
-          "$dAddressLine1,$dArea,$dCity,$dState,$dPinCode"
-              .replaceAll(',,', ',');
-      //setSelectedDeliveryAddress(deliveryAddressController.text);
-      List<String> addresses = [];
-      addresses.add(deliveryAddressController.text);
-      setDeliveryAddressList(addresses);
+      if (response.responseCode == 200) {
+        localData.customerName = name;
+        localData.customerMobile = mobile;
+        localData.deliveryAddress =
+            "$dAddressLine1,$dArea,$dCity,$dState,$dPinCode"
+                .replaceAll(',,', ',');
 
-      if (_deliveryAddresses.isNotEmpty) {
-        final firstValue = _deliveryAddresses.first.toString();
-        setSelectedDeliveryAddress(firstValue);
-        deliveryAddressController.text = firstValue;
-      }
-      if (!context.mounted) return;
-      loadingButtonController.reset();
-      Toasts.showToastBar(
+        // ✅ Build full address
+        final newAddress = "$dAddressLine1,$dArea,$dCity,$dState,$dPinCode"
+            .replaceAll(',,', ',');
+
+        // ✅ Append to local list
+        addDeliveryAddressLocally(newAddress);
+
+        // ✅ Reset button, toast, clear text fields
+        if (!context.mounted) return false;
+        loadingButtonController.reset();
+        Toasts.showToastBar(
           context: context,
           text: 'Delivery Address is added.',
-          color: AppColors.green);
-      Navigator.pop(context);
-      deliveryStreet.clear();
-      deliveryCity.clear();
-      deliveryArea.clear();
-      deliveryPincode.clear();
-      deliveryName.clear();
-      deliveryMobile.clear();
-      vehicleNumer.clear();
-      if (!context.mounted) return;
-      await getAllCustomers(context);
-    } else if (response.responseCode == 409) {
-      // Existing Customer :
-      if (!context.mounted) return;
-      loadingButtonController.reset();
-      Toasts.showToastBar(
+          color: AppColors.green,
+        );
+        Navigator.pop(context);
+
+        // Clear controllers
+        deliveryStreet.clear();
+        deliveryCity.clear();
+        deliveryArea.clear();
+        deliveryPincode.clear();
+        deliveryName.clear();
+        deliveryMobile.clear();
+        vehicleNumer.clear();
+
+        if (!context.mounted) return false;
+        await getAllCustomers(context);
+        return true;
+      } else if (response.responseCode == 409) {
+        if (!context.mounted) return false;
+        loadingButtonController.reset();
+        Toasts.showToastBar(
           context: context,
           text: 'Customer already exists.',
-          color: AppColors.errorMessage);
-    } else {
-      // Invalid Details :
-      if (!context.mounted) return;
-      loadingButtonController.reset();
-      Toasts.showToastBar(
+          color: AppColors.errorMessage,
+        );
+        return false;
+      } else {
+        if (!context.mounted) return false;
+        loadingButtonController.reset();
+        Toasts.showToastBar(
           context: context,
           text: 'Enter Valid Details',
-          color: AppColors.errorMessage);
+          color: AppColors.errorMessage,
+        );
+        return false;
+      }
+    } catch (e) {
+      if (context.mounted) {
+        loadingButtonController.reset();
+        Toasts.showToastBar(
+          context: context,
+          text: 'Something went wrong.',
+          color: AppColors.errorMessage,
+        );
+      }
+      return false;
+    } finally {
+      notifyListeners();
     }
-    // } catch (e) {
-    //   Toasts.showToastBar(
-    //       context: context,
-    //       text: 'Something went wrong.',
-    //       color: AppColors.errorMessage);
-    //   throw Exception("addCustomer Error : $e");
-    // } finally {
-    //   loadingButtonController.reset();
-    //   notifyListeners();
-    // }
   }
 
   /// -------- Customer Selection -------------------

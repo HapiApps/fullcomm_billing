@@ -733,22 +733,17 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                       enableFilter: true,
                                                       menuHeight: 350,
                                                       initialSelection: provider
-                                                                  .selectedDeliveryAddress
-                                                                  ?.isEmpty ??
-                                                              true
-                                                          ? null
-                                                          : provider
-                                                              .selectedDeliveryAddress,
+                                                          .selectedDeliveryAddress,
                                                       controller: provider
                                                           .deliveryAddressController,
                                                       dropdownMenuEntries:
                                                           provider
                                                               .deliveryAddressList
-                                                              .map((state) {
+                                                              .map((address) {
                                                         return MyDropdownMenuEntry<
                                                             String>(
-                                                          value: state,
-                                                          label: state,
+                                                          value: address,
+                                                          label: address,
                                                         );
                                                       }).toList(),
                                                       onSelected:
@@ -1093,156 +1088,161 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                               },
                                               onFieldSubmitted: (value) {
                                                 if (billingProvider
-                                                        .selectedProduct !=
+                                                        .selectedProduct ==
                                                     null) {
-                                                  final product =
-                                                      billingProvider
-                                                          .selectedProduct!;
-                                                  if (product.isLoose == '1') {
-                                                    final parsed =
-                                                        double.tryParse(value);
-                                                    if (parsed != null &&
-                                                        parsed > 0) {
-                                                      int stockQty =
-                                                          int.tryParse(product
-                                                                  .stockQty
-                                                                  .toString()) ??
-                                                              0;
-                                                      double enteredQty =
-                                                          (parsed * 1000)
-                                                              .toDouble(); // grams
-                                                      if (enteredQty >
-                                                          stockQty) {
-                                                        Toasts.showToastBar(
-                                                          context: context,
-                                                          text:
-                                                              "Entered weight is more than available stock (${stockQty}g).",
-                                                          color: Colors.red,
-                                                        );
-                                                        fieldFocusNode
-                                                            .requestFocus();
-                                                      } else if (product
-                                                              .pricePerG ==
-                                                          null) {
-                                                        Toasts.showToastBar(
-                                                          context: context,
-                                                          text:
-                                                              "The per-gram price for this product is not available",
-                                                          color: Colors.red,
-                                                        );
-                                                        fieldFocusNode
-                                                            .requestFocus();
-                                                      } else {
-                                                        billingProvider
-                                                            .addBillingItem(
-                                                          BillingItem(
-                                                            id: product.id!
-                                                                .toString(),
-                                                            product: product,
-                                                            productTitle:
-                                                                "${product.pTitle} $parsed kg",
-                                                            variation:
-                                                                enteredQty, // grams
-                                                            variationUnit:
-                                                                "${product.pVariation}${product.unit}",
-                                                            quantity: 1,
-                                                            proController:
-                                                                TextEditingController(),
-                                                            proFocusNode:
-                                                                FocusNode(),
-                                                          ),
-                                                        );
-                                                        billingProvider
-                                                            .barcodeScanner
-                                                            .clear();
-                                                        billingProvider
-                                                                .selectedProduct =
-                                                            null;
-                                                        scrollDown();
-                                                        dropdownFocusNode
-                                                            .requestFocus();
-                                                        dropdownController
-                                                            .clear();
-                                                        quantityVariationController
-                                                            .clear();
-                                                      }
-                                                    } else {
-                                                      Toasts.showToastBar(
+                                                  Toasts.showToastBar(
+                                                      context: context,
+                                                      text:
+                                                          "Please add product",
+                                                      color: Colors.red);
+                                                  return;
+                                                }
+
+                                                final product = billingProvider
+                                                    .selectedProduct!;
+                                                // find existing safely
+                                                BillingItem? existingItem;
+                                                try {
+                                                  existingItem = billingProvider
+                                                      .billingItems
+                                                      .firstWhere(
+                                                    (it) =>
+                                                        it.id ==
+                                                        product.id.toString(),
+                                                  );
+                                                } catch (e) {
+                                                  existingItem = null;
+                                                }
+
+                                                if (product.isLoose == '1') {
+                                                  final parsed =
+                                                      double.tryParse(value);
+                                                  if (parsed == null ||
+                                                      parsed <= 0) {
+                                                    Toasts.showToastBar(
                                                         context: context,
                                                         text:
                                                             'Please enter valid weight',
-                                                        color: Colors.red,
-                                                      );
-                                                    }
+                                                        color: Colors.red);
+                                                    return;
+                                                  }
+                                                  final int stockQty =
+                                                      int.tryParse(product
+                                                              .stockQty
+                                                              .toString()) ??
+                                                          0; // grams
+                                                  final double enteredQty =
+                                                      parsed * 1000.0; // grams
+                                                  final double alreadyQty =
+                                                      existingItem?.variation ??
+                                                          0.0;
+
+                                                  if (enteredQty + alreadyQty >
+                                                      stockQty) {
+                                                    Toasts.showToastBar(
+                                                      context: context,
+                                                      text:
+                                                          "Entered weight is more than available stock (${stockQty}g, already added ${alreadyQty.toInt()}g).",
+                                                      color: Colors.red,
+                                                    );
+                                                    fieldFocusNode
+                                                        .requestFocus();
+                                                    return;
+                                                  }
+
+                                                  if (existingItem != null) {
+                                                    existingItem.variation =
+                                                        existingItem.variation +
+                                                            enteredQty;
+                                                    billingProvider
+                                                        .updateExistingBillingItem(
+                                                            existingItem); // implement this to notify
                                                   } else {
-                                                    int stockQty = int.tryParse(
-                                                            product.stockQty
-                                                                .toString()) ??
-                                                        0;
-                                                    int enteredQty = int.tryParse(
-                                                            quantityVariationController
-                                                                .text) ??
-                                                        0;
-                                                    if (enteredQty > stockQty) {
-                                                      Toasts.showToastBar(
-                                                        context: context,
-                                                        text:
-                                                            "Entered quantity is more than the available stock ($stockQty).",
-                                                        color: Colors.red,
-                                                      );
-                                                      fieldFocusNode
-                                                          .requestFocus();
-                                                    } else if (enteredQty ==
-                                                        0) {
-                                                      Toasts.showToastBar(
-                                                        context: context,
-                                                        text:
-                                                            "Please enter valid quantity",
-                                                        color: Colors.red,
-                                                      );
-                                                    } else {
-                                                      billingProvider
-                                                          .addBillingItem(
-                                                        BillingItem(
-                                                          id: product.id!
-                                                              .toString(),
-                                                          product: product,
-                                                          productTitle: product
-                                                              .pTitle
-                                                              .toString(),
-                                                          variation: 1,
-                                                          variationUnit:
-                                                              "${product.pVariation}${product.unit}",
-                                                          quantity: enteredQty,
-                                                          proController:
-                                                              TextEditingController(),
-                                                          proFocusNode:
-                                                              FocusNode(),
-                                                        ),
-                                                      );
-                                                      billingProvider
-                                                          .barcodeScanner
-                                                          .clear();
-                                                      billingProvider
-                                                              .selectedProduct =
-                                                          null;
-                                                      scrollDown();
-                                                      dropdownFocusNode
-                                                          .requestFocus();
-                                                      dropdownController
-                                                          .clear();
-                                                      quantityVariationController
-                                                          .clear();
-                                                    }
+                                                    billingProvider
+                                                        .addBillingItem(
+                                                      BillingItem(
+                                                        id: product.id!
+                                                            .toString(),
+                                                        product: product,
+                                                        productTitle:
+                                                            "${product.pTitle} ${parsed} kg",
+                                                        variation: enteredQty,
+                                                        variationUnit:
+                                                            "${product.pVariation}${product.unit}",
+                                                        quantity: 1,
+                                                      ),
+                                                    );
                                                   }
                                                 } else {
-                                                  log("No product selected!");
-                                                  Toasts.showToastBar(
-                                                    context: context,
-                                                    text: "Please add product",
-                                                    color: Colors.red,
-                                                  );
+                                                  final int enteredQty =
+                                                      int.tryParse(value) ?? 0;
+                                                  if (enteredQty <= 0) {
+                                                    Toasts.showToastBar(
+                                                        context: context,
+                                                        text:
+                                                            'Please enter valid quantity',
+                                                        color: Colors.red);
+                                                    return;
+                                                  }
+                                                  final int stockQty =
+                                                      int.tryParse(product
+                                                              .stockQty
+                                                              .toString()) ??
+                                                          0;
+                                                  final int alreadyQty =
+                                                      existingItem?.quantity ??
+                                                          0;
+
+                                                  if (enteredQty + alreadyQty >
+                                                      stockQty) {
+                                                    Toasts.showToastBar(
+                                                      context: context,
+                                                      text:
+                                                          "Entered quantity is more than the available stock ($stockQty, already added $alreadyQty).",
+                                                      color: Colors.red,
+                                                    );
+                                                    fieldFocusNode
+                                                        .requestFocus();
+                                                    return;
+                                                  }
+
+                                                  if (existingItem != null) {
+                                                    existingItem.quantity =
+                                                        existingItem.quantity +
+                                                            enteredQty;
+                                                    billingProvider
+                                                        .updateExistingBillingItem(
+                                                            existingItem);
+                                                  } else {
+                                                    billingProvider
+                                                        .addBillingItem(
+                                                      BillingItem(
+                                                        id: product.id!
+                                                            .toString(),
+                                                        product: product,
+                                                        productTitle:
+                                                            product.pTitle ??
+                                                                '',
+                                                        variation: 1,
+                                                        variationUnit:
+                                                            "${product.pVariation}${product.unit}",
+                                                        quantity: enteredQty,
+                                                      ),
+                                                    );
+                                                  }
                                                 }
+
+                                                // clear & reset UI
+                                                billingProvider.barcodeScanner
+                                                    .clear();
+                                                billingProvider
+                                                    .selectedProduct = null;
+                                                scrollDown();
+                                                dropdownFocusNode
+                                                    .requestFocus();
+                                                dropdownController.clear();
+                                                quantityVariationController
+                                                    .clear();
                                               },
                                             ),
                                           ),

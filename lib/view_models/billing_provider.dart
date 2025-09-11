@@ -1031,4 +1031,12 @@ class BillingProvider with ChangeNotifier {
       "unit": item.variationUnit,
     };
   }
+
+  void updateExistingBillingItem(BillingItem updatedItem) {
+    final index = _billingItems.indexWhere((item) => item.id == updatedItem.id);
+    if (index != -1) {
+      _billingItems[index] = updatedItem;
+      notifyListeners();
+    }
+  }
 }

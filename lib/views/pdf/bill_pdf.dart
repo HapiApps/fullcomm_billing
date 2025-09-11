@@ -221,39 +221,59 @@ class BillPdf {
                       children: [
                         pw.TableRow(
                           children: [
-                            pw.Text(
-                              "${billingItem.productTitle} ${billingItem.variationUnit}",
-                              style: simpleText,
-                              textAlign: pw.TextAlign.left,
+                            pw.Padding(
+                              padding:
+                                  const pw.EdgeInsets.symmetric(vertical: 3),
+                              child: pw.Text(
+                                "${billingItem.productTitle} ${billingItem.variationUnit}",
+                                style: simpleText,
+                                textAlign: pw.TextAlign.left,
+                              ),
                             ),
-                            pw.Text(
-                              billingItem.product.isLoose == '1'
-                                  ? (billingItem.variation / 1000)
-                                      .toStringAsFixed(
-                                          2) // loose product → Kg format
-                                  : billingItem.quantity
-                                      .toString(), // regular product → count
-                              style: simpleText,
-                              textAlign: pw.TextAlign.right,
+                            pw.Padding(
+                              padding:
+                                  const pw.EdgeInsets.symmetric(vertical: 3),
+                              child: pw.Text(
+                                billingItem.product.isLoose == '1'
+                                    ? (billingItem.variation / 1000)
+                                        .toStringAsFixed(
+                                            2) // loose product → Kg format
+                                    : billingItem.quantity
+                                        .toString(), // regular product → count
+                                style: simpleText,
+                                textAlign: pw.TextAlign.right,
+                              ),
                             ),
-                            pw.Text(
-                              billingItem.mrpPerProduct().toStringAsFixed(1),
-                              style: simpleText,
-                              textAlign: pw.TextAlign.right,
+                            pw.Padding(
+                              padding:
+                                  const pw.EdgeInsets.symmetric(vertical: 3),
+                              child: pw.Text(
+                                billingItem.mrpPerProduct().toStringAsFixed(1),
+                                style: simpleText,
+                                textAlign: pw.TextAlign.right,
+                              ),
                             ),
-                            pw.Text(
-                              billingItem
-                                  .outPricePerProduct()
-                                  .toStringAsFixed(1),
-                              style: simpleText,
-                              textAlign: pw.TextAlign.right,
+                            pw.Padding(
+                              padding:
+                                  const pw.EdgeInsets.symmetric(vertical: 3),
+                              child: pw.Text(
+                                billingItem
+                                    .outPricePerProduct()
+                                    .toStringAsFixed(1),
+                                style: simpleText,
+                                textAlign: pw.TextAlign.right,
+                              ),
                             ),
-                            pw.Text(
-                              billingItem
-                                  .calculateSubtotal()
-                                  .toStringAsFixed(1),
-                              style: simpleText,
-                              textAlign: pw.TextAlign.right,
+                            pw.Padding(
+                              padding:
+                                  const pw.EdgeInsets.symmetric(vertical: 3),
+                              child: pw.Text(
+                                billingItem
+                                    .calculateSubtotal()
+                                    .toStringAsFixed(1),
+                                style: simpleText,
+                                textAlign: pw.TextAlign.right,
+                              ),
                             ),
                           ],
                         ),
