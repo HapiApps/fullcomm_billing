@@ -17,7 +17,11 @@ class CustomerFieldWidgets {
             child: CircleAvatar(
               radius: 23,
               backgroundColor: Colors.white,
-              child: SvgPicture.asset(icon,width: 50,height: 50,),
+              child: SvgPicture.asset(
+                icon,
+                width: 37,
+                height: 37,
+              ),
             )),
       ),
     );

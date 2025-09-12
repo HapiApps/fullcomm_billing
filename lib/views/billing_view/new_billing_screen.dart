@@ -46,6 +46,22 @@ class AltOnlyIntent extends Intent {
   const AltOnlyIntent();
 }
 
+class AddCustomerIntent extends Intent {
+  const AddCustomerIntent();
+}
+
+class RefreshIntent extends Intent {
+  const RefreshIntent();
+}
+
+class HelpIntent extends Intent {
+  const HelpIntent();
+}
+
+class LogoutIntent extends Intent {
+  const LogoutIntent();
+}
+
 class NewBillingScreen extends StatefulWidget {
   const NewBillingScreen({super.key});
 
@@ -128,6 +144,14 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                 const NextPageIntent(),
             LogicalKeySet(LogicalKeyboardKey.alt, LogicalKeyboardKey.keyR):
                 const LastBillIntent(),
+            LogicalKeySet(LogicalKeyboardKey.alt, LogicalKeyboardKey.keyC):
+                const AddCustomerIntent(),
+            LogicalKeySet(LogicalKeyboardKey.alt, LogicalKeyboardKey.keyL):
+                const RefreshIntent(),
+            LogicalKeySet(LogicalKeyboardKey.alt, LogicalKeyboardKey.keyH):
+                const HelpIntent(), // Alt + H
+            LogicalKeySet(LogicalKeyboardKey.alt, LogicalKeyboardKey.keyO):
+                const LogoutIntent(), // Alt + O
             LogicalKeySet(LogicalKeyboardKey.alt): const AltOnlyIntent(),
           },
           child: Actions(
@@ -214,6 +238,110 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                   return null;
                 },
               ),
+              AddCustomerIntent: CallbackAction<AddCustomerIntent>(
+                onInvoke: (intent) {
+                  // Open AddCustomerDialog on Alt + C
+                  showDialog(
+                    context: context,
+                    builder: (context) => AddCustomerDialog(),
+                  );
+                  return null;
+                },
+              ),
+              RefreshIntent: CallbackAction<RefreshIntent>(
+                onInvoke: (intent) {
+                  // Call getProducts() on Alt + L
+                  billingProvider.getProducts();
+                  return null;
+                },
+              ),
+              HelpIntent: CallbackAction<HelpIntent>(
+                onInvoke: (intent) {
+                  ShortcutHelpDialog.show(context); // Help dialog open
+                  return null;
+                },
+              ),
+              LogoutIntent: CallbackAction<LogoutIntent>(
+                onInvoke: (intent) {
+                  // Show logout confirm dialog
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        backgroundColor: AppColors.white,
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 20, horizontal: 24),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Do you want to log out?",
+                              style: TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.white,
+                                    side: BorderSide(color: AppColors.primary),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    "No",
+                                    style: TextStyle(
+                                      color: AppColors.primary,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    userDataProvider.logout(context);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primary,
+                                    side:
+                                        BorderSide(color: AppColors.secondary),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    "Yes",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                  return null;
+                },
+              ),
             },
             child: Focus(
               focusNode: _focusNode,
@@ -297,7 +425,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                     actions: [
                       CustomerFieldWidgets.iconButton(
                         context: context,
-                        toolTip: 'Search bill',
+                        toolTip: ' Bill Details',
                         icon: 'assets/images/bill.svg',
                         onPressed: () {
                           Navigator.push(
@@ -339,104 +467,101 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                           icon: Icon(
                             Icons.lightbulb_outline,
                             color: AppColors.primary,
-                            size: 40,
+                            size: 35,
                           ),
                         ),
                       ),
-
-                      // CustomerFieldWidgets.iconButton(
-                      //   context: context,
-                      //   toolTip: 'Hints',
-                      //   icon: 'assets/images/hint.svg',
-                      //   onPressed: () {
-                      //     ShortcutHelpDialog.show(context);
-                      //   },
-                      // ),
                       20.width,
-                      CustomerFieldWidgets.iconButton(
-                        context: context,
-                        toolTip: 'Logout',
-                        icon: 'assets/images/logout.svg',
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                backgroundColor: AppColors.white,
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 20, horizontal: 24),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      "Do you want to log out?",
-                                      style: TextStyle(
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.primary,
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                        child: CustomerFieldWidgets.iconButton(
+                          context: context,
+                          toolTip: 'Logout',
+                          icon: 'assets/images/logout.svg',
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  backgroundColor: AppColors.white,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 20, horizontal: 24),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        "Do you want to log out?",
+                                        style: TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.primary,
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 20),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: AppColors.white,
-                                            side: BorderSide(
-                                                color: AppColors.primary),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
+                                      const SizedBox(height: 20),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: AppColors.white,
+                                              side: BorderSide(
+                                                  color: AppColors.primary),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                              ),
+                                            ),
+                                            child: const Text(
+                                              "No",
+                                              style: TextStyle(
+                                                color: AppColors.primary,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                           ),
-                                          child: const Text(
-                                            "No",
-                                            style: TextStyle(
-                                              color: AppColors.primary,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
+                                          const SizedBox(width: 10),
+                                          ElevatedButton(
+                                            onPressed: () async {
+                                              userDataProvider.logout(context);
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  AppColors.primary,
+                                              side: BorderSide(
+                                                  color: AppColors.secondary),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                              ),
+                                            ),
+                                            child: const Text(
+                                              "Yes",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        const SizedBox(width: 10),
-                                        ElevatedButton(
-                                          onPressed: () async {
-                                            userDataProvider.logout(context);
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: AppColors.primary,
-                                            side: BorderSide(
-                                                color: AppColors.secondary),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                            ),
-                                          ),
-                                          child: const Text(
-                                            "Yes",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          );
-                        },
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -1063,27 +1188,30 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                           .selectedProduct!
                                                           .isLoose ==
                                                       '1') {
+                                                    // for loose products: default to 1 if empty
+                                                    final entered =
+                                                        double.tryParse(value);
                                                     billingProvider
                                                         .updateTemporaryFields(
                                                       variation:
-                                                          (double.parse(value) *
+                                                          ((entered ?? 1.0) *
                                                               1000),
                                                     );
                                                   } else {
+                                                    // for normal products: default to 1 if empty
                                                     billingProvider
                                                         .updateTemporaryFields(
-                                                      quantity: int.tryParse(
-                                                              value) ??
-                                                          billingProvider
-                                                              .temporaryQuantity,
+                                                      quantity:
+                                                          int.tryParse(value) ??
+                                                              1,
                                                     );
                                                   }
                                                 } else {
                                                   Toasts.showToastBar(
-                                                      context: context,
-                                                      text:
-                                                          "Please add product",
-                                                      color: Colors.red);
+                                                    context: context,
+                                                    text: "Please add product",
+                                                    color: Colors.red,
+                                                  );
                                                 }
                                               },
                                               onFieldSubmitted: (value) {
@@ -1091,16 +1219,15 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                         .selectedProduct ==
                                                     null) {
                                                   Toasts.showToastBar(
-                                                      context: context,
-                                                      text:
-                                                          "Please add product",
-                                                      color: Colors.red);
+                                                    context: context,
+                                                    text: "Please add product",
+                                                    color: Colors.red,
+                                                  );
                                                   return;
                                                 }
 
                                                 final product = billingProvider
                                                     .selectedProduct!;
-                                                // find existing safely
                                                 BillingItem? existingItem;
                                                 try {
                                                   existingItem = billingProvider
@@ -1110,29 +1237,27 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                         it.id ==
                                                         product.id.toString(),
                                                   );
-                                                } catch (e) {
+                                                } catch (_) {
                                                   existingItem = null;
                                                 }
 
                                                 if (product.isLoose == '1') {
+                                                  // loose product: default 1 kg if empty
                                                   final parsed =
                                                       double.tryParse(value);
-                                                  if (parsed == null ||
-                                                      parsed <= 0) {
-                                                    Toasts.showToastBar(
-                                                        context: context,
-                                                        text:
-                                                            'Please enter valid weight',
-                                                        color: Colors.red);
-                                                    return;
-                                                  }
+                                                  final double enteredKg =
+                                                      (parsed == null ||
+                                                              parsed <= 0)
+                                                          ? 1.0
+                                                          : parsed;
                                                   final int stockQty =
                                                       int.tryParse(product
                                                               .stockQty
                                                               .toString()) ??
                                                           0; // grams
                                                   final double enteredQty =
-                                                      parsed * 1000.0; // grams
+                                                      enteredKg *
+                                                          1000.0; // grams
                                                   final double alreadyQty =
                                                       existingItem?.variation ??
                                                           0.0;
@@ -1151,12 +1276,11 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                   }
 
                                                   if (existingItem != null) {
-                                                    existingItem.variation =
-                                                        existingItem.variation +
-                                                            enteredQty;
+                                                    existingItem.variation +=
+                                                        enteredQty;
                                                     billingProvider
                                                         .updateExistingBillingItem(
-                                                            existingItem); // implement this to notify
+                                                            existingItem);
                                                   } else {
                                                     billingProvider
                                                         .addBillingItem(
@@ -1165,7 +1289,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                             .toString(),
                                                         product: product,
                                                         productTitle:
-                                                            "${product.pTitle} ${parsed} kg",
+                                                            "${product.pTitle} ${enteredKg} kg",
                                                         variation: enteredQty,
                                                         variationUnit:
                                                             "${product.pVariation}${product.unit}",
@@ -1174,16 +1298,9 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                     );
                                                   }
                                                 } else {
+                                                  // normal product: default 1 if empty
                                                   final int enteredQty =
-                                                      int.tryParse(value) ?? 0;
-                                                  if (enteredQty <= 0) {
-                                                    Toasts.showToastBar(
-                                                        context: context,
-                                                        text:
-                                                            'Please enter valid quantity',
-                                                        color: Colors.red);
-                                                    return;
-                                                  }
+                                                      int.tryParse(value) ?? 1;
                                                   final int stockQty =
                                                       int.tryParse(product
                                                               .stockQty
@@ -1207,9 +1324,8 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                   }
 
                                                   if (existingItem != null) {
-                                                    existingItem.quantity =
-                                                        existingItem.quantity +
-                                                            enteredQty;
+                                                    existingItem.quantity +=
+                                                        enteredQty;
                                                     billingProvider
                                                         .updateExistingBillingItem(
                                                             existingItem);
@@ -1232,7 +1348,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                   }
                                                 }
 
-                                                // clear & reset UI
+                                                // clear UI
                                                 billingProvider.barcodeScanner
                                                     .clear();
                                                 billingProvider
@@ -1244,6 +1360,165 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                                                 quantityVariationController
                                                     .clear();
                                               },
+
+                                              // onFieldSubmitted: (value) {
+                                              //   if (billingProvider
+                                              //           .selectedProduct ==
+                                              //       null) {
+                                              //     Toasts.showToastBar(
+                                              //         context: context,
+                                              //         text:
+                                              //             "Please add product",
+                                              //         color: Colors.red);
+                                              //     return;
+                                              //   }
+                                              //
+                                              //   final product = billingProvider
+                                              //       .selectedProduct!;
+                                              //   // find existing safely
+                                              //   BillingItem? existingItem;
+                                              //   try {
+                                              //     existingItem = billingProvider
+                                              //         .billingItems
+                                              //         .firstWhere(
+                                              //       (it) =>
+                                              //           it.id ==
+                                              //           product.id.toString(),
+                                              //     );
+                                              //   } catch (e) {
+                                              //     existingItem = null;
+                                              //   }
+                                              //
+                                              //   if (product.isLoose == '1') {
+                                              //     final parsed =
+                                              //         double.tryParse(value);
+                                              //     if (parsed == null ||
+                                              //         parsed <= 0) {
+                                              //       Toasts.showToastBar(
+                                              //           context: context,
+                                              //           text:
+                                              //               'Please enter valid weight',
+                                              //           color: Colors.red);
+                                              //       return;
+                                              //     }
+                                              //     final int stockQty =
+                                              //         int.tryParse(product
+                                              //                 .stockQty
+                                              //                 .toString()) ??
+                                              //             0; // grams
+                                              //     final double enteredQty =
+                                              //         parsed * 1000.0; // grams
+                                              //     final double alreadyQty =
+                                              //         existingItem?.variation ??
+                                              //             0.0;
+                                              //
+                                              //     if (enteredQty + alreadyQty >
+                                              //         stockQty) {
+                                              //       Toasts.showToastBar(
+                                              //         context: context,
+                                              //         text:
+                                              //             "Entered weight is more than available stock (${stockQty}g, already added ${alreadyQty.toInt()}g).",
+                                              //         color: Colors.red,
+                                              //       );
+                                              //       fieldFocusNode
+                                              //           .requestFocus();
+                                              //       return;
+                                              //     }
+                                              //
+                                              //     if (existingItem != null) {
+                                              //       existingItem.variation =
+                                              //           existingItem.variation +
+                                              //               enteredQty;
+                                              //       billingProvider
+                                              //           .updateExistingBillingItem(
+                                              //               existingItem); // implement this to notify
+                                              //     } else {
+                                              //       billingProvider
+                                              //           .addBillingItem(
+                                              //         BillingItem(
+                                              //           id: product.id!
+                                              //               .toString(),
+                                              //           product: product,
+                                              //           productTitle:
+                                              //               "${product.pTitle} ${parsed} kg",
+                                              //           variation: enteredQty,
+                                              //           variationUnit:
+                                              //               "${product.pVariation}${product.unit}",
+                                              //           quantity: 1,
+                                              //         ),
+                                              //       );
+                                              //     }
+                                              //   } else {
+                                              //     final int enteredQty =
+                                              //         int.tryParse(value) ?? 0;
+                                              //     if (enteredQty <= 0) {
+                                              //       Toasts.showToastBar(
+                                              //           context: context,
+                                              //           text:
+                                              //               'Please enter valid quantity',
+                                              //           color: Colors.red);
+                                              //       return;
+                                              //     }
+                                              //     final int stockQty =
+                                              //         int.tryParse(product
+                                              //                 .stockQty
+                                              //                 .toString()) ??
+                                              //             0;
+                                              //     final int alreadyQty =
+                                              //         existingItem?.quantity ??
+                                              //             0;
+                                              //
+                                              //     if (enteredQty + alreadyQty >
+                                              //         stockQty) {
+                                              //       Toasts.showToastBar(
+                                              //         context: context,
+                                              //         text:
+                                              //             "Entered quantity is more than the available stock ($stockQty, already added $alreadyQty).",
+                                              //         color: Colors.red,
+                                              //       );
+                                              //       fieldFocusNode
+                                              //           .requestFocus();
+                                              //       return;
+                                              //     }
+                                              //
+                                              //     if (existingItem != null) {
+                                              //       existingItem.quantity =
+                                              //           existingItem.quantity +
+                                              //               enteredQty;
+                                              //       billingProvider
+                                              //           .updateExistingBillingItem(
+                                              //               existingItem);
+                                              //     } else {
+                                              //       billingProvider
+                                              //           .addBillingItem(
+                                              //         BillingItem(
+                                              //           id: product.id!
+                                              //               .toString(),
+                                              //           product: product,
+                                              //           productTitle:
+                                              //               product.pTitle ??
+                                              //                   '',
+                                              //           variation: 1,
+                                              //           variationUnit:
+                                              //               "${product.pVariation}${product.unit}",
+                                              //           quantity: enteredQty,
+                                              //         ),
+                                              //       );
+                                              //     }
+                                              //   }
+                                              //
+                                              //   // clear & reset UI
+                                              //   billingProvider.barcodeScanner
+                                              //       .clear();
+                                              //   billingProvider
+                                              //       .selectedProduct = null;
+                                              //   scrollDown();
+                                              //   dropdownFocusNode
+                                              //       .requestFocus();
+                                              //   dropdownController.clear();
+                                              //   quantityVariationController
+                                              //       .clear();
+                                              // },
                                             ),
                                           ),
                                         ],
@@ -2806,6 +3081,7 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
     BuildContext context, {
     required void Function() onPressPrint,
   }) async {
+    final FocusNode amountFocusNode = FocusNode();
     final billingProvider =
         Provider.of<BillingProvider>(context, listen: false);
     billingProvider.paymentReceived.addListener(() {
@@ -2815,6 +3091,10 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
       context: context,
       barrierDismissible: true,
       builder: (context) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          amountFocusNode.requestFocus();
+        });
+
         return StatefulBuilder(
           builder: (context, setState) {
             return Consumer<BillingProvider>(
@@ -2907,13 +3187,19 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
                           borderRadius: 2,
                           labelText: "Enter amount",
                           enabledBorderColor: Color(0xff9E9E9E),
-                          autofocus: true,
+                          focusNode: amountFocusNode, // attach here
+                          autofocus: false,
+
                           isOptional: true,
                           controller: billingProvider.paymentReceived,
                           inputFormatters: InputFormatters.mobileNumberInput,
                           onEditingComplete: () {
+                            // User pressed Enter/Done on keyboard:
                             billingProvider.keyboardListenerFocusNode
                                 .requestFocus();
+                            onPressPrint(); // Print action call
+                            Navigator.of(context)
+                                .pop(); // optional dialog close
                           },
                         ),
                         30.height,

@@ -138,7 +138,7 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
           ),
           centerTitle: true,
           title: const MyText(
-            text: "Search Bill Details",
+            text: " Bill Details",
             color: AppColors.primary,
             isBold: true,
           ),

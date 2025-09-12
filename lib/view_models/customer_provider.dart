@@ -369,18 +369,33 @@ class CustomersProvider with ChangeNotifier {
                                       RegExp(r'[a-zA-Z\s]')),
                                   LengthLimitingTextInputFormatter(30),
                                 ],
-                                textCapitalization:
-                                    TextCapitalization.words, // optional
+                                textCapitalization: TextCapitalization.words,
                                 keyboardType: TextInputType.text,
                                 textInputAction: TextInputAction.next,
                                 isOptional: true,
                                 labelText: '',
-
                                 focusedBorderColor: AppColors.primary,
                                 enabledBorderColor: Colors.grey.shade300,
                                 fillColor: const Color(0xffffffff),
                                 borderRadius: 5,
-                              ),
+
+                                // ⬇️ add this
+                                onChanged: (value) {
+                                  if (value.isNotEmpty) {
+                                    // capitalise first letter only
+                                    final newValue = value[0].toUpperCase() +
+                                        value.substring(1);
+                                    if (newValue != value) {
+                                      deliveryName.value =
+                                          deliveryName.value.copyWith(
+                                        text: newValue,
+                                        selection: TextSelection.collapsed(
+                                            offset: newValue.length),
+                                      );
+                                    }
+                                  }
+                                },
+                              )
                             ],
                           ),
                           Column(
@@ -524,7 +539,7 @@ class CustomersProvider with ChangeNotifier {
                                 borderRadius: 5,
                                 controller: deliveryArea,
                                 textCapitalization: TextCapitalization
-                                    .words, // capitalizes first letter of each word
+                                    .words, // first letter of each word
                                 keyboardType: TextInputType.text,
                                 textInputAction: TextInputAction.next,
                                 inputFormatters: [
@@ -532,7 +547,22 @@ class CustomersProvider with ChangeNotifier {
                                       RegExp(r'[a-zA-Z\s]')),
                                   LengthLimitingTextInputFormatter(30),
                                 ],
-                              ),
+                                // optional – first char capitalise inside controller also:
+                                onChanged: (value) {
+                                  if (value.isNotEmpty) {
+                                    final newValue = value[0].toUpperCase() +
+                                        value.substring(1);
+                                    if (newValue != value) {
+                                      deliveryArea.value =
+                                          deliveryArea.value.copyWith(
+                                        text: newValue,
+                                        selection: TextSelection.collapsed(
+                                            offset: newValue.length),
+                                      );
+                                    }
+                                  }
+                                },
+                              )
                             ],
                           ),
                           20.width,
@@ -558,19 +588,34 @@ class CustomersProvider with ChangeNotifier {
                                 isOptional: true,
                                 focusedBorderColor: AppColors.primary,
                                 enabledBorderColor: Colors.grey.shade300,
-                                fillColor: Color(0xffffffff),
+                                fillColor: const Color(0xffffffff),
                                 borderRadius: 5,
                                 controller: deliveryCity,
-                                textCapitalization:
-                                    TextCapitalization.sentences,
+                                // keyboard-ல் ஒவ்வொரு word க்கும் first letter capital
+                                textCapitalization: TextCapitalization.words,
                                 textInputAction: TextInputAction.next,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.allow(
                                       RegExp(r'[a-zA-Z\s]')),
                                   LengthLimitingTextInputFormatter(30),
                                 ],
+                                // optional: controller-ல actual text-ஐயும் first letter uppercase பண்ண:
+                                onChanged: (value) {
+                                  if (value.isNotEmpty) {
+                                    final newValue = value[0].toUpperCase() +
+                                        value.substring(1);
+                                    if (newValue != value) {
+                                      deliveryCity.value =
+                                          deliveryCity.value.copyWith(
+                                        text: newValue,
+                                        selection: TextSelection.collapsed(
+                                            offset: newValue.length),
+                                      );
+                                    }
+                                  }
+                                },
                                 // validator: validationConstant.validatePincode,
-                              ),
+                              )
                             ],
                           ),
                         ],
@@ -730,8 +775,7 @@ class CustomersProvider with ChangeNotifier {
                                 loadingButtonController.reset();
                                 Toasts.showToastBar(
                                     context: context,
-                                    text:
-                                        "Mobile number must be 10 characters.",
+                                    text: "Mobile number must be 10 digits.",
                                     color: Colors.red);
                                 return;
                               }
