@@ -7,7 +7,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/local_data.dart';
 import '../data/project_data.dart';
+import '../models/check_privacy_response.dart';
 import '../res/colors.dart';
+import '../res/components/privacy_dialog.dart';
+import '../res/components/update_dialog.dart';
 import '../utils/toast_messages.dart';
 import '../views/billing_view/new_billing_screen.dart';
 import '../views/credentials/login_screen.dart';
@@ -15,6 +18,20 @@ import '../views/credentials/login_screen.dart';
 class UserDataProvider with ChangeNotifier {
   bool _isVisible = true;
 
+  bool _isLoading = false;
+  String _errorMessage = '';
+  String _userId = '0'; // User ID 0 by default
+  String _userName = ''; // User Name '' by default
+  String _companyName = ''; // User Name '' by default
+  String _userMobile = ''; // User Mobile '' by default
+  String _cosId = ''; // User Mobile '' by default
+  String _password = ''; // User Mobile '' by default
+  String _storeId = ''; // User Mobile '' by default
+
+  bool get isLoading => _isLoading;
+  String get errorMessage => _errorMessage;
+  String get userId => _userId;
+  String get userName => _userName;
   bool get isVisible => _isVisible;
 
   void toggleVisibility() {
@@ -24,7 +41,8 @@ class UserDataProvider with ChangeNotifier {
 
   final CredentialsRepository _credentialsRepo = CredentialsRepository();
 
-  RoundedLoadingButtonController loginButtonController = RoundedLoadingButtonController();
+  RoundedLoadingButtonController loginButtonController =
+      RoundedLoadingButtonController();
 
   // Input Fields :
   TextEditingController mobileController = TextEditingController();
@@ -57,6 +75,11 @@ class UserDataProvider with ChangeNotifier {
         mobileController.clear();
         passwordController.clear();
 
+        checkPrivacy(
+          mobileNo: mobileController.text.toString(),
+          password: passwordController.text.toString(),
+          context: context,
+        );
         prefs.setBool('seen${ProjectData.version}', true); // Set User Logged In
 
         await initializeUserData();
@@ -67,7 +90,8 @@ class UserDataProvider with ChangeNotifier {
           color: AppColors.successMessage,
         );
         if (!context.mounted) return;
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const NewBillingScreen()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const NewBillingScreen()));
       } else {
         if (!context.mounted) return;
         Toasts.showToastBar(
@@ -116,5 +140,176 @@ class UserDataProvider with ChangeNotifier {
     await prefs.clear(); // Clear Local Storage
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+  }
+
+  LoginResponse? _loginPrivacyResponse;
+  LoginResponse? get loginResponse => _loginPrivacyResponse;
+
+  Future<void> privacyPolicy({
+    required String mobileNo,
+    required String password,
+    required BuildContext context,
+  }) async {
+    _isLoading = true;
+    _errorMessage = '';
+    notifyListeners();
+
+    try {
+      final response = await _credentialsRepo.privacyPolicy(mobileNo, password);
+
+      if (response.status == 'success') {
+        _loginPrivacyResponse = response;
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('login', true);
+        await prefs.setString('auth_id', response.authId);
+        await prefs.setString('cos_id', response.cosId);
+        await prefs.setString('userMobile', mobileNo);
+        await prefs.setString('userName', response.username);
+
+        log("currentUserID:${response.authId}");
+        // show privacy dialog or go home directly
+        if (response.showPrivacyPopup) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (ctx) => const PrivacyPolicyDialog(),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => NewBillingScreen()),
+          );
+        }
+      } else {
+        _errorMessage = response.message;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+      }
+    } catch (e) {
+      _errorMessage = 'Login failed. Please try again.';
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Something went wrong')),
+      );
+      log('login error: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  LoginResponse? _loginPrivacy;
+  LoginResponse? get loginPrivacy => _loginPrivacy;
+
+  Future<void> checkPrivacy({
+    required String mobileNo,
+    required String password,
+    required BuildContext context,
+  }) async {
+    _isLoading = true;
+    _errorMessage = '';
+    notifyListeners();
+
+    try {
+      final response = await _credentialsRepo.checkPrivacy(mobileNo, password);
+
+      if (response.status == 'success') {
+        _loginPrivacy = response;
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('login', true);
+        await prefs.setString('auth_id', response.authId);
+        await prefs.setString('cos_id', response.cosId);
+        await prefs.setString('userMobile', mobileNo);
+        await prefs.setString('userName', response.username);
+
+        log("currentUserID:${response.authId}");
+
+        // Privacy check
+        if (response.showPrivacyPopup) {
+          // show dialog
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (ctx) => const PrivacyPolicyDialog(),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => NewBillingScreen()),
+          );
+        }
+      } else {
+        _errorMessage = response.message;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.message)),
+        );
+      }
+    } catch (e) {
+      _errorMessage = 'Login failed. Please try again.';
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Something went wrong.')),
+      );
+      log('login error: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// App's current version
+  String versionNum = '1.0.0';
+
+  /// Latest version from server
+  String serverVersion = '';
+
+  /// Flags
+  bool versionActive = false;
+  bool updateAvailable = false;
+
+  /// Check version against server
+  Future<void> currentVersion(BuildContext context) async {
+    try {
+      versionActive = false;
+      updateAvailable = false;
+
+      final response = await _credentialsRepo.checkVersion();
+      if (response == null) return;
+
+      serverVersion = response["current_version"];
+      final expiredDate = _parseExpiredDate(response["expired_date"]);
+      final now = DateTime.now();
+      final utils = Utils(); // can be a singleton or just new Utils()
+
+      if (expiredDate != null && now.isAfter(expiredDate)) {
+        Utils.showExpiredDateDialog(context, response["expired_date"]);
+        versionActive = true;
+        updateAvailable = false;
+        notifyListeners();
+        return;
+      }
+
+      if (versionNum != serverVersion) {
+        versionActive = true;
+        if (response["active"] == "1") {
+          Utils.showUpdateDialog(context);
+          updateAvailable = true;
+        }
+      }
+      notifyListeners();
+    } catch (e) {
+      versionActive = false;
+      notifyListeners();
+    }
+  }
+
+  DateTime? _parseExpiredDate(String? dateString) {
+    if (dateString == null || dateString.isEmpty) return null;
+    try {
+      return DateTime.parse(dateString);
+    } catch (_) {
+      return null;
+    }
   }
 }

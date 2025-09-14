@@ -111,8 +111,11 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
       Provider.of<CustomersProvider>(context, listen: false)
           .resetCustomerDetails(); // Reset Customer details
       Provider.of<BillingProvider>(context, listen: false).fetchBill();
-      Provider.of<BillingProvider>(context, listen: false)
-          .setBillingItems([]); // Set Billing Items with Empty Table
+      Provider.of<BillingProvider>(context, listen: false).setBillingItems([]);
+      final userProvider =
+          Provider.of<UserDataProvider>(context, listen: false);
+      userProvider
+          .currentVersion(context); // Set Billing Items with Empty Table
     });
   }
 
