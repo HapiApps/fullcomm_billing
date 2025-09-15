@@ -26,6 +26,7 @@ import '../../res/components/customer_widgets.dart';
 import '../../res/components/k_dropdown_menu.dart';
 import '../../res/components/k_text_field.dart';
 import '../../res/components/keyboard_search.dart';
+import '../../res/components/privacy_dialog.dart';
 import '../../res/widgets/hint.dart';
 import '../create_customer_screen.dart';
 import '../orders/order_detail_page.dart';
@@ -114,8 +115,16 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
       Provider.of<BillingProvider>(context, listen: false).setBillingItems([]);
       final userProvider =
           Provider.of<UserDataProvider>(context, listen: false);
-      userProvider
-          .currentVersion(context); // Set Billing Items with Empty Table
+      userProvider.currentVersion(context);
+      userProvider.checkPrivacy(
+          mobileNo: userProvider.mobileController.text,
+          password: userProvider.passwordController.text,
+          context: context);
+      // showDialog(
+      //   context: context,
+      //   barrierDismissible: false,
+      //   builder: (ctx) => const PrivacyPolicyDialog(),
+      // ); // Set Billing Items with Empty Table
     });
   }
 

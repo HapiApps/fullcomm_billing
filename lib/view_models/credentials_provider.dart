@@ -225,6 +225,7 @@ class UserDataProvider with ChangeNotifier {
         await prefs.setString('userName', response.username);
 
         log("currentUserID:${response.authId}");
+        log("currentUserID showPrivacyPopup:${response.showPrivacyPopup}");
 
         // Privacy check
         if (response.showPrivacyPopup) {
@@ -275,30 +276,50 @@ class UserDataProvider with ChangeNotifier {
       updateAvailable = false;
 
       final response = await _credentialsRepo.checkVersion();
-      if (response == null) return;
+      if (response == null || response.isEmpty) return;
 
-      serverVersion = response["current_version"];
-      final expiredDate = _parseExpiredDate(response["expired_date"]);
+      // safely read values:
+      final serverVersionFromApi = response["current_version"];
+      final expiredDateStr = response["expired_date"];
+      final activeFlag = response["active"];
+
+      if (serverVersionFromApi == null) {
+        log("Server did not return current_version");
+        return;
+      }
+
+      serverVersion = serverVersionFromApi.toString();
+
+      DateTime? expiredDate;
+      if (expiredDateStr != null && expiredDateStr.toString().isNotEmpty) {
+        expiredDate = _parseExpiredDate(expiredDateStr);
+      }
+
       final now = DateTime.now();
-      final utils = Utils(); // can be a singleton or just new Utils()
+      log("expiredDate: $expiredDate");
+      log("serverVersion: $serverVersion");
 
+      // expired date check
       if (expiredDate != null && now.isAfter(expiredDate)) {
-        Utils.showExpiredDateDialog(context, response["expired_date"]);
+        Utils.showExpiredDateDialog(context, expiredDateStr);
         versionActive = true;
         updateAvailable = false;
         notifyListeners();
         return;
       }
 
+      // version check
       if (versionNum != serverVersion) {
         versionActive = true;
-        if (response["active"] == "1") {
+        if (activeFlag != null && activeFlag.toString() == "1") {
           Utils.showUpdateDialog(context);
           updateAvailable = true;
         }
       }
+
       notifyListeners();
-    } catch (e) {
+    } catch (e, st) {
+      log("currentVersion error: $e\n$st");
       versionActive = false;
       notifyListeners();
     }

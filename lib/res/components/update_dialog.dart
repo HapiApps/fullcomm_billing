@@ -38,7 +38,7 @@ class Utils {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "A new version of CRM is available!\n"
+                      "A new version of Billing is available!\n"
                       "Current:${userProvider.versionNum} "
                       "-> Latest:${userProvider.serverVersion}",
                       style: TextStyle(
@@ -65,21 +65,21 @@ class Utils {
                       children: [
                         DialogButton(
                           text: "IGNORE",
-                          width: 90,
+                          width: 100,
                           onPress: () {
                             SystemNavigator.pop();
                           },
                         ),
                         DialogButton(
                           text: "LATER",
-                          width: 90,
+                          width: 100,
                           onPress: () {
                             Navigator.pop(context);
                           },
                         ),
                         DialogButton(
                           text: "UPDATE",
-                          width: 90,
+                          width: 110,
                           onPress: () {
                             // utils.makingWebsite(
                             //     web: controllers.currentApk.value);
