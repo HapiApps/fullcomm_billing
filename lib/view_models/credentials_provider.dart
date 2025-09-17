@@ -22,6 +22,7 @@ class UserDataProvider with ChangeNotifier {
   String _errorMessage = '';
   String _userId = '0'; // User ID 0 by default
   String _userName = ''; // User Name '' by default
+
   String _companyName = ''; // User Name '' by default
   String _userMobile = ''; // User Mobile '' by default
   String _cosId = ''; // User Mobile '' by default

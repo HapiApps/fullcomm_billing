@@ -13,16 +13,17 @@ class CustomerFieldWidgets {
       child: Tooltip(
         message: toolTip,
         child: InkWell(
-            onTap: onPressed,
-            child: CircleAvatar(
-              radius: 23,
-              backgroundColor: Colors.white,
-              child: SvgPicture.asset(
-                icon,
-                width: 37,
-                height: 37,
-              ),
-            )),
+          onTap: onPressed,
+          child: CircleAvatar(
+            radius: 23,
+            backgroundColor: Colors.white,
+            child: SvgPicture.asset(
+              icon,
+              width: 37,
+              height: 37,
+            ),
+          ),
+        ),
       ),
     );
   }
