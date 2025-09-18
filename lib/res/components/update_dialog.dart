@@ -32,7 +32,7 @@ class Utils {
                 ),
               ),
               content: SizedBox(
-                width: 300,
+                width: 400,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -112,7 +112,7 @@ class Utils {
             title: Row(
               children: [
                 Image.asset(
-                  "assets/images/warning.png",
+                  "assets/images/warn.jpeg",
                   height: 30,
                   width: 30,
                 ),

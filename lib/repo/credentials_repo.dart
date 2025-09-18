@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter/cupertino.dart';
 import 'package:fullcomm_billing/api/api_urls.dart';
 
 import '../data/project_data.dart';
@@ -39,33 +40,49 @@ class CredentialsRepository {
   Future<LoginResponse> checkPrivacy(String mobile, String password) async {
     final response = await http.post(
       Uri.parse(ApiUrl.script),
-      body: {
+      body: json.encode({
         'mobile': mobile,
-        'password': password,
+        'password':password,
         "action": "e_check_privacy_policy",
-      },
+        "accept_privacy": "true"
+      },)
     );
+
+    debugPrint('Raw server response body: ${response.body}'); // 👈 log here
+    debugPrint('Raw server response body mobile : ${mobile}'); // 👈 log here
+    debugPrint('Raw server response body  password : ${password}');
+    debugPrint('Raw server response body: ${response.body}'); // 👈 log here// 👈 log here
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
+      debugPrint('Decoded JSON: $data'); // 👈
       return LoginResponse.fromJson(data);
     } else {
-      throw Exception('Server Error: ${response.statusCode}');
+      final data = json.decode(response.body);
+      throw Exception('Server Error: ${response.statusCode} ${data['message']}');
     }
   }
 
   Future<LoginResponse> privacyPolicy(String mobile, String password) async {
     // You’re sending JSON to your PHP code
     final response = await http.post(
-      Uri.parse(ApiUrl.script),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'mobile': mobile,
-        'password': password,
-        "action": "e_privacy_policy",
-      }),
+        Uri.parse(ApiUrl.script),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'mobile': mobile,
+          'password':password,
+          "action": "e_privacy_policy",
+          "accept_privacy": "true"
+        },),
     );
 
+    debugPrint('Request body: ${{
+      'mobile': mobile,
+      'password': password,
+      'action': 'e_privacy_policy',
+      'accept_privacy': 'true'
+    }}');
+    debugPrint('Response body: ${response.body}');
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       return LoginResponse.fromJson(data);
@@ -90,11 +107,17 @@ class CredentialsRepository {
     );
 
     if (response.statusCode == 200) {
+      // raw body log
+      debugPrint("Server response body: ${response.body}");
+
       final List decoded = json.decode(response.body);
       if (decoded.isNotEmpty) {
         return decoded[0] as Map<String, dynamic>;
       }
+    } else {
+      debugPrint("HTTP error ${response.statusCode}");
     }
     return null;
   }
+
 }

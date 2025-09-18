@@ -108,7 +108,7 @@ User can add or update their Personal Information on regular basis. Kindly note 
           onPressed: () {
             userProvider.privacyPolicy(
               mobileNo: localData.userMobile,
-              password: "12345678",
+              password:localData.password,
               context: context,
             );
           },

@@ -116,16 +116,18 @@ class _NewBillingScreenState extends State<NewBillingScreen> {
       final userProvider =
           Provider.of<UserDataProvider>(context, listen: false);
       userProvider.currentVersion(context);
-      userProvider.checkPrivacy(
-          mobileNo: userProvider.mobileController.text,
-          password: userProvider.passwordController.text,
-          context: context);
+
+     //  userProvider.checkPrivacy(
+     //      mobileNo: localData.userMobile,
+     //      password: localData.password,
+     //      context: context);
       // showDialog(
       //   context: context,
       //   barrierDismissible: false,
       //   builder: (ctx) => const PrivacyPolicyDialog(),
       // ); // Set Billing Items with Empty Table
-    });
+    }
+    );
   }
 
   @override

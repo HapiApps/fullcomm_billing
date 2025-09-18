@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:fullcomm_billing/repo/credentials_repo.dart';
+import 'package:intl/intl.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -55,35 +56,38 @@ class UserDataProvider with ChangeNotifier {
     localData.userId = prefs.getString('userId') ?? '0';
     localData.userName = prefs.getString('userName') ?? ProjectData.title;
     localData.userMobile = prefs.getString('userMobile') ?? '';
+    localData.password = prefs.getString('password') ?? '';
     localData.cosId = prefs.getString('cosId') ?? '';
   }
+
+
 
   /// -------------- Login Function------------------
   Future<void> login(
       {required BuildContext context,
       required String mobile,
-      required String password}) async {
+      required String password})
+  async {
     try {
       final response = await _credentialsRepo.loginApi(
           mobile: mobile, password: password); // Call the Repo
-
       SharedPreferences prefs = await SharedPreferences.getInstance();
       if (response.responseCode == 200) {
         prefs.setString('userId', response.userData!.id!);
         prefs.setString('userName', response.userData!.sName!);
         prefs.setString('userMobile', response.userData!.sMobile!);
+        prefs.setString('password', response.userData!.password!);
         prefs.setString('cosId', response.userData!.cosId!);
-        mobileController.clear();
-        passwordController.clear();
+        await initializeUserData();
+        // mobileController.clear();
+        // passwordController.clear();
 
         checkPrivacy(
-          mobileNo: mobileController.text.toString(),
-          password: passwordController.text.toString(),
+          mobileNo:localData.userMobile,
+          password: localData.password,
           context: context,
         );
         prefs.setBool('seen${ProjectData.version}', true); // Set User Logged In
-
-        await initializeUserData();
         if (!context.mounted) return;
         Toasts.showToastBar(
           context: context,
@@ -150,7 +154,8 @@ class UserDataProvider with ChangeNotifier {
     required String mobileNo,
     required String password,
     required BuildContext context,
-  }) async {
+  })
+  async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
@@ -171,12 +176,14 @@ class UserDataProvider with ChangeNotifier {
         log("currentUserID:${response.authId}");
         // show privacy dialog or go home directly
         if (response.showPrivacyPopup) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (ctx) => const PrivacyPolicyDialog(),
-          );
-        } else {
+          // showDialog(
+          //   context: context,
+          //   barrierDismissible: false,
+          //   builder: (ctx) => const PrivacyPolicyDialog(),
+          // );
+          log("bill privacy not inserted");
+        }
+        else {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => NewBillingScreen()),
@@ -207,7 +214,8 @@ class UserDataProvider with ChangeNotifier {
     required String mobileNo,
     required String password,
     required BuildContext context,
-  }) async {
+  })
+  async {
     _isLoading = true;
     _errorMessage = '';
     notifyListeners();
@@ -227,7 +235,7 @@ class UserDataProvider with ChangeNotifier {
 
         log("currentUserID:${response.authId}");
         log("currentUserID showPrivacyPopup:${response.showPrivacyPopup}");
-
+        log("currentUserID showPrivacyPopup:${response.showPrivacyPopup}");
         // Privacy check
         if (response.showPrivacyPopup) {
           // show dialog
@@ -280,8 +288,11 @@ class UserDataProvider with ChangeNotifier {
       if (response == null || response.isEmpty) return;
 
       // safely read values:
-      final serverVersionFromApi = response["current_version"];
       final expiredDateStr = response["expired_date"];
+      debugPrint("API expired_date raw: $expiredDateStr");
+
+
+      final serverVersionFromApi = response["current_version"];
       final activeFlag = response["active"];
 
       if (serverVersionFromApi == null) {
@@ -326,11 +337,17 @@ class UserDataProvider with ChangeNotifier {
     }
   }
 
-  DateTime? _parseExpiredDate(String? dateString) {
-    if (dateString == null || dateString.isEmpty) return null;
+  DateTime? _parseExpiredDate(dynamic date) {
+    if (date == null) return null;
+    final dateStr = date.toString().trim();
+    if (dateStr.isEmpty || dateStr == 'null') return null;
+
     try {
-      return DateTime.parse(dateString);
-    } catch (_) {
+      // This matches 12-09-2025 6.00 PM
+      final format = DateFormat('dd-MM-yyyy h.mm a');
+      return format.parse(dateStr);
+    } catch (e) {
+      debugPrint("Parse error: $e");
       return null;
     }
   }

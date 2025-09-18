@@ -31,7 +31,9 @@ class LoginResponse {
       username: json['username'] ?? '',
       storeType: json['store_type'] ?? '',
       companyName: json['company_name'] ?? '',
-      showPrivacyPopup: json['show_privacy_popup'] == true,
+      showPrivacyPopup: json['show_privacy_popup'] == true ||
+          json['show_privacy_popup'] == 1 ||
+          json['show_privacy_popup'] == '1',
     );
   }
 }
